@@ -1,10 +1,11 @@
 
 locals {
-  aws_region              = replace(lower(var.atlas_region), "_", "-")
-  create_aws_vpc_endpoint = var.existing_vpc_endpoint_id == ""
-  vpc_endpoint_id         = local.create_aws_vpc_endpoint ? aws_vpc_endpoint.aws_endpoint[0].id : data.aws_vpc_endpoint.this[0].id
-  vpc_id                  = local.create_aws_vpc_endpoint ? aws_vpc_endpoint.aws_endpoint[0].vpc_id : data.aws_vpc_endpoint.this[0].vpc_id
-  vpc_cidr_block          = data.aws_vpc.this.cidr_block
+  aws_region                   = replace(lower(var.atlas_region), "_", "-")
+  create_aws_vpc_endpoint      = var.existing_vpc_endpoint_id == ""
+  vpc_endpoint_id              = local.create_aws_vpc_endpoint ? aws_vpc_endpoint.aws_endpoint[0].id : data.aws_vpc_endpoint.this[0].id
+  vpc_id                       = local.create_aws_vpc_endpoint ? aws_vpc_endpoint.aws_endpoint[0].vpc_id : data.aws_vpc_endpoint.this[0].vpc_id
+  vpc_cidr_block               = data.aws_vpc.this.cidr_block
+  effective_security_group_ids = var.create_security_group ? [aws_security_group.mongodb_privatelink[0].id] : var.aws_private_endpoint.security_group_ids
 }
 
 resource "mongodbatlas_privatelink_endpoint" "mongodb_endpoint" {
@@ -17,8 +18,8 @@ resource "aws_vpc_endpoint" "aws_endpoint" {
   count = local.create_aws_vpc_endpoint ? 1 : 0
   lifecycle {
     precondition {
-      condition     = length(var.aws_private_endpoint.subnet_ids) > 0 && length(var.aws_private_endpoint.security_group_ids) > 0
-      error_message = "subnet_ids and security_group_ids must be provided when creating a new VPC endpoint"
+      condition     = length(var.aws_private_endpoint.subnet_ids) > 0 && (var.create_security_group || length(var.aws_private_endpoint.security_group_ids) > 0)
+      error_message = "subnet_ids must be provided, and either create_security_group=true or security_group_ids must be provided"
     }
   }
 
@@ -26,7 +27,7 @@ resource "aws_vpc_endpoint" "aws_endpoint" {
   service_name       = mongodbatlas_privatelink_endpoint.mongodb_endpoint.endpoint_service_name
   vpc_endpoint_type  = "Interface"
   subnet_ids         = var.aws_private_endpoint.subnet_ids
-  security_group_ids = var.aws_private_endpoint.security_group_ids
+  security_group_ids = local.effective_security_group_ids
   tags               = var.aws_tags
 }
 
@@ -45,6 +46,29 @@ resource "mongodbatlas_privatelink_endpoint_service" "private_endpoint" {
 
 data "aws_vpc" "this" {
   id = local.vpc_id
+}
+
+resource "aws_security_group" "mongodb_privatelink" {
+  count       = var.create_security_group ? 1 : 0
+  name_prefix = var.security_group_name_prefix
+  description = "Security group for MongoDB Atlas private endpoint"
+  vpc_id      = var.aws_private_endpoint.vpc_id
+  tags        = var.aws_tags
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "mongodb_ingress_27017" {
+  count             = var.create_security_group ? 1 : 0
+  type              = "ingress"
+  from_port         = 27017
+  to_port           = 27017
+  protocol          = "tcp"
+  cidr_blocks       = coalesce(var.security_group_inbound_cidr_blocks, [local.vpc_cidr_block])
+  security_group_id = aws_security_group.mongodb_privatelink[0].id
+  description       = "MongoDB traffic"
 }
 
 resource "mongodbatlas_project_ip_access_list" "access_list_vpc_cidr_block" {

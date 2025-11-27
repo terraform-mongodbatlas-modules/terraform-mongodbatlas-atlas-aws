@@ -21,3 +21,8 @@ output "atlas_private_link_service_name" {
 output "atlas_private_link_service_resource_id" {
   value = mongodbatlas_privatelink_endpoint.mongodb_endpoint.private_link_service_resource_id
 }
+
+output "security_group_id" {
+  value       = var.create_security_group ? aws_security_group.mongodb_privatelink[0].id : null
+  description = "ID of the created security group (null if not created)"
+}

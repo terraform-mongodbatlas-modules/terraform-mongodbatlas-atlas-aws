@@ -36,3 +36,21 @@ variable "aws_tags" {
   description = "aws tags"
   default     = {}
 }
+
+variable "create_security_group" {
+  type        = bool
+  default     = false
+  description = "Whether to create a security group for the MongoDB Atlas private endpoint"
+}
+
+variable "security_group_inbound_cidr_blocks" {
+  type        = list(string)
+  default     = null
+  description = "CIDR blocks for inbound rules. Defaults to VPC CIDR if not specified."
+}
+
+variable "security_group_name_prefix" {
+  type        = string
+  default     = "mongodb-privatelink-"
+  description = "Name prefix for the created security group"
+}
