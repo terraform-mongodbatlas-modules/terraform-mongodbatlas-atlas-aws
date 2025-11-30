@@ -1,6 +1,6 @@
 
 resource "aws_iam_role" "this" {
-  count = local.has_existing_aws_iam_role ? 0 : 1
+  count = local.needs_shared_cloud_provider_access && !local.has_existing_aws_iam_role ? 1 : 0
 
   lifecycle {
     precondition {
@@ -18,12 +18,12 @@ resource "aws_iam_role" "this" {
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "${mongodbatlas_cloud_provider_access_setup.this.aws_config[0].atlas_aws_account_arn}"
+        "AWS": "${mongodbatlas_cloud_provider_access_setup.this[0].aws_config[0].atlas_aws_account_arn}"
       },
       "Action": "sts:AssumeRole",
       "Condition": {
         "StringEquals": {
-          "sts:ExternalId": "${mongodbatlas_cloud_provider_access_setup.this.aws_config[0].atlas_assumed_role_external_id}"
+          "sts:ExternalId": "${mongodbatlas_cloud_provider_access_setup.this[0].aws_config[0].atlas_assumed_role_external_id}"
         }
       }
     }

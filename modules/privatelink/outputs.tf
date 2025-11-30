@@ -26,3 +26,12 @@ output "security_group_id" {
   value       = var.create_security_group ? aws_security_group.mongodb_privatelink[0].id : null
   description = "ID of the created security group (null if not created)"
 }
+
+output "mongodb_port_range" {
+  value = {
+    from_port = 27015
+    to_port   = 27017
+    protocol  = "tcp"
+  }
+  description = "Port range for MongoDB Atlas traffic. Use this when creating your own security group rules."
+}

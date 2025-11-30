@@ -1,20 +1,26 @@
 variable "project_id" {
-  type = string
+  type        = string
+  description = "MongoDB Atlas project ID"
 }
 
 variable "existing_aws_iam_role" {
   type = object({
     enabled = bool
-    arn     = string
+    arn     = optional(string)
   })
   default = {
     enabled = false
-    arn     = "not-enabled"
+    arn     = null
+  }
+  validation {
+    condition     = !var.existing_aws_iam_role.enabled || var.existing_aws_iam_role.arn != null
+    error_message = "arn must be provided when enabled is true"
   }
 }
+
 variable "aws_iam_role_name" {
   type        = string
-  description = "AWS IAM role name. Use only if you want to create a new IAM role."
+  description = "Name for the shared AWS IAM role. Required when creating shared cloud provider access without an existing role."
   default     = null
   nullable    = true
 }
@@ -34,29 +40,46 @@ variable "aws_iam_role_db_admin" {
 
 variable "encryption_at_rest" {
   type = object({
-    enabled                    = bool
-    aws_kms_key_id             = string
-    require_private_networking = optional(bool, true)
-    enabled_for_search_nodes   = optional(bool, true)
-    enable_private_endpoint    = optional(bool, true)
+    enabled                  = bool
+    create_kms_key           = optional(bool, false)
+    create_kms_iam_role      = optional(bool, false)
+    aws_kms_key_arn          = optional(string)
+    kms_key_alias            = optional(string, "mongodb-atlas-encryption")
+    kms_key_description      = optional(string, "Customer managed key for MongoDB Atlas encryption at rest")
+    aws_iam_role_name        = optional(string, "atlas-kms-role")
+    enabled_for_search_nodes = optional(bool, true)
+    private_networking = optional(object({
+      require_private_networking         = optional(bool, false)
+      create_atlas_private_endpoint      = optional(bool, false)
+      create_aws_kms_vpc_endpoint        = optional(bool, false)
+      vpc_endpoint_subnet_ids            = optional(set(string), [])
+      create_security_group              = optional(bool, false)
+      security_group_ids                 = optional(set(string), [])
+      security_group_inbound_cidr_blocks = optional(list(string))
+      security_group_name_prefix         = optional(string, "atlas-kms-endpoint-")
+      }), {
+      require_private_networking    = false
+      create_atlas_private_endpoint = false
+      create_aws_kms_vpc_endpoint   = false
+      create_security_group         = false
+    })
   })
   default = {
-    enabled                    = false
-    aws_kms_key_id             = ""
-    require_private_networking = true
-    enabled_for_search_nodes   = true
-    enable_private_endpoint    = true
+    enabled             = false
+    create_kms_key      = false
+    create_kms_iam_role = false
   }
 }
 
 variable "push_based_log_export" {
   type = object({
-    bucket_name         = optional(string)
-    create_s3_bucket    = optional(bool, false)
-    existing_bucket_arn = optional(string, "")
-    prefix_path         = optional(string)
-    enabled             = bool
-    bucket_policy_name  = optional(string, "AtlasPushBasedLogPolicy")
+    enabled            = bool
+    create_iam_role    = optional(bool, false)
+    aws_iam_role_name  = optional(string, "atlas-push-based-log-role")
+    bucket_name        = optional(string)
+    create_s3_bucket   = optional(bool, false)
+    prefix_path        = optional(string, "")
+    bucket_policy_name = optional(string, "AtlasPushBasedLogPolicy")
     timeouts = optional(object({
       create = optional(string)
       delete = optional(string)
@@ -64,8 +87,8 @@ variable "push_based_log_export" {
     }))
   })
   default = {
-    enabled     = false
-    bucket_name = ""
+    enabled         = false
+    create_iam_role = false
   }
 }
 
@@ -75,32 +98,42 @@ variable "atlas_region" {
   default     = ""
 }
 
-variable "privatelink_with_existing_vpc_endpoint" {
-  type = object({
-    enabled                           = optional(bool)
-    existing_vpc_endpoint_id          = optional(string)
-    add_vpc_cidr_block_project_access = optional(bool, false)
-  })
-  default = {
-    enabled                           = false
-    existing_vpc_endpoint_id          = null
-    add_vpc_cidr_block_project_access = false
-  }
+variable "aws_tags" {
+  type        = map(string)
+  default     = {}
+  description = "AWS tags to apply to all created resources"
 }
 
-variable "privatelink_with_managed_vpc_endpoint" {
+variable "privatelink" {
   type = object({
-    enabled                           = optional(bool, true)
-    vpc_id                            = optional(string)
-    subnet_ids                        = optional(set(string))
-    security_group_ids                = optional(set(string))
-    tags                              = optional(map(string), { ModuleName = "atlas-aws" })
-    add_vpc_cidr_block_project_access = optional(bool, false)
+    enabled                            = bool
+    create_vpc_endpoint                = optional(bool, false)
+    existing_vpc_endpoint_id           = optional(string)
+    subnet_ids                         = optional(set(string), [])
+    security_group_ids                 = optional(set(string), [])
+    create_security_group              = optional(bool, false)
+    security_group_inbound_cidr_blocks = optional(list(string))
+    security_group_name_prefix         = optional(string, "mongodb-privatelink-")
+    tags                               = optional(map(string), {})
   })
   default = {
-    enabled            = false
-    vpc_id             = ""
-    subnet_ids         = []
-    security_group_ids = []
+    enabled             = false
+    create_vpc_endpoint = false
+  }
+  description = "PrivateLink configuration for MongoDB Atlas"
+
+  validation {
+    condition     = !var.privatelink.enabled || var.privatelink.create_vpc_endpoint || (var.privatelink.existing_vpc_endpoint_id != null && var.privatelink.existing_vpc_endpoint_id != "")
+    error_message = "When privatelink is enabled and create_vpc_endpoint is false, existing_vpc_endpoint_id must be provided"
+  }
+
+  validation {
+    condition     = !var.privatelink.enabled || !var.privatelink.create_vpc_endpoint || length(var.privatelink.subnet_ids) > 0
+    error_message = "When privatelink is enabled and create_vpc_endpoint is true, subnet_ids must be provided"
+  }
+
+  validation {
+    condition     = !var.privatelink.enabled || !var.privatelink.create_vpc_endpoint || var.privatelink.create_security_group || length(var.privatelink.security_group_ids) > 0
+    error_message = "When creating a VPC endpoint, either create_security_group must be true or security_group_ids must be provided"
   }
 }
