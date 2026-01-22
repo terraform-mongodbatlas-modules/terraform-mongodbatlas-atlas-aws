@@ -20,7 +20,7 @@ variable "cloud_provider_access" {
 
     - `create = true` (default): Creates a shared IAM role and Atlas authorization
     - `create = false`: Use existing role via `existing.role_id` and `existing.iam_role_arn`
-    - `iam_role_name`: Custom name for the IAM role (default: atlas-role-{project_id_suffix})
+    - `iam_role_name`: Custom name for the IAM role (default: atlas-{project_id_suffix}-{purpose})
     - `iam_role_path`: IAM role path (default: /)
     - `iam_role_permissions_boundary`: ARN of permissions boundary policy
   EOT

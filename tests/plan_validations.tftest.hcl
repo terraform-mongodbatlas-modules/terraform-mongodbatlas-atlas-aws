@@ -188,3 +188,17 @@ run "privatelink_byoe_missing_region" {
   }
   expect_failures = [var.privatelink_byoe]
 }
+
+run "custom_iam_role_name" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    cloud_provider_access = {
+      iam_role_name = "my-custom-atlas-role"
+    }
+  }
+  assert {
+    condition     = length(module.cloud_provider_access) == 1
+    error_message = "Expected cloud_provider_access module with custom name"
+  }
+}
