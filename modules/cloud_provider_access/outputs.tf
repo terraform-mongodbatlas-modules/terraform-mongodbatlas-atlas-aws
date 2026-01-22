@@ -5,12 +5,12 @@ output "role_id" {
 
 output "iam_role_arn" {
   description = "ARN of the IAM role that Atlas assumes."
-  value       = aws_iam_role.atlas.arn
+  value       = aws_iam_role.this.arn
 }
 
 output "iam_role_name" {
   description = "Name of the IAM role for attaching additional policies."
-  value       = aws_iam_role.atlas.name
+  value       = aws_iam_role.this.name
 }
 
 output "authorized_date" {

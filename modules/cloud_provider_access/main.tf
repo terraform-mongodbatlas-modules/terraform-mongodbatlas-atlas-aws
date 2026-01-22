@@ -27,7 +27,7 @@ data "aws_iam_policy_document" "atlas_assume_role" {
   }
 }
 
-resource "aws_iam_role" "atlas" {
+resource "aws_iam_role" "this" {
   name                 = local.iam_role_name
   path                 = var.iam_role_path
   assume_role_policy   = data.aws_iam_policy_document.atlas_assume_role.json
@@ -40,6 +40,6 @@ resource "mongodbatlas_cloud_provider_access_authorization" "this" {
   role_id    = mongodbatlas_cloud_provider_access_setup.this.role_id
 
   aws {
-    iam_assumed_role_arn = aws_iam_role.atlas.arn
+    iam_assumed_role_arn = aws_iam_role.this.arn
   }
 }
