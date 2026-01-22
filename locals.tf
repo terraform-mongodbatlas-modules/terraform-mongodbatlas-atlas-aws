@@ -18,16 +18,4 @@ locals {
   iam_role_name = local.create_cloud_provider_access ? (
     module.cloud_provider_access[0].iam_role_name
   ) : null
-
-  # PrivateLink: merge module-managed and BYOE regions
-  # Key -> region mapping
-  privatelink_key_region = merge(
-    var.privatelink_byoe_regions,
-    { for k, v in var.privatelink_endpoints : k => coalesce(v.region, k) }
-  )
-  privatelink_module_managed = toset(keys(var.privatelink_endpoints))
-  privatelink_regions        = toset(values(local.privatelink_key_region))
-
-  # Auto-enable regional mode for multi-region
-  enable_regional_mode = length(local.privatelink_regions) > 1
 }
