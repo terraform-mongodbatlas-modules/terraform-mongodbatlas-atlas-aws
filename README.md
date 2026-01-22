@@ -54,7 +54,7 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9)
 
-- <a name="requirement_aws"></a> [aws](#requirement\_aws) (~> 6.0)
+- <a name="requirement_aws"></a> [aws](#requirement\_aws) (>= 6.0)
 
 - <a name="requirement_mongodbatlas"></a> [mongodbatlas](#requirement\_mongodbatlas) (~> 2.1)
 
@@ -245,7 +245,7 @@ Cloud provider access configuration for Atlas-AWS integration.
 
 - `create = true` (default): Creates a shared IAM role and Atlas authorization
 - `create = false`: Use existing role via `existing.role_id` and `existing.iam_role_arn`
-- `iam_role_name`: Custom name for the IAM role (default: atlas-role-{project_id_suffix})
+- `iam_role_name`: Custom name for the IAM role (default: atlas-{project_id_suffix}-{purpose})
 - `iam_role_path`: IAM role path (default: /)
 - `iam_role_permissions_boundary`: ARN of permissions boundary policy
 
