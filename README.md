@@ -60,11 +60,16 @@ The following requirements are needed by this module:
 
 ## Providers
 
-No providers.
+The following providers are used by this module:
+
+- <a name="provider_mongodbatlas"></a> [mongodbatlas](#provider\_mongodbatlas) (~> 2.1)
 
 ## Resources
 
-No resources.
+The following resources are used by this module:
+
+- [mongodbatlas_private_endpoint_regional_mode.this](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs/resources/private_endpoint_regional_mode) (resource)
+- [mongodbatlas_privatelink_endpoint.this](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs/resources/privatelink_endpoint) (resource)
 
 <!-- BEGIN_TF_INPUTS_RAW -->
 <!-- @generated
@@ -282,7 +287,39 @@ Default: `{}`
 
 ## Outputs
 
-No outputs.
+The following outputs are exported:
+
+### <a name="output_backup_export"></a> [backup\_export](#output\_backup\_export)
+
+Description: Backup export configuration
+
+### <a name="output_encryption"></a> [encryption](#output\_encryption)
+
+Description: Encryption at rest configuration
+
+### <a name="output_encryption_at_rest_provider"></a> [encryption\_at\_rest\_provider](#output\_encryption\_at\_rest\_provider)
+
+Description: Value for cluster's encryption\_at\_rest\_provider attribute
+
+### <a name="output_export_bucket_id"></a> [export\_bucket\_id](#output\_export\_bucket\_id)
+
+Description: Export bucket ID for backup schedule auto\_export\_enabled
+
+### <a name="output_privatelink"></a> [privatelink](#output\_privatelink)
+
+Description: PrivateLink endpoints per user key
+
+### <a name="output_privatelink_service_info"></a> [privatelink\_service\_info](#output\_privatelink\_service\_info)
+
+Description: Atlas PrivateLink service info for BYOE pattern
+
+### <a name="output_resource_ids"></a> [resource\_ids](#output\_resource\_ids)
+
+Description: All resource IDs for data source lookups
+
+### <a name="output_role_id"></a> [role\_id](#output\_role\_id)
+
+Description: Atlas role ID for reuse with other Atlas-AWS features
 <!-- END_TF_DOCS -->
 
 ## FAQ
