@@ -27,8 +27,6 @@ content: |-
 
   {{ .Resources }}
 
-  **NOTE**: The `data.mongodbatlas_advanced_clusters` is used by auto-scaled clusters to avoid unexpected plan changes when `instance_size` have updated.
-
   <!-- BEGIN_TF_INPUTS_RAW -->
   <!-- @generated
   WARNING: Inputs section below is processed and grouped by generate_inputs_from_readme.py. Do not edit directly.

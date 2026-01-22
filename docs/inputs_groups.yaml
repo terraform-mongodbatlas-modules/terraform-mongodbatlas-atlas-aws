@@ -1,0 +1,52 @@
+sections:
+  - id: required
+    title: "Required Variables"
+    level: 2
+    match:
+      names:
+        - project_id
+
+  - id: cloud_provider_access
+    title: "AWS Cloud Provider Access"
+    level: 2
+    description: |
+      Configure the AWS IAM role used by MongoDB Atlas. See the [AWS cloud provider access documentation](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/) for details.
+    match:
+      names:
+        - create_iam_role
+        - iam_role_arn
+        - external_id
+
+  - id: encryption
+    title: "Encryption at Rest"
+    level: 2
+    description: |
+      Configure encryption at rest using AWS KMS. See the [AWS encryption documentation](https://www.mongodb.com/docs/atlas/security-aws-kms/) for details.
+    match:
+      names:
+        - encryption
+
+  - id: privatelink
+    title: "Private Link"
+    level: 2
+    description: |
+      Configure AWS PrivateLink endpoints for secure connectivity. See the [AWS PrivateLink documentation](https://www.mongodb.com/docs/atlas/security-private-endpoint/) for details.
+    match:
+      names:
+        - privatelink_endpoints
+        - privatelink_byoe_locations
+        - privatelink_byoe
+
+  - id: backup
+    title: "Backup Export"
+    level: 2
+    description: |
+      Configure backup snapshot export to AWS S3.
+    match:
+      names:
+        - backup_export
+
+  - id: optional
+    title: "Optional Variables"
+    level: 2
+    is_default: true
