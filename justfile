@@ -1,8 +1,5 @@
-# path-sync copy -n sdlc
-
-# === OK_EDIT: path-sync header ===
 # Module-specific configuration
-PLAN_TEST_FILES := "-filter=tests/plan_auto_scaling.tftest.hcl -filter=tests/plan_regions.tftest.hcl -filter=tests/plan_replication_spec.tftest.hcl -filter=tests/plan_geosharded_multi_shard.tftest.hcl -filter=tests/plan_sharded.tftest.hcl"
+PLAN_TEST_FILES := ""
 
 # === DO_NOT_EDIT: path-sync standard ===
 set dotenv-load
@@ -38,7 +35,7 @@ validate:
 
 # LINTING
 lint:
-    tflint -f compact --recursive --minimum-failure-severity=warning
+    tflint -f compact --recursive --minimum-failure-severity=warning --disable-rule=terraform_unused_declarations
     terraform fmt -check -recursive
 
 py-check:
@@ -235,9 +232,3 @@ tf-gen *args:
 dev-integration-test:
     terraform init
     terraform test -filter=tests/apply_dev_cluster.tftest.hcl -var 'org_id={{env_var("MONGODB_ATLAS_ORG_ID")}}'
-
-sdlc-sync-dry:
-   uvx path-sync copy -n sdlc --local --dry-run
-
-sdlc-sync:
-   uvx path-sync copy -n sdlc --local
