@@ -77,11 +77,6 @@ variable "encryption" {
     condition     = !var.encryption.require_private_networking || var.encryption.enabled
     error_message = "require_private_networking = true requires encryption.enabled = true."
   }
-
-  validation {
-    condition     = !var.encryption.require_private_networking || length(var.encryption.private_endpoint_regions) > 0
-    error_message = "When require_private_networking = true, private_endpoint_regions must specify at least one region."
-  }
 }
 
 variable "privatelink_endpoints" {
