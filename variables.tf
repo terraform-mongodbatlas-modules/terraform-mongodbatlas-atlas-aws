@@ -50,7 +50,7 @@ variable "encryption" {
       name                 = optional(string)
       path                 = optional(string, "/")
       permissions_boundary = optional(string)
-    }))
+    }), { create = false })
   })
   default     = {}
   description = <<-EOT
@@ -165,7 +165,7 @@ variable "backup_export" {
       name                 = optional(string)
       path                 = optional(string, "/")
       permissions_boundary = optional(string)
-    }))
+    }), { create = false })
   })
   default     = {}
   description = <<-EOT

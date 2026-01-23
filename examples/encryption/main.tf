@@ -1,16 +1,14 @@
-resource "aws_kms_key" "atlas" {
-  description             = "Atlas Encryption at Rest"
-  deletion_window_in_days = 7
-  enable_key_rotation     = true
-}
-
 module "atlas_aws" {
   source     = "../../"
   project_id = var.project_id
 
   encryption = {
-    enabled     = true
-    kms_key_arn = aws_kms_key.atlas.arn
+    enabled = true
+    create_kms_key = {
+      enabled             = true
+      alias               = "alias/atlas-encryption"
+      enable_key_rotation = true
+    }
   }
 }
 

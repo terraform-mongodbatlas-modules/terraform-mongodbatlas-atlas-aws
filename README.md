@@ -60,11 +60,15 @@ The following requirements are needed by this module:
 
 ## Providers
 
-No providers.
+The following providers are used by this module:
+
+- <a name="provider_aws"></a> [aws](#provider\_aws) (>= 6.0)
 
 ## Resources
 
-No resources.
+The following resources are used by this module:
+
+- [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) (data source)
 
 <!-- BEGIN_TF_INPUTS_RAW -->
 <!-- @generated
@@ -122,7 +126,7 @@ object({
     name                 = optional(string)
     path                 = optional(string, "/")
     permissions_boundary = optional(string)
-  }))
+  }), { create = false })
 })
 ```
 
@@ -222,7 +226,7 @@ object({
     name                 = optional(string)
     path                 = optional(string, "/")
     permissions_boundary = optional(string)
-  }))
+  }), { create = false })
 })
 ```
 
@@ -283,6 +287,10 @@ Default: `{}`
 ## Outputs
 
 The following outputs are exported:
+
+### <a name="output_encryption"></a> [encryption](#output\_encryption)
+
+Description: Encryption at rest status and configuration
 
 ### <a name="output_encryption_at_rest_provider"></a> [encryption\_at\_rest\_provider](#output\_encryption\_at\_rest\_provider)
 

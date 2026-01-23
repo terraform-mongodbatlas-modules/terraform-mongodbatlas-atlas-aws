@@ -22,9 +22,9 @@ module "encryption_cloud_provider_access" {
 
   project_id                    = var.project_id
   purpose                       = "encryption"
-  iam_role_name                 = try(var.encryption.iam_role.name, null)
-  iam_role_path                 = try(var.encryption.iam_role.path, "/")
-  iam_role_permissions_boundary = try(var.encryption.iam_role.permissions_boundary, null)
+  iam_role_name                 = var.encryption.iam_role.name
+  iam_role_path                 = var.encryption.iam_role.path
+  iam_role_permissions_boundary = var.encryption.iam_role.permissions_boundary
   tags                          = var.aws_tags
 }
 

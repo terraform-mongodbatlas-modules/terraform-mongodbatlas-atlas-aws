@@ -47,9 +47,9 @@ data "aws_iam_policy_document" "kms_access" {
 }
 
 resource "aws_iam_role_policy" "kms_access" {
-  name   = "atlas-kms-access"
-  role   = var.iam_role_name
-  policy = data.aws_iam_policy_document.kms_access.json
+  name_prefix = "atlas-kms-access-"
+  role        = var.iam_role_name
+  policy      = data.aws_iam_policy_document.kms_access.json
 }
 
 # ─────────────────────────────────────────────────────────────────────────────

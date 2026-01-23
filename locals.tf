@@ -20,7 +20,7 @@ locals {
   ) : null
 
   # Encryption IAM role: dedicated or shared
-  create_encryption_dedicated_role = var.encryption.enabled && try(var.encryption.iam_role.create, false)
+  create_encryption_dedicated_role = var.encryption.enabled && var.encryption.iam_role.create
   encryption_role_id = local.create_encryption_dedicated_role ? (
     module.encryption_cloud_provider_access[0].role_id
   ) : local.role_id
