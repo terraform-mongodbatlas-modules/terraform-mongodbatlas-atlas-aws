@@ -40,6 +40,8 @@ Run 'just gen-readme' to regenerate. -->
 
 Feature | Name
 --- | ---
+Encryption at Rest | [AWS KMS Integration](./examples/encryption)
+Encryption at Rest | [AWS KMS Integration with Private Endpoint](./examples/encryption_private_endpoint)
 
 <!-- END_TABLES -->
 <!-- BEGIN_TF_DOCS -->

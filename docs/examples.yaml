@@ -21,14 +21,14 @@ tables:
   - name: Examples
     columns: ["feature", "name"]
     link_column: name
-    example_rows: []
+    example_rows:
+    - folder_name: encryption
+      feature: Encryption at Rest
+      name: AWS KMS Integration
+    - folder_name: encryption_private_endpoint
+      feature: Encryption at Rest
+      name: AWS KMS Integration with Private Endpoint
     # Example rows to be added when examples are created:
-    # - folder_name: cloud_provider_access
-    #   feature: Cloud Provider Access
-    #   name: AWS IAM Role Integration
-    # - folder_name: encryption
-    #   feature: Encryption at Rest
-    #   name: AWS KMS Integration
     # - folder_name: privatelink
     #   feature: Private Link
     #   name: AWS PrivateLink Endpoint
