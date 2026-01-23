@@ -37,12 +37,6 @@ variable "create_kms_key" {
   description = "Module-managed KMS key configuration"
 }
 
-variable "require_private_networking" {
-  type        = bool
-  default     = false
-  description = "Enable private networking to KMS"
-}
-
 variable "tags" {
   type        = map(string)
   default     = {}
