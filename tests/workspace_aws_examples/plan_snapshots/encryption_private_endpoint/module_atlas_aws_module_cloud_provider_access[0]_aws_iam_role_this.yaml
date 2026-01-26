@@ -1,0 +1,4 @@
+force_detach_policies: false
+max_session_duration: 3600
+name: atlas-7f4b86a6-shared
+path: /
