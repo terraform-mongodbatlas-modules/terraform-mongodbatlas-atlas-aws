@@ -28,10 +28,12 @@ tables:
     - folder_name: encryption_private_endpoint
       feature: Encryption at Rest
       name: AWS KMS Integration with Private Endpoint
-    # Example rows to be added when examples are created:
-    # - folder_name: privatelink
-    #   feature: Private Link
-    #   name: AWS PrivateLink Endpoint
-    # - folder_name: backup_export
-    #   feature: Backup Export
-    #   name: S3 Bucket Export
+    - folder_name: privatelink
+      feature: Private Link
+      name: AWS PrivateLink Endpoint
+    - folder_name: privatelink_multi_region
+      feature: Private Link
+      name: AWS PrivateLink Multi-Region
+    - folder_name: privatelink_byoe
+      feature: Private Link
+      name: AWS PrivateLink BYOE

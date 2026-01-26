@@ -51,9 +51,9 @@ run "skip_cloud_provider_access_privatelink_only" {
   command = plan
   variables {
     project_id = var.project_id
-    privatelink_endpoints = {
-      us-east-1 = { subnet_ids = ["subnet-abc"] }
-    }
+    privatelink_endpoints = [
+      { region = "us-east-1", subnet_ids = ["subnet-abc"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } }
+    ]
   }
   assert {
     condition     = length(module.cloud_provider_access) == 0
@@ -73,9 +73,9 @@ run "enable_cloud_provider_access_encryption" {
       enabled        = true
       create_kms_key = { enabled = true }
     }
-    privatelink_endpoints = {
-      us-east-1 = { subnet_ids = ["subnet-abc"] }
-    }
+    privatelink_endpoints = [
+      { region = "us-east-1", subnet_ids = ["subnet-abc"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } }
+    ]
   }
   assert {
     condition     = length(module.cloud_provider_access) == 1
@@ -91,9 +91,9 @@ run "enable_cloud_provider_access_backup_export" {
       enabled          = true
       create_s3_bucket = { enabled = true }
     }
-    privatelink_endpoints = {
-      us-east-1 = { subnet_ids = ["subnet-abc"] }
-    }
+    privatelink_endpoints = [
+      { region = "us-east-1", subnet_ids = ["subnet-abc"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } }
+    ]
   }
   assert {
     condition     = length(module.cloud_provider_access) == 1
@@ -206,11 +206,11 @@ run "privatelink_byoe_key_overlap_validation" {
   command = plan
   variables {
     project_id = var.project_id
-    privatelink_endpoints = {
-      us-east-1 = { subnet_ids = ["subnet-abc"] }
-    }
+    privatelink_endpoints = [
+      { region = "us-east-1", subnet_ids = ["subnet-abc"] }
+    ]
     privatelink_byoe_regions = {
-      us-east-1 = "us-east-1"
+      "us-east-1" = "us-east-1"
     }
   }
   expect_failures = [var.privatelink_byoe_regions]
@@ -224,13 +224,77 @@ run "privatelink_byoe_missing_region" {
       primary = "us-east-1"
     }
     privatelink_byoe = {
-      secondary = {
-        vpc_endpoint_id             = "vpce-abc"
-        private_endpoint_ip_address = "10.0.0.1"
-      }
+      secondary = { vpc_endpoint_id = "vpce-abc" }
     }
   }
   expect_failures = [var.privatelink_byoe]
+}
+
+run "privatelink_duplicate_regions_validation" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    privatelink_endpoints = [
+      { region = "us-east-1", subnet_ids = ["subnet-abc"] },
+      { region = "us-east-1", subnet_ids = ["subnet-def"] }
+    ]
+  }
+  expect_failures = [var.privatelink_endpoints]
+}
+
+run "privatelink_single_region_must_match" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    privatelink_endpoints_single_region = [
+      { region = "us-east-1", subnet_ids = ["subnet-abc"] },
+      { region = "us-west-2", subnet_ids = ["subnet-def"] }
+    ]
+  }
+  expect_failures = [var.privatelink_endpoints_single_region]
+}
+
+run "privatelink_cannot_mix_patterns" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    privatelink_endpoints = [
+      { region = "us-east-1", subnet_ids = ["subnet-abc"] }
+    ]
+    privatelink_endpoints_single_region = [
+      { region = "us-west-2", subnet_ids = ["subnet-def"] }
+    ]
+  }
+  expect_failures = [var.privatelink_endpoints_single_region]
+}
+
+run "privatelink_valid_multi_region" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    privatelink_endpoints = [
+      { region = "us-east-1", subnet_ids = ["subnet-abc"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } },
+      { region = "us-west-2", subnet_ids = ["subnet-def"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } }
+    ]
+  }
+  assert {
+    condition     = output.regional_mode_enabled == true
+    error_message = "Expected regional mode enabled for multi-region"
+  }
+}
+
+run "privatelink_valid_single_region" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    privatelink_endpoints = [
+      { region = "us-east-1", subnet_ids = ["subnet-abc"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } }
+    ]
+  }
+  assert {
+    condition     = output.regional_mode_enabled == false
+    error_message = "Expected regional mode disabled for single region"
+  }
 }
 
 run "custom_iam_role_name" {

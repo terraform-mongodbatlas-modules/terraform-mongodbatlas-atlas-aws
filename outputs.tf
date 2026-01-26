@@ -32,3 +32,35 @@ output "resource_ids" {
     kms_key_arn  = try(module.encryption[0].kms_key_arn, null)
   }
 }
+
+output "privatelink" {
+  description = "PrivateLink status per endpoint key"
+  value = {
+    for key, pl in module.privatelink : key => {
+      region                = local.privatelink_all[key].region
+      private_link_id       = pl.private_link_id
+      endpoint_service_name = pl.endpoint_service_name
+      vpc_endpoint_id       = pl.vpc_endpoint_id
+      status                = pl.status
+      error_message         = pl.error_message
+      security_group_id     = pl.security_group_id
+    }
+  }
+}
+
+output "privatelink_service_info" {
+  description = "Atlas PrivateLink service info for BYOE pattern"
+  value = {
+    for key, ep in mongodbatlas_privatelink_endpoint.this : key => {
+      region                = ep.region
+      private_link_id       = ep.private_link_id
+      endpoint_service_name = ep.endpoint_service_name
+      status                = ep.status
+    }
+  }
+}
+
+output "regional_mode_enabled" {
+  description = "Whether private endpoint regional mode is enabled"
+  value       = local.enable_regional_mode
+}

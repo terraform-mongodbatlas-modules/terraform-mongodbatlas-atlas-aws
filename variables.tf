@@ -88,64 +88,75 @@ variable "encryption" {
 }
 
 variable "privatelink_endpoints" {
-  type = map(object({
-    region             = optional(string)
-    subnet_ids         = list(string)
-    security_group_ids = optional(list(string))
-    tags               = optional(map(string), {})
+  type = list(object({
+    region     = string
+    subnet_ids = list(string)
+    security_group = optional(object({
+      ids                 = optional(list(string))
+      create              = optional(bool, true)
+      name_prefix         = optional(string, "atlas-privatelink-")
+      inbound_cidr_blocks = optional(list(string)) # null = VPC CIDR, [] = no rule
+      inbound_source_sgs  = optional(set(string), [])
+      from_port           = optional(number, 1024)
+      to_port             = optional(number, 65535)
+    }), {})
+    tags = optional(map(string), {})
   }))
-  default     = {}
-  description = <<-EOT
-    Module-managed PrivateLink endpoints.
+  default     = []
+  description = "Multi-region PrivateLink endpoints. All regions must be UNIQUE."
 
-    Key is the user identifier (or AWS region if `region` is omitted).
+  validation {
+    condition     = length(var.privatelink_endpoints) == length(distinct([for ep in var.privatelink_endpoints : ep.region]))
+    error_message = "All regions in privatelink_endpoints must be unique. Use privatelink_endpoints_single_region for multiple endpoints in the same region."
+  }
+}
 
-    Example:
-    ```hcl
-    privatelink_endpoints = {
-      us-east-1 = { subnet_ids = [aws_subnet.east.id] }
-      us-west-2 = { subnet_ids = [aws_subnet.west.id] }
-    }
-    ```
+variable "privatelink_endpoints_single_region" {
+  type = list(object({
+    region     = string
+    subnet_ids = list(string)
+    security_group = optional(object({
+      ids                 = optional(list(string))
+      create              = optional(bool, true)
+      name_prefix         = optional(string, "atlas-privatelink-")
+      inbound_cidr_blocks = optional(list(string))
+      inbound_source_sgs  = optional(set(string), [])
+      from_port           = optional(number, 1024)
+      to_port             = optional(number, 65535)
+    }), {})
+    tags = optional(map(string), {})
+  }))
+  default     = []
+  description = "Single-region multi-endpoint pattern. All regions must MATCH (Atlas constraint)."
 
-    For custom keys:
-    ```hcl
-    privatelink_endpoints = {
-      primary = { region = "us-east-1", subnet_ids = [aws_subnet.east.id] }
-    }
-    ```
-  EOT
+  validation {
+    condition     = length(var.privatelink_endpoints_single_region) == 0 || length(distinct([for ep in var.privatelink_endpoints_single_region : ep.region])) == 1
+    error_message = "All regions in privatelink_endpoints_single_region must match (same region)."
+  }
+
+  validation {
+    condition     = length(var.privatelink_endpoints_single_region) == 0 || length(var.privatelink_endpoints) == 0
+    error_message = "Cannot use both privatelink_endpoints and privatelink_endpoints_single_region."
+  }
 }
 
 variable "privatelink_byoe_regions" {
   type        = map(string)
   default     = {}
-  description = <<-EOT
-    Atlas-side PrivateLink endpoints for BYOE (Bring Your Own Endpoint).
-    Key is user identifier, value is AWS region.
-
-    Use this for Phase 1 of BYOE pattern to get `endpoint_service_name` for creating
-    VPC endpoints outside of Terraform.
-  EOT
+  description = "BYOE Phase 1: Key is user identifier, value is AWS region. Outputs endpoint_service_name."
 
   validation {
-    condition     = length(setintersection(keys(var.privatelink_byoe_regions), keys(var.privatelink_endpoints))) == 0
-    error_message = "Keys in privatelink_byoe_regions must not overlap with keys in privatelink_endpoints."
+    condition     = length(setintersection(keys(var.privatelink_byoe_regions), [for ep in var.privatelink_endpoints : ep.region])) == 0
+    error_message = "Regions in privatelink_byoe_regions must not overlap with regions in privatelink_endpoints."
   }
 }
 
 variable "privatelink_byoe" {
   type = map(object({
-    vpc_endpoint_id             = string
-    private_endpoint_ip_address = string
+    vpc_endpoint_id = string
   }))
   default     = {}
-  description = <<-EOT
-    BYOE endpoint details. Key must exist in `privatelink_byoe_regions`.
-
-    Provide after creating VPC endpoints externally using the `endpoint_service_name`
-    from module output `privatelink_service_info`.
-  EOT
+  description = "BYOE Phase 2: Key must exist in privatelink_byoe_regions. AWS doesn't require private_endpoint_ip_address."
 
   validation {
     condition     = alltrue([for k in keys(var.privatelink_byoe) : contains(keys(var.privatelink_byoe_regions), k)])

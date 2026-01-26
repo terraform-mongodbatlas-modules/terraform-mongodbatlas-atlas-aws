@@ -42,6 +42,9 @@ Feature | Name
 --- | ---
 Encryption at Rest | [AWS KMS Integration](./examples/encryption)
 Encryption at Rest | [AWS KMS Integration with Private Endpoint](./examples/encryption_private_endpoint)
+Private Link | [AWS PrivateLink Endpoint](./examples/privatelink)
+Private Link | [AWS PrivateLink Multi-Region](./examples/privatelink_multi_region)
+Private Link | [AWS PrivateLink BYOE](./examples/privatelink_byoe)
 
 <!-- END_TABLES -->
 <!-- BEGIN_TF_DOCS -->
@@ -66,10 +69,14 @@ The following providers are used by this module:
 
 - <a name="provider_aws"></a> [aws](#provider\_aws) (>= 6.0)
 
+- <a name="provider_mongodbatlas"></a> [mongodbatlas](#provider\_mongodbatlas) (~> 2.1)
+
 ## Resources
 
 The following resources are used by this module:
 
+- [mongodbatlas_private_endpoint_regional_mode.this](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs/resources/private_endpoint_regional_mode) (resource)
+- [mongodbatlas_privatelink_endpoint.this](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs/resources/privatelink_endpoint) (resource)
 - [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) (data source)
 
 <!-- BEGIN_TF_INPUTS_RAW -->
@@ -149,51 +156,38 @@ Configure AWS PrivateLink endpoints for secure connectivity. See the [AWS Privat
 
 ### privatelink_endpoints
 
-Module-managed PrivateLink endpoints.
-
-Key is the user identifier (or AWS region if `region` is omitted).
-
-Example:
-```hcl
-privatelink_endpoints = {
-  us-east-1 = { subnet_ids = [aws_subnet.east.id] }
-  us-west-2 = { subnet_ids = [aws_subnet.west.id] }
-}
-```
-
-For custom keys:
-```hcl
-privatelink_endpoints = {
-  primary = { region = "us-east-1", subnet_ids = [aws_subnet.east.id] }
-}
-```
+Multi-region PrivateLink endpoints. All regions must be UNIQUE.
 
 Type:
 
 ```hcl
-map(object({
-  region             = optional(string)
-  subnet_ids         = list(string)
-  security_group_ids = optional(list(string))
-  tags               = optional(map(string), {})
+list(object({
+  region     = string
+  subnet_ids = list(string)
+  security_group = optional(object({
+    ids                 = optional(list(string))
+    create              = optional(bool, true)
+    name_prefix         = optional(string, "atlas-privatelink-")
+    inbound_cidr_blocks = optional(list(string)) # null = VPC CIDR, [] = no rule
+    inbound_source_sgs  = optional(set(string), [])
+    from_port           = optional(number, 1024)
+    to_port             = optional(number, 65535)
+  }), {})
+  tags = optional(map(string), {})
 }))
 ```
 
-Default: `{}`
+Default: `[]`
 
 ### privatelink_byoe
 
-BYOE endpoint details. Key must exist in `privatelink_byoe_regions`.
-
-Provide after creating VPC endpoints externally using the `endpoint_service_name`
-from module output `privatelink_service_info`.
+BYOE Phase 2: Key must exist in privatelink_byoe_regions. AWS doesn't require private_endpoint_ip_address.
 
 Type:
 
 ```hcl
 map(object({
-  vpc_endpoint_id             = string
-  private_endpoint_ip_address = string
+  vpc_endpoint_id = string
 }))
 ```
 
@@ -282,15 +276,36 @@ Default: `{}`
 
 ### privatelink_byoe_regions
 
-Atlas-side PrivateLink endpoints for BYOE (Bring Your Own Endpoint).
-Key is user identifier, value is AWS region.
-
-Use this for Phase 1 of BYOE pattern to get `endpoint_service_name` for creating
-VPC endpoints outside of Terraform.
+BYOE Phase 1: Key is user identifier, value is AWS region. Outputs endpoint_service_name.
 
 Type: `map(string)`
 
 Default: `{}`
+
+### privatelink_endpoints_single_region
+
+Single-region multi-endpoint pattern. All regions must MATCH (Atlas constraint).
+
+Type:
+
+```hcl
+list(object({
+  region     = string
+  subnet_ids = list(string)
+  security_group = optional(object({
+    ids                 = optional(list(string))
+    create              = optional(bool, true)
+    name_prefix         = optional(string, "atlas-privatelink-")
+    inbound_cidr_blocks = optional(list(string))
+    inbound_source_sgs  = optional(set(string), [])
+    from_port           = optional(number, 1024)
+    to_port             = optional(number, 65535)
+  }), {})
+  tags = optional(map(string), {})
+}))
+```
+
+Default: `[]`
 
 <!-- END_TF_INPUTS_RAW -->
 
@@ -305,6 +320,18 @@ Description: Encryption at rest status and configuration
 ### <a name="output_encryption_at_rest_provider"></a> [encryption\_at\_rest\_provider](#output\_encryption\_at\_rest\_provider)
 
 Description: Value for cluster's encryption\_at\_rest\_provider attribute
+
+### <a name="output_privatelink"></a> [privatelink](#output\_privatelink)
+
+Description: PrivateLink status per endpoint key
+
+### <a name="output_privatelink_service_info"></a> [privatelink\_service\_info](#output\_privatelink\_service\_info)
+
+Description: Atlas PrivateLink service info for BYOE pattern
+
+### <a name="output_regional_mode_enabled"></a> [regional\_mode\_enabled](#output\_regional\_mode\_enabled)
+
+Description: Whether private endpoint regional mode is enabled
 
 ### <a name="output_resource_ids"></a> [resource\_ids](#output\_resource\_ids)
 
