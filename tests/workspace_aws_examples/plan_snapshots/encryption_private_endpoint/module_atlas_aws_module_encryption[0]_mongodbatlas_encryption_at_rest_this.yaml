@@ -1,5 +1,6 @@
 aws_kms_config:
 - enabled: true
+  require_private_networking: true
 azure_key_vault_config: []
 enabled_for_search_nodes: false
 google_cloud_kms_config: []
