@@ -23,7 +23,6 @@ To use MongoDB Atlas with AWS through Terraform, ensure you meet the following r
 terraform init # this will download the required providers and create a `terraform.lock.hcl` file.
 # configure authentication env-vars (MONGODB_ATLAS_XXX, AWS_XXX)
 # configure your `vars.tfvars` with required variables
-
 terraform apply -var-file vars.tfvars
 # cleanup
 terraform destroy -var-file vars.tfvars
@@ -61,7 +60,6 @@ output "encryption" {
 **Additional files needed:**
 - [variables.tf](./variables.tf)
 - [versions.tf](./versions.tf)
-
 
 
 
