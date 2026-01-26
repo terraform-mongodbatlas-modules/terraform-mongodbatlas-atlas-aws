@@ -40,6 +40,8 @@ Run 'just gen-readme' to regenerate. -->
 
 Feature | Name
 --- | ---
+Encryption at Rest | [AWS KMS Integration](./examples/encryption)
+Encryption at Rest | [AWS KMS Integration with Private Endpoint](./examples/encryption_private_endpoint)
 
 <!-- END_TABLES -->
 <!-- BEGIN_TF_DOCS -->
@@ -60,11 +62,15 @@ The following requirements are needed by this module:
 
 ## Providers
 
-No providers.
+The following providers are used by this module:
+
+- <a name="provider_aws"></a> [aws](#provider\_aws) (>= 6.0)
 
 ## Resources
 
-No resources.
+The following resources are used by this module:
+
+- [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) (data source)
 
 <!-- BEGIN_TF_INPUTS_RAW -->
 <!-- @generated
@@ -99,7 +105,15 @@ Provide EITHER:
 - `kms_key_arn` (user-provided KMS key)
 - `create_kms_key.enabled = true` (module-managed KMS key)
 
-When `iam_role.create = true`, creates a dedicated IAM role for encryption instead of using the shared role.
+**IAM Role Strategy:**
+- `iam_role.create = false` (default): Uses the shared IAM role from `cloud_provider_access`. Recommended for most use cases where a single role manages all Atlas-AWS integrations.
+- `iam_role.create = true`: Creates a dedicated IAM role for encryption. Use this when:
+  - Security policies require separate roles per AWS service integration
+  - You need different IAM paths or permissions boundaries for encryption
+  - Audit requirements mandate role isolation between Atlas features
+
+**Private Networking:**
+When `require_private_networking = true`, Atlas creates a PrivateLink connection to AWS KMS on the Atlas side. This ensures traffic from Atlas to KMS stays on AWS's private network. No user-side AWS VPC endpoint is required—Atlas manages the private connectivity.
 
 Type:
 
@@ -122,7 +136,7 @@ object({
     name                 = optional(string)
     path                 = optional(string, "/")
     permissions_boundary = optional(string)
-  }))
+  }), { create = false })
 })
 ```
 
@@ -222,7 +236,7 @@ object({
     name                 = optional(string)
     path                 = optional(string, "/")
     permissions_boundary = optional(string)
-  }))
+  }), { create = false })
 })
 ```
 
@@ -283,6 +297,10 @@ Default: `{}`
 ## Outputs
 
 The following outputs are exported:
+
+### <a name="output_encryption"></a> [encryption](#output\_encryption)
+
+Description: Encryption at rest status and configuration
 
 ### <a name="output_encryption_at_rest_provider"></a> [encryption\_at\_rest\_provider](#output\_encryption\_at\_rest\_provider)
 

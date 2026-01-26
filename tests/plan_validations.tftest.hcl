@@ -123,7 +123,7 @@ run "encryption_validation_enabled_without_key" {
   expect_failures = [var.encryption]
 }
 
-run "encryption_validation_private_networking_without_regions" {
+run "encryption_private_networking_without_regions_defaults" {
   command = plan
   variables {
     project_id = var.project_id
@@ -133,7 +133,51 @@ run "encryption_validation_private_networking_without_regions" {
       require_private_networking = true
     }
   }
-  expect_failures = [var.encryption]
+  assert {
+    condition     = length(module.encryption) == 1
+    error_message = "Expected encryption module"
+  }
+  assert {
+    condition     = length(module.encryption_private_endpoint) == 1
+    error_message = "Expected 1 private endpoint (defaulted to encryption region)"
+  }
+}
+
+run "encryption_with_dedicated_iam_role" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    encryption = {
+      enabled        = true
+      create_kms_key = { enabled = true }
+      iam_role       = { create = true }
+    }
+  }
+  assert {
+    condition     = length(module.encryption_cloud_provider_access) == 1
+    error_message = "Expected dedicated encryption IAM role"
+  }
+  assert {
+    condition     = length(module.encryption) == 1
+    error_message = "Expected encryption module"
+  }
+}
+
+run "encryption_with_explicit_regions" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    encryption = {
+      enabled                    = true
+      kms_key_arn                = "arn:aws:kms:us-east-1:123456789012:key/abc"
+      require_private_networking = true
+      private_endpoint_regions   = ["us-east-1", "us-west-2"]
+    }
+  }
+  assert {
+    condition     = length(module.encryption_private_endpoint) == 2
+    error_message = "Expected 2 private endpoints"
+  }
 }
 
 run "backup_export_validation_byo_and_create_conflict" {
