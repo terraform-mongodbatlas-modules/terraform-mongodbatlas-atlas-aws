@@ -36,6 +36,7 @@ variable "create_kms_key" {
   default = {
     enabled = false
   }
+  nullable    = false
   description = "Module-managed KMS key configuration"
 }
 
