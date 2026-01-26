@@ -33,7 +33,9 @@ variable "create_kms_key" {
     enable_key_rotation     = optional(bool, true)
     policy_override         = optional(string)
   })
-  default     = null
+  default     = {
+    enabled = false
+  }
   description = "Module-managed KMS key configuration"
 }
 

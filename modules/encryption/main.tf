@@ -1,11 +1,21 @@
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
+# ─────────────────────────────────────────────────────────────────────────────
+# User-Provided KMS Key Lookup (when create_kms_key.enabled = false)
+# ─────────────────────────────────────────────────────────────────────────────
+
+data "aws_kms_key" "user_provided" {
+  count  = local.create_kms_key ? 0 : 1
+  key_id = var.kms_key_arn
+}
+
 locals {
-  create_kms_key = var.create_kms_key != null && var.create_kms_key.enabled
+  create_kms_key = var.create_kms_key.enabled
   aws_region     = coalesce(var.region, data.aws_region.current.id)
   atlas_region   = upper(replace(local.aws_region, "-", "_"))
-  kms_key_arn    = coalesce(var.kms_key_arn, try(aws_kms_key.atlas[0].arn, null))
+  kms_key_arn    = local.create_kms_key ? aws_kms_key.atlas[0].arn : var.kms_key_arn
+  kms_key_id     = local.create_kms_key ? aws_kms_key.atlas[0].key_id : data.aws_kms_key.user_provided[0].key_id
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -63,7 +73,7 @@ resource "mongodbatlas_encryption_at_rest" "this" {
     enabled                = true
     region                 = local.atlas_region
     role_id                = var.role_id
-    customer_master_key_id = local.kms_key_arn
+    customer_master_key_id = local.kms_key_id
   }
 
   lifecycle {

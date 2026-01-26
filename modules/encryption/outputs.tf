@@ -19,8 +19,8 @@ output "kms_key_arn" {
 }
 
 output "kms_key_id" {
-  description = "KMS key ID (only set if module-created)"
-  value       = local.create_kms_key ? aws_kms_key.atlas[0].key_id : null
+  description = "KMS key ID (user-provided or module-created)"
+  value       = local.kms_key_id
 }
 
 output "atlas_region" {
