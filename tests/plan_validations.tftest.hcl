@@ -310,3 +310,80 @@ run "custom_iam_role_name" {
     error_message = "Expected cloud_provider_access module with custom name"
   }
 }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# BYOE (Bring Your Own Endpoint) Pattern Tests
+# ─────────────────────────────────────────────────────────────────────────────
+
+run "privatelink_byoe_phase1_atlas_endpoint_created" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    # Phase 1: Only declare BYOE regions, no endpoint IDs yet
+    privatelink_byoe_regions = {
+      primary = "us-east-1"
+    }
+    # privatelink_byoe is NOT provided - waiting for endpoint_service_name
+  }
+  assert {
+    condition     = length(mongodbatlas_privatelink_endpoint.this) == 1
+    error_message = "Expected Atlas privatelink endpoint in Phase 1 (for endpoint_service_name)"
+  }
+  assert {
+    condition     = length(module.privatelink) == 0
+    error_message = "Expected no privatelink module in Phase 1 (no endpoint IDs provided)"
+  }
+  assert {
+    condition     = contains(keys(output.privatelink_service_info), "primary")
+    error_message = "Expected privatelink_service_info to include 'primary' key for BYOE Phase 1"
+  }
+}
+
+run "privatelink_byoe_phase2_with_endpoint" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    # Phase 2: Provide both regions and endpoint IDs
+    privatelink_byoe_regions = {
+      primary = "us-east-1"
+    }
+    privatelink_byoe = {
+      primary = { vpc_endpoint_id = "vpce-0123456789abcdef0" }
+    }
+  }
+  assert {
+    condition     = length(module.privatelink) == 1
+    error_message = "Expected privatelink module in Phase 2"
+  }
+  assert {
+    condition     = length(mongodbatlas_privatelink_endpoint.this) == 1
+    error_message = "Expected Atlas privatelink endpoint in Phase 2"
+  }
+  assert {
+    condition     = contains(keys(output.privatelink_service_info), "primary")
+    error_message = "Expected privatelink_service_info to include 'primary' key"
+  }
+}
+
+run "privatelink_byoe_multi_region_phase2" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    privatelink_byoe_regions = {
+      primary   = "us-east-1"
+      secondary = "eu-west-1"
+    }
+    privatelink_byoe = {
+      primary   = { vpc_endpoint_id = "vpce-0123456789abcdef0" }
+      secondary = { vpc_endpoint_id = "vpce-fedcba9876543210f" }
+    }
+  }
+  assert {
+    condition     = length(module.privatelink) == 2
+    error_message = "Expected 2 privatelink modules for multi-region BYOE"
+  }
+  assert {
+    condition     = output.regional_mode_enabled == true
+    error_message = "Expected regional mode enabled for multi-region BYOE"
+  }
+}

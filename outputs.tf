@@ -37,7 +37,7 @@ output "privatelink" {
   description = "PrivateLink status per endpoint key"
   value = {
     for key, pl in module.privatelink : key => {
-      region                = local.privatelink_all[key].region
+      region                = local.privatelink_module_calls[key].region
       private_link_id       = pl.private_link_id
       endpoint_service_name = pl.endpoint_service_name
       vpc_endpoint_id       = pl.vpc_endpoint_id

@@ -10,9 +10,12 @@ locals {
     local.should_create_sg ? [aws_security_group.this[0].id] : []
   )
 
-  create_cidr_rule      = local.should_create_sg && (var.security_group.inbound_cidr_blocks == null || length(var.security_group.inbound_cidr_blocks) > 0)
-  effective_cidr_blocks = var.security_group.inbound_cidr_blocks == null ? [data.aws_vpc.this[0].cidr_block] : var.security_group.inbound_cidr_blocks
-  create_sg_rules       = local.should_create_sg && length(var.security_group.inbound_source_sgs) > 0
+  create_cidr_rule = local.should_create_sg && (var.security_group.inbound_cidr_blocks == null || length(var.security_group.inbound_cidr_blocks) > 0)
+  # Guard with should_create_sg to avoid accessing data.aws_vpc.this when it doesn't exist (BYOE mode)
+  effective_cidr_blocks = local.should_create_sg ? (
+    var.security_group.inbound_cidr_blocks == null ? [data.aws_vpc.this[0].cidr_block] : var.security_group.inbound_cidr_blocks
+  ) : []
+  create_sg_rules = local.should_create_sg && length(var.security_group.inbound_source_sgs) > 0
 }
 
 data "aws_subnet" "selected" {
