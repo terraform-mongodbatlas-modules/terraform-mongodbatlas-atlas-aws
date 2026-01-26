@@ -21,7 +21,7 @@ module "encryption_cloud_provider_access" {
   source = "./modules/cloud_provider_access"
 
   project_id                    = var.project_id
-  purpose                       = "encryption"
+  purpose                       = "encrypt"
   iam_role_name                 = var.encryption.iam_role.name
   iam_role_path                 = var.encryption.iam_role.path
   iam_role_permissions_boundary = var.encryption.iam_role.permissions_boundary

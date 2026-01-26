@@ -5,8 +5,9 @@ resource "mongodbatlas_cloud_provider_access_setup" "this" {
 
 locals {
   project_id_suffix = substr(var.project_id, max(0, length(var.project_id) - 8), 8)
-  default_name      = "atlas-${local.project_id_suffix}-${var.purpose}"
-  iam_role_name     = coalesce(var.iam_role_name, local.default_name)
+  default_prefix    = "mongodb-atlas-${local.project_id_suffix}-${var.purpose}"
+  iam_role_name     = coalesce(var.iam_role_name, local.default_prefix)
+  name_prefix       = var.iam_role_name == null ? local.default_prefix : null
 }
 
 data "aws_iam_policy_document" "atlas_assume_role" {
@@ -28,7 +29,8 @@ data "aws_iam_policy_document" "atlas_assume_role" {
 }
 
 resource "aws_iam_role" "this" {
-  name                 = local.iam_role_name
+  name                 = var.iam_role_name
+  name_prefix          = local.name_prefix
   path                 = var.iam_role_path
   assume_role_policy   = data.aws_iam_policy_document.atlas_assume_role.json
   permissions_boundary = var.iam_role_permissions_boundary
