@@ -45,3 +45,9 @@ variable "tags" {
   default     = {}
   description = "Tags for AWS resources"
 }
+
+variable "require_private_networking" {
+  type        = bool
+  default     = false
+  description = "Require private networking for KMS"
+}

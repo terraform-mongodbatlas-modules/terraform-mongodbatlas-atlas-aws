@@ -40,10 +40,11 @@ module "encryption" {
   role_id       = local.encryption_role_id
   iam_role_name = local.encryption_iam_role_name
 
-  kms_key_arn    = var.encryption.kms_key_arn
-  region         = var.encryption.region
-  create_kms_key = var.encryption.create_kms_key
-  tags           = var.aws_tags
+  kms_key_arn                = var.encryption.kms_key_arn
+  region                     = var.encryption.region
+  create_kms_key             = var.encryption.create_kms_key
+  tags                       = var.aws_tags
+  require_private_networking = var.encryption.require_private_networking
 
   depends_on = [module.cloud_provider_access, module.encryption_cloud_provider_access]
 }
