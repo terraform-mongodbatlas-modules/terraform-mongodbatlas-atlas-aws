@@ -18,64 +18,43 @@ variable "endpoint_service_name" {
   description = "Atlas endpoint service name (from root module)"
 }
 
-variable "create_vpc_endpoint" {
-  type        = bool
-  default     = true
-  description = "Create AWS VPC endpoint. Set false for BYOE."
-}
+variable "vpc_endpoint" {
+  type = object({
+    create     = bool
+    subnet_ids = optional(list(string), [])
+  })
+  default     = { create = false }
+  description = "VPC endpoint config. create=true for module-managed, create=false for BYOE. subnet_ids is required when create=true."
 
-variable "subnet_ids" {
-  type        = list(string)
-  default     = []
-  description = "Subnet IDs for the VPC endpoint"
-}
-
-variable "security_group_ids" {
-  type        = list(string)
-  default     = null
-  description = "Security group IDs. When null, create_security_group controls SG creation."
-}
-
-variable "create_security_group" {
-  type        = bool
-  default     = true
-  description = "Create a security group. Ignored if security_group_ids is provided."
-}
-
-variable "security_group_name_prefix" {
-  type        = string
-  default     = "atlas-privatelink-"
-  description = "Name prefix for the auto-created security group"
-}
-
-variable "security_group_inbound_cidr_blocks" {
-  type        = list(string)
-  default     = null
-  description = "CIDR blocks for inbound rules. null = VPC CIDR, [] = no CIDR rule."
-}
-
-variable "security_group_inbound_source_sgs" {
-  type        = set(string)
-  default     = []
-  description = "Source security group IDs for inbound rules"
-}
-
-variable "security_group_from_port" {
-  type        = number
-  default     = 1024
-  description = "Start of port range"
-}
-
-variable "security_group_to_port" {
-  type        = number
-  default     = 65535
-  description = "End of port range"
+  validation {
+    condition     = !var.vpc_endpoint.create || length(var.vpc_endpoint.subnet_ids) > 0
+    error_message = "vpc_endpoint.subnet_ids is required when vpc_endpoint.create = true."
+  }
 }
 
 variable "existing_vpc_endpoint_id" {
   type        = string
   default     = null
-  description = "Existing VPC endpoint ID for BYOE"
+  description = "Existing VPC endpoint ID for BYOE. Required when vpc_endpoint.create = false."
+
+  validation {
+    condition     = var.vpc_endpoint.create || var.existing_vpc_endpoint_id != null
+    error_message = "existing_vpc_endpoint_id is required when vpc_endpoint.create = false (BYOE mode)."
+  }
+}
+
+variable "security_group" {
+  type = object({
+    ids                 = optional(list(string))
+    create              = optional(bool, true)
+    name_prefix         = optional(string, "atlas-privatelink-")
+    inbound_cidr_blocks = optional(list(string)) # null = VPC CIDR, [] = no rule
+    inbound_source_sgs  = optional(set(string), [])
+    from_port           = optional(number, 1024)
+    to_port             = optional(number, 65535)
+  })
+  default     = {}
+  description = "Security group configuration. When ids is null and create is true, creates a security group."
 }
 
 variable "tags" {

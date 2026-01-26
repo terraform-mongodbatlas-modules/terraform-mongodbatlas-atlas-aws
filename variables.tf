@@ -103,7 +103,7 @@ variable "privatelink_endpoints" {
     tags = optional(map(string), {})
   }))
   default     = []
-  description = "Multi-region PrivateLink endpoints. All regions must be UNIQUE."
+  description = "Multi-region PrivateLink endpoints. All regions must be UNIQUE. See https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints for port range details."
 
   validation {
     condition     = length(var.privatelink_endpoints) == length(distinct([for ep in var.privatelink_endpoints : ep.region]))
@@ -127,7 +127,7 @@ variable "privatelink_endpoints_single_region" {
     tags = optional(map(string), {})
   }))
   default     = []
-  description = "Single-region multi-endpoint pattern. All regions must MATCH (Atlas constraint)."
+  description = "Single-region multi-endpoint pattern. All regions must MATCH (Atlas constraint). See https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints for port range details."
 
   validation {
     condition     = length(var.privatelink_endpoints_single_region) == 0 || length(distinct([for ep in var.privatelink_endpoints_single_region : ep.region])) == 1
@@ -143,7 +143,7 @@ variable "privatelink_endpoints_single_region" {
 variable "privatelink_byoe_regions" {
   type        = map(string)
   default     = {}
-  description = "BYOE Phase 1: Key is user identifier, value is AWS region. Outputs endpoint_service_name."
+  description = "BYOE Phase 1: Key is user identifier, value is AWS region. Outputs `endpoint_service_name` in `privatelink_service_info`."
 
   validation {
     condition     = length(setintersection(keys(var.privatelink_byoe_regions), [for ep in var.privatelink_endpoints : ep.region])) == 0

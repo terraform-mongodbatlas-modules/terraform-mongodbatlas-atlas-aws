@@ -48,7 +48,7 @@ locals {
   # Include BYOE regions (minimal config for Atlas-side endpoint)
   privatelink_all = merge(
     local.privatelink_module_managed,
-    { for k, region in var.privatelink_byoe_regions : k => { region = region, subnet_ids = [], security_group = {}, tags = {} } }
+    { for k, region in var.privatelink_byoe_regions : k => { region = region, subnet_ids = [], security_group = { create = false }, tags = {} } }
   )
   # Enable regional mode only for multi-region pattern
   enable_regional_mode = length(var.privatelink_endpoints) > 1

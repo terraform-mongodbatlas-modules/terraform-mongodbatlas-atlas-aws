@@ -10,7 +10,7 @@ output "endpoint_service_name" {
 
 output "vpc_endpoint_id" {
   description = "AWS VPC endpoint ID"
-  value       = var.create_vpc_endpoint ? aws_vpc_endpoint.this[0].id : var.existing_vpc_endpoint_id
+  value       = local.create_vpc_endpoint ? aws_vpc_endpoint.this[0].id : var.existing_vpc_endpoint_id
 }
 
 output "status" {
