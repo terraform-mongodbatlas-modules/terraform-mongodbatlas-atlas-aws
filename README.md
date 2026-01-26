@@ -181,7 +181,7 @@ Default: `[]`
 
 ### privatelink_byoe
 
-BYOE Phase 2: Key must exist in privatelink_byoe_regions. AWS doesn't require private_endpoint_ip_address.
+BYOE Phase 2: Key must exist in privatelink_byoe_regions.
 
 Type:
 

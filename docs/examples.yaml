@@ -37,3 +37,6 @@ tables:
     - folder_name: privatelink_byoe
       feature: Private Link
       name: AWS PrivateLink BYOE
+  # - folder_name: backup_export
+  #   feature: Backup Export
+  #   name: S3 Bucket Export

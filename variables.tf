@@ -156,7 +156,7 @@ variable "privatelink_byoe" {
     vpc_endpoint_id = string
   }))
   default     = {}
-  description = "BYOE Phase 2: Key must exist in privatelink_byoe_regions. AWS doesn't require private_endpoint_ip_address."
+  description = "BYOE Phase 2: Key must exist in privatelink_byoe_regions."
 
   validation {
     condition     = alltrue([for k in keys(var.privatelink_byoe) : contains(keys(var.privatelink_byoe_regions), k)])

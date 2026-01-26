@@ -52,7 +52,4 @@ locals {
   )
   # Enable regional mode only for multi-region pattern
   enable_regional_mode = length(var.privatelink_endpoints) > 1
-
-  # Region normalization helpers
-  to_aws_region = { for k, ep in local.privatelink_all : k => lower(replace(ep.region, "_", "-")) }
 }

@@ -72,7 +72,7 @@ resource "mongodbatlas_privatelink_endpoint" "this" {
   for_each      = local.privatelink_all
   project_id    = var.project_id
   provider_name = "AWS"
-  region        = local.to_aws_region[each.key]
+  region        = lower(replace(each.value.region, "_", "-")) # AWS format (us-east-1)
 }
 
 module "privatelink" {
@@ -80,7 +80,7 @@ module "privatelink" {
   for_each = local.privatelink_all
 
   project_id            = var.project_id
-  region                = local.to_aws_region[each.key]
+  region                = lower(replace(each.value.region, "_", "-")) # AWS format (us-east-1)
   private_link_id       = mongodbatlas_privatelink_endpoint.this[each.key].private_link_id
   endpoint_service_name = mongodbatlas_privatelink_endpoint.this[each.key].endpoint_service_name
 
