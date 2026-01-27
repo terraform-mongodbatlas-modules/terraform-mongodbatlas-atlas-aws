@@ -207,6 +207,16 @@ Provide EITHER:
 - `bucket_name` (user-provided S3 bucket)
 - `create_s3_bucket.enabled = true` (module-managed S3 bucket)
 
+**Bucket Naming (when module-managed):**
+- `create_s3_bucket.name` - Exact bucket name (conflicts with name_prefix)
+- `create_s3_bucket.name_prefix` - Prefix with Terraform-generated suffix (max 37 chars)
+- Default: `atlas-backup-{project_id_suffix}-` when neither specified
+
+**Security Defaults (when module-managed):**
+- Versioning enabled for backup recovery
+- SSE with aws:kms for encryption at rest
+- All public access blocked
+
 When `iam_role.create = true`, creates a dedicated IAM role for backup export instead of using the shared role.
 
 Type:
