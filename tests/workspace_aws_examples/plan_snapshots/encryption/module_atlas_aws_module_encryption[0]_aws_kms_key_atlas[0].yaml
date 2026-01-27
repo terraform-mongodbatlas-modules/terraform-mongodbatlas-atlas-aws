@@ -1,0 +1,8 @@
+bypass_policy_lockout_safety_check: false
+customer_master_key_spec: SYMMETRIC_DEFAULT
+deletion_window_in_days: 7
+description: Atlas Encryption at Rest
+enable_key_rotation: true
+is_enabled: true
+key_usage: ENCRYPT_DECRYPT
+region: us-east-1

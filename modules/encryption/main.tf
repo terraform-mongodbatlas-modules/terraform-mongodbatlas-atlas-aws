@@ -70,10 +70,11 @@ resource "mongodbatlas_encryption_at_rest" "this" {
   project_id = var.project_id
 
   aws_kms_config {
-    enabled                = true
-    region                 = local.atlas_region
-    role_id                = var.role_id
-    customer_master_key_id = local.kms_key_id
+    enabled                    = true
+    region                     = local.atlas_region
+    role_id                    = var.role_id
+    customer_master_key_id     = local.kms_key_id
+    require_private_networking = var.require_private_networking
   }
 
   lifecycle {
