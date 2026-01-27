@@ -29,6 +29,9 @@ data "aws_iam_policy_document" "atlas_assume_role" {
 }
 
 resource "aws_iam_role" "this" {
+  # name and name_prefix are mutually exclusive:
+  # - when var.iam_role_name is set: name = value, name_prefix = null
+  # - when var.iam_role_name is null: name = null, name_prefix = default_prefix (AWS adds random suffix)
   name                 = var.iam_role_name
   name_prefix          = local.name_prefix
   path                 = var.iam_role_path
