@@ -36,7 +36,19 @@ variable "create_s3_bucket" {
     enabled = false
   }
   nullable    = false
-  description = "Module-managed S3 bucket configuration"
+  description = <<-EOT
+    Module-managed S3 bucket configuration.
+
+    **Bucket Naming:**
+    - `name` - Exact bucket name (conflicts with name_prefix)
+    - `name_prefix` - Prefix with Terraform-generated suffix (max 37 chars)
+    - Default: `atlas-backup-{project_id_suffix}-` when neither specified
+
+    **Security Defaults:**
+    - Versioning enabled for backup recovery
+    - SSE with aws:kms for encryption at rest
+    - All public access blocked
+  EOT
 
   validation {
     condition     = !(try(var.create_s3_bucket.name, null) != null && try(var.create_s3_bucket.name_prefix, null) != null)
