@@ -218,6 +218,7 @@ object({
   create_s3_bucket = optional(object({
     enabled                 = bool
     name                    = optional(string)
+    name_prefix             = optional(string)
     force_destroy           = optional(bool, false)
     versioning_enabled      = optional(bool, true)
     server_side_encryption  = optional(string, "aws:kms")
@@ -225,7 +226,7 @@ object({
     block_public_policy     = optional(bool, true)
     ignore_public_acls      = optional(bool, true)
     restrict_public_buckets = optional(bool, true)
-  }))
+  }), { enabled = false })
   iam_role = optional(object({
     create               = optional(bool, false)
     name                 = optional(string)

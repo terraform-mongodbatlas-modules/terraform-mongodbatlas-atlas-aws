@@ -237,6 +237,55 @@ run "backup_export_with_byo_bucket" {
   }
 }
 
+run "backup_export_with_name_prefix" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    backup_export = {
+      enabled = true
+      create_s3_bucket = {
+        enabled     = true
+        name_prefix = "my-custom-prefix-"
+      }
+    }
+  }
+  assert {
+    condition     = length(module.backup_export) == 1
+    error_message = "Expected backup_export module"
+  }
+}
+
+run "backup_export_with_auto_name_prefix" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    backup_export = {
+      enabled          = true
+      create_s3_bucket = { enabled = true }
+    }
+  }
+  assert {
+    condition     = length(module.backup_export) == 1
+    error_message = "Expected backup_export module"
+  }
+}
+
+run "backup_export_name_and_prefix_conflict" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    backup_export = {
+      enabled = true
+      create_s3_bucket = {
+        enabled     = true
+        name        = "my-bucket"
+        name_prefix = "my-prefix-"
+      }
+    }
+  }
+  expect_failures = [var.backup_export]
+}
+
 run "privatelink_byoe_key_overlap_validation" {
   command = plan
   variables {

@@ -86,7 +86,7 @@ module "backup_export" {
   atlas_role_id    = local.backup_export_role_id
   iam_role_name    = local.backup_export_iam_role_name
   bucket_name      = var.backup_export.bucket_name
-  create_s3_bucket = coalesce(var.backup_export.create_s3_bucket, { enabled = false })
+  create_s3_bucket = var.backup_export.create_s3_bucket
   tags             = var.aws_tags
 
   depends_on = [module.cloud_provider_access, module.backup_export_cloud_provider_access]

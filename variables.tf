@@ -171,6 +171,7 @@ variable "backup_export" {
     create_s3_bucket = optional(object({
       enabled                 = bool
       name                    = optional(string)
+      name_prefix             = optional(string)
       force_destroy           = optional(bool, false)
       versioning_enabled      = optional(bool, true)
       server_side_encryption  = optional(string, "aws:kms")
@@ -178,7 +179,7 @@ variable "backup_export" {
       block_public_policy     = optional(bool, true)
       ignore_public_acls      = optional(bool, true)
       restrict_public_buckets = optional(bool, true)
-    }))
+    }), { enabled = false })
     iam_role = optional(object({
       create               = optional(bool, false)
       name                 = optional(string)
@@ -205,6 +206,11 @@ variable "backup_export" {
   validation {
     condition     = !var.backup_export.enabled || (var.backup_export.bucket_name != null || try(var.backup_export.create_s3_bucket.enabled, false))
     error_message = "backup_export.enabled = true requires bucket_name OR create_s3_bucket.enabled = true."
+  }
+
+  validation {
+    condition     = !(try(var.backup_export.create_s3_bucket.name, null) != null && try(var.backup_export.create_s3_bucket.name_prefix, null) != null)
+    error_message = "Cannot use both create_s3_bucket.name and create_s3_bucket.name_prefix."
   }
 }
 
