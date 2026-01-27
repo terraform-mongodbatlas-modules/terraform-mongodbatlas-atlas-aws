@@ -32,14 +32,14 @@ variable "vpc_endpoint" {
   }
 }
 
-variable "existing_vpc_endpoint_id" {
+variable "byo_vpc_endpoint_id" {
   type        = string
   default     = null
-  description = "Existing VPC endpoint ID for BYOE. Required when vpc_endpoint.create = false."
+  description = "BYO (Bring Your Own) VPC endpoint ID. Required when vpc_endpoint.create = false."
 
   validation {
-    condition     = var.vpc_endpoint.create || var.existing_vpc_endpoint_id != null
-    error_message = "existing_vpc_endpoint_id is required when vpc_endpoint.create = false (BYOE mode)."
+    condition     = var.vpc_endpoint.create || var.byo_vpc_endpoint_id != null
+    error_message = "byo_vpc_endpoint_id is required when vpc_endpoint.create = false (BYO mode)."
   }
 }
 

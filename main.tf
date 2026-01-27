@@ -88,7 +88,7 @@ module "privatelink" {
     create     = contains(keys(local.privatelink_module_managed), each.key)
     subnet_ids = each.value.subnet_ids
   }
-  existing_vpc_endpoint_id = try(var.privatelink_byoe[each.key].vpc_endpoint_id, null)
+  byo_vpc_endpoint_id = try(var.privatelink_byoe[each.key].vpc_endpoint_id, null)
 
   security_group = {
     ids                 = try(each.value.security_group.ids, null)

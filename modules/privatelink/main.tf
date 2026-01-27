@@ -1,7 +1,7 @@
 locals {
   create_vpc_endpoint = var.vpc_endpoint.create
   vpc_id_from_subnet  = local.create_vpc_endpoint ? data.aws_subnet.selected[0].vpc_id : null
-  vpc_id              = local.create_vpc_endpoint ? local.vpc_id_from_subnet : try(data.aws_vpc_endpoint.existing[0].vpc_id, null)
+  vpc_id              = local.create_vpc_endpoint ? local.vpc_id_from_subnet : try(data.aws_vpc_endpoint.byo[0].vpc_id, null)
 
   sg_ids_provided  = var.security_group.ids != null
   should_create_sg = !local.sg_ids_provided && var.security_group.create && local.create_vpc_endpoint
@@ -30,9 +30,9 @@ data "aws_vpc" "this" {
   region = var.region
 }
 
-data "aws_vpc_endpoint" "existing" {
+data "aws_vpc_endpoint" "byo" {
   count  = local.create_vpc_endpoint ? 0 : 1
-  id     = var.existing_vpc_endpoint_id
+  id     = var.byo_vpc_endpoint_id
   region = var.region
 }
 
@@ -86,5 +86,5 @@ resource "mongodbatlas_privatelink_endpoint_service" "this" {
   project_id          = var.project_id
   private_link_id     = var.private_link_id
   provider_name       = "AWS"
-  endpoint_service_id = local.create_vpc_endpoint ? aws_vpc_endpoint.this[0].id : var.existing_vpc_endpoint_id
+  endpoint_service_id = local.create_vpc_endpoint ? aws_vpc_endpoint.this[0].id : var.byo_vpc_endpoint_id
 }
