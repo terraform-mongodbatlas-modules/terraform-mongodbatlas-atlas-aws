@@ -202,6 +202,41 @@ run "backup_export_validation_enabled_without_bucket" {
   expect_failures = [var.backup_export]
 }
 
+run "backup_export_with_dedicated_iam_role" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    backup_export = {
+      enabled          = true
+      create_s3_bucket = { enabled = true }
+      iam_role         = { create = true }
+    }
+  }
+  assert {
+    condition     = length(module.backup_export_cloud_provider_access) == 1
+    error_message = "Expected dedicated backup export IAM role"
+  }
+  assert {
+    condition     = length(module.backup_export) == 1
+    error_message = "Expected backup_export module"
+  }
+}
+
+run "backup_export_with_byo_bucket" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    backup_export = {
+      enabled     = true
+      bucket_name = "my-existing-bucket"
+    }
+  }
+  assert {
+    condition     = length(module.backup_export) == 1
+    error_message = "Expected backup_export module"
+  }
+}
+
 run "privatelink_byoe_key_overlap_validation" {
   command = plan
   variables {

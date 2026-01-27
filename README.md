@@ -45,6 +45,7 @@ Encryption at Rest | [AWS KMS Integration with Private Endpoint](./examples/encr
 Private Link | [AWS PrivateLink Endpoint](./examples/privatelink)
 Private Link | [AWS PrivateLink Multi-Region](./examples/privatelink_multi_region)
 Private Link | [AWS PrivateLink BYOE](./examples/privatelink_byoe)
+Backup Export | [S3 Bucket Export](./examples/backup_export)
 
 <!-- END_TABLES -->
 <!-- BEGIN_TF_DOCS -->
@@ -313,6 +314,10 @@ Default: `[]`
 
 The following outputs are exported:
 
+### <a name="output_backup_export"></a> [backup\_export](#output\_backup\_export)
+
+Description: Backup export configuration
+
 ### <a name="output_encryption"></a> [encryption](#output\_encryption)
 
 Description: Encryption at rest status and configuration
@@ -320,6 +325,10 @@ Description: Encryption at rest status and configuration
 ### <a name="output_encryption_at_rest_provider"></a> [encryption\_at\_rest\_provider](#output\_encryption\_at\_rest\_provider)
 
 Description: Value for cluster's encryption\_at\_rest\_provider attribute
+
+### <a name="output_export_bucket_id"></a> [export\_bucket\_id](#output\_export\_bucket\_id)
+
+Description: Export bucket ID for backup schedule auto\_export\_enabled
 
 ### <a name="output_privatelink"></a> [privatelink](#output\_privatelink)
 

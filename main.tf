@@ -59,6 +59,40 @@ module "encryption_private_endpoint" {
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Dedicated IAM role for backup export (when backup_export.iam_role.create = true)
+# ─────────────────────────────────────────────────────────────────────────────
+
+module "backup_export_cloud_provider_access" {
+  count  = local.create_backup_export_dedicated_role ? 1 : 0
+  source = "./modules/cloud_provider_access"
+
+  project_id                    = var.project_id
+  purpose                       = "backup"
+  iam_role_name                 = var.backup_export.iam_role.name
+  iam_role_path                 = var.backup_export.iam_role.path
+  iam_role_permissions_boundary = var.backup_export.iam_role.permissions_boundary
+  tags                          = var.aws_tags
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Backup Export to S3
+# ─────────────────────────────────────────────────────────────────────────────
+
+module "backup_export" {
+  count  = var.backup_export.enabled ? 1 : 0
+  source = "./modules/backup_export"
+
+  project_id       = var.project_id
+  atlas_role_id    = local.backup_export_role_id
+  iam_role_name    = local.backup_export_iam_role_name
+  bucket_name      = var.backup_export.bucket_name
+  create_s3_bucket = coalesce(var.backup_export.create_s3_bucket, { enabled = false })
+  tags             = var.aws_tags
+
+  depends_on = [module.cloud_provider_access, module.backup_export_cloud_provider_access]
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
 # PrivateLink
 # ─────────────────────────────────────────────────────────────────────────────
 

@@ -1,0 +1,15 @@
+variable "project_id" {
+  type        = string
+  description = "MongoDB Atlas project ID"
+}
+
+variable "aws_region" {
+  type        = string
+  description = "AWS region"
+  default     = ""
+}
+
+variable "bucket_name" {
+  type        = string
+  description = "S3 bucket name for backup exports"
+}
