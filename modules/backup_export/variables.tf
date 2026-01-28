@@ -56,7 +56,7 @@ variable "create_s3_bucket" {
   }
 
   validation {
-    condition     = var.create_s3_bucket.name_prefix == null || length(var.create_s3_bucket.name_prefix) <= 37
+    condition     = try(length(var.create_s3_bucket.name_prefix), 0) <= 37
     error_message = "name_prefix must be 37 characters or less. S3 bucket names are limited to 63 characters and Terraform adds a 26-character random suffix."
   }
 }
