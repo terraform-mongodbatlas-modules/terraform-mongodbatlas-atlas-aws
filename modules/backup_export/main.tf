@@ -1,10 +1,11 @@
 locals {
-  create_bucket       = var.create_s3_bucket.enabled
-  project_id_suffix   = substr(var.project_id, max(0, length(var.project_id) - 8), 8)
-  default_name_prefix = "atlas-backup-${local.project_id_suffix}-"
-  bucket_name_prefix  = coalesce(var.create_s3_bucket.name_prefix, local.default_name_prefix)
-  bucket_name         = local.create_bucket ? aws_s3_bucket.atlas[0].id : var.bucket_name
-  bucket_arn          = local.create_bucket ? aws_s3_bucket.atlas[0].arn : data.aws_s3_bucket.user_provided[0].arn
+  project_id_suffix_length = 8 # last 8 chars of project ID for unique, readable naming
+  create_bucket            = var.create_s3_bucket.enabled
+  project_id_suffix        = substr(var.project_id, max(0, length(var.project_id) - local.project_id_suffix_length), local.project_id_suffix_length)
+  default_name_prefix      = "atlas-backup-${local.project_id_suffix}-"
+  bucket_name_prefix       = coalesce(var.create_s3_bucket.name_prefix, local.default_name_prefix)
+  bucket_name              = local.create_bucket ? aws_s3_bucket.atlas[0].id : var.bucket_name
+  bucket_arn               = local.create_bucket ? aws_s3_bucket.atlas[0].arn : data.aws_s3_bucket.user_provided[0].arn
 }
 
 data "aws_s3_bucket" "user_provided" {

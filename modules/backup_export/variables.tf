@@ -54,6 +54,11 @@ variable "create_s3_bucket" {
     condition     = !(try(var.create_s3_bucket.name, null) != null && try(var.create_s3_bucket.name_prefix, null) != null)
     error_message = "Cannot use both name and name_prefix."
   }
+
+  validation {
+    condition     = var.create_s3_bucket.name_prefix == null || length(var.create_s3_bucket.name_prefix) <= 37
+    error_message = "name_prefix must be 37 characters or less. S3 bucket names are limited to 63 characters and Terraform adds a 26-character random suffix."
+  }
 }
 
 variable "tags" {

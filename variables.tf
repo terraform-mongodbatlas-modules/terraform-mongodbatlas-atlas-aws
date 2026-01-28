@@ -222,6 +222,11 @@ variable "backup_export" {
     condition     = !(try(var.backup_export.create_s3_bucket.name, null) != null && try(var.backup_export.create_s3_bucket.name_prefix, null) != null)
     error_message = "Cannot use both create_s3_bucket.name and create_s3_bucket.name_prefix."
   }
+
+  validation {
+    condition     = try(var.backup_export.create_s3_bucket.name_prefix, null) == null || length(var.backup_export.create_s3_bucket.name_prefix) <= 37
+    error_message = "create_s3_bucket.name_prefix must be 37 characters or less. S3 bucket names are limited to 63 characters and Terraform adds a 26-character random suffix."
+  }
 }
 
 variable "aws_tags" {
