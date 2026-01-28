@@ -226,6 +226,9 @@ sdlc-validate:
 # === OK_EDIT: path-sync standard ===
 # Module-specific recipes below (not synced)
 
+dev-vars-aws:
+    {{py}} dev.dev_vars aws
+
 tf-gen *args:
     {{py}} tf_gen {{args}}
 
