@@ -18,7 +18,7 @@ variable "bucket_name" {
 variable "bucket_name_prefix" {
   type        = string
   default     = null
-  description = "S3 bucket name prefix for backup exports. If null, uses auto-generated prefix based on project ID."
+  description = "S3 bucket name prefix for backup exports. If null, uses auto-generated prefix based on project ID. Mutually exclusive with bucket_name."
 }
 
 variable "force_destroy" {
