@@ -170,6 +170,7 @@ variable "backup_export" {
     bucket_name = optional(string)
     create_s3_bucket = optional(object({
       enabled                 = bool
+      region                  = optional(string)
       name                    = optional(string)
       name_prefix             = optional(string)
       force_destroy           = optional(bool, false)

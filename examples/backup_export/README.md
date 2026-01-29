@@ -43,6 +43,7 @@ module "atlas_aws" {
     create_s3_bucket = {
       enabled       = true
       name          = var.bucket_name
+      name_prefix   = var.bucket_name_prefix
       force_destroy = var.force_destroy
     }
   }

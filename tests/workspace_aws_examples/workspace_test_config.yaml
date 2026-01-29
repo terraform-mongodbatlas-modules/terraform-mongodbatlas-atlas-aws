@@ -21,6 +21,18 @@ examples:
       - address: module.atlas_aws.module.encryption[0].mongodbatlas_encryption_at_rest.this
       - address: module.atlas_aws.module.encryption_private_endpoint["us-east-1"].mongodbatlas_encryption_at_rest_private_endpoint.this
 
+  - name: backup_export
+    var_groups: [backup_export]
+    plan_regressions:
+      - address: module.atlas_aws.module.cloud_provider_access[0].mongodbatlas_cloud_provider_access_setup.this
+      - address: module.atlas_aws.module.cloud_provider_access[0].mongodbatlas_cloud_provider_access_authorization.this
+      - address: module.atlas_aws.module.cloud_provider_access[0].aws_iam_role.this
+      - address: module.atlas_aws.module.backup_export[0].aws_s3_bucket.atlas[0]
+      - address: module.atlas_aws.module.backup_export[0].aws_s3_bucket_versioning.atlas[0]
+      - address: module.atlas_aws.module.backup_export[0].aws_s3_bucket_public_access_block.atlas[0]
+      - address: module.atlas_aws.module.backup_export[0].aws_iam_role_policy.s3_access
+      - address: module.atlas_aws.module.backup_export[0].mongodbatlas_cloud_backup_snapshot_export_bucket.this
+
   - name: privatelink
     var_groups: [privatelink]
     plan_regressions:
@@ -62,6 +74,17 @@ var_groups:
     - name: project_id
       expose_in_workspace: false
       module_value: local.project_id_encryption_private_endpoint
+
+  backup_export:
+    - name: project_id
+      expose_in_workspace: false
+      module_value: local.project_id_backup_export
+    - name: force_destroy
+      expose_in_workspace: false
+      module_value: "true"
+    - name: bucket_name_prefix
+      expose_in_workspace: false
+      module_value: '"mongodb-atlas-tf-"'
 
   privatelink:
     - name: project_id

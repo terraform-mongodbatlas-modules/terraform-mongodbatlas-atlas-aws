@@ -1,0 +1,5 @@
+block_public_acls: true
+block_public_policy: true
+ignore_public_acls: true
+region: us-east-1
+restrict_public_buckets: true

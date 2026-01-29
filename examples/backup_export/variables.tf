@@ -12,7 +12,13 @@ variable "aws_region" {
 variable "bucket_name" {
   type        = string
   default     = null
-  description = "S3 bucket name for backup exports. If null, uses auto-generated name with prefix."
+  description = "Exact S3 bucket name for backup exports. Mutually exclusive with bucket_name_prefix."
+}
+
+variable "bucket_name_prefix" {
+  type        = string
+  default     = null
+  description = "S3 bucket name prefix for backup exports. If null, uses auto-generated prefix based on project ID. Mutually exclusive with bucket_name."
 }
 
 variable "force_destroy" {
