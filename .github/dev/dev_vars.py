@@ -13,6 +13,7 @@ _project_ids = """\
 project_ids = {
   encryption                  = "PROJECT_ID"
   encryption_private_endpoint = "PROJECT_ID"
+  backup_export               = "PROJECT_ID"
 }
 """
 
