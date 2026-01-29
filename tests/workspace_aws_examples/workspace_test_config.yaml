@@ -51,3 +51,6 @@ var_groups:
     - name: force_destroy
       expose_in_workspace: false
       module_value: "true"
+    - name: bucket_name_prefix
+      expose_in_workspace: false
+      module_value: '"mongodb-atlas-tf-"'
