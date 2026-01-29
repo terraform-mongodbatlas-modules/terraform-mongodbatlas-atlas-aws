@@ -43,8 +43,7 @@ variable "encryption" {
       enable_key_rotation     = optional(bool, true)
       policy_override         = optional(string)
     }))
-    require_private_networking = optional(bool, false)
-    private_endpoint_regions   = optional(set(string), [])
+    private_endpoint_regions = optional(set(string), [])
     iam_role = optional(object({
       create               = optional(bool, false)
       name                 = optional(string)
@@ -61,14 +60,11 @@ variable "encryption" {
     - `create_kms_key.enabled = true` (module-managed KMS key)
 
     **IAM Role Strategy:**
-    - `iam_role.create = false` (default): Uses the shared IAM role from `cloud_provider_access`. Recommended for most use cases where a single role manages all Atlas-AWS integrations.
-    - `iam_role.create = true`: Creates a dedicated IAM role for encryption. Use this when:
-      - Security policies require separate roles per AWS service integration
-      - You need different IAM paths or permissions boundaries for encryption
-      - Audit requirements mandate role isolation between Atlas features
+    - `iam_role.create = false` (default): Uses the shared IAM role from `cloud_provider_access`.
+    - `iam_role.create = true`: Creates a dedicated IAM role for encryption.
 
     **Private Networking:**
-    When `require_private_networking = true`, Atlas creates a PrivateLink connection to AWS KMS on the Atlas side. This ensures traffic from Atlas to KMS stays on AWS's private network. No user-side AWS VPC endpoint is required—Atlas manages the private connectivity.
+    When `private_endpoint_regions` is non-empty, Atlas creates PrivateLink connections to AWS KMS. Traffic stays on AWS's private network. No user-side VPC endpoint required.
   EOT
 
   validation {
@@ -82,8 +78,8 @@ variable "encryption" {
   }
 
   validation {
-    condition     = !var.encryption.require_private_networking || var.encryption.enabled
-    error_message = "require_private_networking = true requires encryption.enabled = true."
+    condition     = length(var.encryption.private_endpoint_regions) == 0 || var.encryption.enabled
+    error_message = "private_endpoint_regions requires encryption.enabled = true."
   }
 }
 

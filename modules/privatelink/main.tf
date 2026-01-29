@@ -90,3 +90,10 @@ resource "mongodbatlas_privatelink_endpoint_service" "this" {
   provider_name       = "AWS"
   endpoint_service_id = local.create_vpc_endpoint ? aws_vpc_endpoint.this[0].id : var.byo_vpc_endpoint_id
 }
+
+data "mongodbatlas_privatelink_endpoint_service" "this" {
+  project_id          = var.project_id
+  private_link_id     = var.private_link_id
+  endpoint_service_id = mongodbatlas_privatelink_endpoint_service.this.endpoint_service_id
+  provider_name       = "AWS"
+}

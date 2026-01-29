@@ -37,15 +37,13 @@ locals {
     module.backup_export_cloud_provider_access[0].iam_role_name
   ) : local.iam_role_name
 
-  # Private endpoint regions: user-provided or default to encryption region
-  encryption_default_region = coalesce(var.encryption.region, data.aws_region.current.id)
+  # Private endpoint regions: inferred from presence of private_endpoint_regions
   encryption_private_endpoint_regions = (
-    var.encryption.enabled && var.encryption.require_private_networking
-    ) ? (
-    length(var.encryption.private_endpoint_regions) > 0
+    var.encryption.enabled && length(var.encryption.private_endpoint_regions) > 0
     ? var.encryption.private_endpoint_regions
-    : toset([local.encryption_default_region])
-  ) : toset([])
+    : toset([])
+  )
+  encryption_require_private_networking = length(local.encryption_private_endpoint_regions) > 0
 
   # PrivateLink: convert lists to maps for for_each
   # Multi-region: use region as key (guaranteed unique by validation)

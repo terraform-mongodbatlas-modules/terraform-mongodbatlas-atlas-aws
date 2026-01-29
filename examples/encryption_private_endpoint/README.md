@@ -45,10 +45,9 @@ module "atlas_aws" {
   project_id = var.project_id
 
   encryption = {
-    enabled                    = true
-    kms_key_arn                = aws_kms_key.atlas.arn
-    require_private_networking = true
-    # private_endpoint_regions defaults to the encryption region (provider region)
+    enabled                  = true
+    kms_key_arn              = aws_kms_key.atlas.arn
+    private_endpoint_regions = [var.aws_region]
   }
 }
 

@@ -123,24 +123,16 @@ run "encryption_validation_enabled_without_key" {
   expect_failures = [var.encryption]
 }
 
-run "encryption_private_networking_without_regions_defaults" {
+run "encryption_private_endpoints_without_encryption_fails" {
   command = plan
   variables {
     project_id = var.project_id
     encryption = {
-      enabled                    = true
-      kms_key_arn                = "arn:aws:kms:us-east-1:123456789012:key/abc"
-      require_private_networking = true
+      enabled                  = false
+      private_endpoint_regions = ["us-east-1"]
     }
   }
-  assert {
-    condition     = length(module.encryption) == 1
-    error_message = "Expected encryption module"
-  }
-  assert {
-    condition     = length(module.encryption_private_endpoint) == 1
-    error_message = "Expected 1 private endpoint (defaulted to encryption region)"
-  }
+  expect_failures = [var.encryption]
 }
 
 run "encryption_with_dedicated_iam_role" {
@@ -163,20 +155,34 @@ run "encryption_with_dedicated_iam_role" {
   }
 }
 
-run "encryption_with_explicit_regions" {
+run "encryption_with_private_endpoints" {
   command = plan
   variables {
     project_id = var.project_id
     encryption = {
-      enabled                    = true
-      kms_key_arn                = "arn:aws:kms:us-east-1:123456789012:key/abc"
-      require_private_networking = true
-      private_endpoint_regions   = ["us-east-1", "us-west-2"]
+      enabled                  = true
+      kms_key_arn              = "arn:aws:kms:us-east-1:123456789012:key/abc"
+      private_endpoint_regions = ["us-east-1", "us-west-2"]
     }
   }
   assert {
     condition     = length(module.encryption_private_endpoint) == 2
     error_message = "Expected 2 private endpoints"
+  }
+}
+
+run "encryption_no_private_endpoints_by_default" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    encryption = {
+      enabled     = true
+      kms_key_arn = "arn:aws:kms:us-east-1:123456789012:key/abc"
+    }
+  }
+  assert {
+    condition     = length(module.encryption_private_endpoint) == 0
+    error_message = "Expected no private endpoints when private_endpoint_regions not set"
   }
 }
 
