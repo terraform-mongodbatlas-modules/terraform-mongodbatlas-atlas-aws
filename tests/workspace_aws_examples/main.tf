@@ -28,6 +28,7 @@ variable "project_ids" {
   type = object({
     encryption                  = optional(string)
     encryption_private_endpoint = optional(string)
+    backup_export               = optional(string)
   })
   default = {}
 }
@@ -45,6 +46,8 @@ locals {
   project_id_encryption = local.project_ids.encryption
   # tflint-ignore: terraform_unused_declarations
   project_id_encryption_private_endpoint = local.project_ids.encryption_private_endpoint
+  # tflint-ignore: terraform_unused_declarations
+  project_id_backup_export = local.project_ids.backup_export
 }
 
 # Example module calls are generated in modules.generated.tf

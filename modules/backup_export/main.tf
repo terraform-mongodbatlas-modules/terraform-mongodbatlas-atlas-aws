@@ -19,6 +19,7 @@ resource "aws_s3_bucket" "atlas" {
   bucket_prefix = var.create_s3_bucket.name != null ? null : local.bucket_name_prefix
   force_destroy = var.create_s3_bucket.force_destroy
   tags          = var.tags
+  region        = var.create_s3_bucket.region
 }
 
 resource "aws_s3_bucket_versioning" "atlas" {

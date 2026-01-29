@@ -22,6 +22,7 @@ variable "bucket_name" {
 variable "create_s3_bucket" {
   type = object({
     enabled                 = bool
+    region                  = optional(string)
     name                    = optional(string)
     name_prefix             = optional(string)
     force_destroy           = optional(bool, false)
@@ -38,6 +39,9 @@ variable "create_s3_bucket" {
   nullable    = false
   description = <<-EOT
     Module-managed S3 bucket configuration.
+
+    **Region:**
+    - `region` - AWS region for S3 bucket (defaults to provider's region)
 
     **Bucket Naming:**
     - `name` - Exact bucket name (conflicts with name_prefix)
