@@ -1,0 +1,4 @@
+description: MongoDB Atlas PrivateLink
+name_prefix: atlas-privatelink-
+region: us-west-2
+revoke_rules_on_delete: false

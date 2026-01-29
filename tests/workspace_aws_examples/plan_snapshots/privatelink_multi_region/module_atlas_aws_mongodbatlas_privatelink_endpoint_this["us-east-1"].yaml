@@ -1,0 +1,3 @@
+project_id: <project_id>
+provider_name: AWS
+region: us-east-1

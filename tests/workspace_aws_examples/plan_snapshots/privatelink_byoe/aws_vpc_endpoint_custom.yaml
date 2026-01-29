@@ -1,0 +1,6 @@
+region: us-east-1
+tags:
+  Name: atlas-privatelink-custom
+tags_all:
+  Name: atlas-privatelink-custom
+vpc_endpoint_type: Interface
