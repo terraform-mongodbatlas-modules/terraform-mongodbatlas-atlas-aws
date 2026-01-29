@@ -3,6 +3,7 @@ data "aws_vpc" "this" {
 }
 
 data "aws_subnets" "private" {
+  count = var.subnet_ids == null ? 1 : 0
   filter {
     name   = "vpc-id"
     values = [var.vpc_id]
@@ -12,6 +13,10 @@ data "aws_subnets" "private" {
   }
 }
 
+locals {
+  subnet_ids = var.subnet_ids != null ? var.subnet_ids : data.aws_subnets.private[0].ids
+}
+
 module "atlas_aws" {
   source     = "../../"
   project_id = var.project_id
@@ -19,7 +24,7 @@ module "atlas_aws" {
   privatelink_endpoints = [
     {
       region     = var.aws_region
-      subnet_ids = data.aws_subnets.private.ids
+      subnet_ids = local.subnet_ids
     }
   ]
 }

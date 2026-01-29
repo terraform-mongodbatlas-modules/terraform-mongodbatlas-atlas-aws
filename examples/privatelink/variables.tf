@@ -13,3 +13,9 @@ variable "vpc_id" {
   type        = string
   description = "AWS VPC ID"
 }
+
+variable "subnet_ids" {
+  type        = list(string)
+  description = "Subnet IDs for PrivateLink endpoint. If not provided, subnets are discovered via data source using Tier=Private tag."
+  default     = null
+}

@@ -73,6 +73,9 @@ var_groups:
     - name: vpc_id
       expose_in_workspace: false
       module_value: local.vpc_id_privatelink
+    - name: subnet_ids
+      expose_in_workspace: false
+      module_value: local.subnet_ids_privatelink
 
   privatelink_byoe:
     - name: project_id

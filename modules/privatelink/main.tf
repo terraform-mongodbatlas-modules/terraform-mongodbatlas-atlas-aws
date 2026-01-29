@@ -51,6 +51,7 @@ resource "aws_security_group" "this" {
 
 resource "aws_security_group_rule" "ingress_cidr" {
   count             = local.create_cidr_rule ? 1 : 0
+  region            = var.region
   type              = "ingress"
   from_port         = var.security_group.from_port
   to_port           = var.security_group.to_port
@@ -62,6 +63,7 @@ resource "aws_security_group_rule" "ingress_cidr" {
 
 resource "aws_security_group_rule" "ingress_sg" {
   for_each                 = local.create_sg_rules ? var.security_group.inbound_source_sgs : toset([])
+  region                   = var.region
   type                     = "ingress"
   from_port                = var.security_group.from_port
   to_port                  = var.security_group.to_port
