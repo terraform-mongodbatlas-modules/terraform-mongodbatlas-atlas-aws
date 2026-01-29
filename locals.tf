@@ -28,6 +28,15 @@ locals {
     module.encryption_cloud_provider_access[0].iam_role_name
   ) : local.iam_role_name
 
+  # Backup export IAM role: dedicated or shared
+  create_backup_export_dedicated_role = var.backup_export.enabled && var.backup_export.iam_role.create
+  backup_export_role_id = local.create_backup_export_dedicated_role ? (
+    module.backup_export_cloud_provider_access[0].role_id
+  ) : local.role_id
+  backup_export_iam_role_name = local.create_backup_export_dedicated_role ? (
+    module.backup_export_cloud_provider_access[0].iam_role_name
+  ) : local.iam_role_name
+
   # Private endpoint regions: user-provided or default to encryption region
   encryption_default_region = coalesce(var.encryption.region, data.aws_region.current.id)
   encryption_private_endpoint_regions = (

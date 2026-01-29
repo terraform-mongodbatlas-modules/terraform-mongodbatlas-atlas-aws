@@ -171,6 +171,7 @@ variable "backup_export" {
     create_s3_bucket = optional(object({
       enabled                 = bool
       name                    = optional(string)
+      name_prefix             = optional(string)
       force_destroy           = optional(bool, false)
       versioning_enabled      = optional(bool, true)
       server_side_encryption  = optional(string, "aws:kms")
@@ -178,7 +179,7 @@ variable "backup_export" {
       block_public_policy     = optional(bool, true)
       ignore_public_acls      = optional(bool, true)
       restrict_public_buckets = optional(bool, true)
-    }))
+    }), { enabled = false })
     iam_role = optional(object({
       create               = optional(bool, false)
       name                 = optional(string)
@@ -194,6 +195,16 @@ variable "backup_export" {
     - `bucket_name` (user-provided S3 bucket)
     - `create_s3_bucket.enabled = true` (module-managed S3 bucket)
 
+    **Bucket Naming (when module-managed):**
+    - `create_s3_bucket.name` - Exact bucket name (conflicts with name_prefix)
+    - `create_s3_bucket.name_prefix` - Prefix with Terraform-generated suffix (max 37 chars)
+    - Default: `atlas-backup-{project_id_suffix}-` when neither specified
+
+    **Security Defaults (when module-managed):**
+    - Versioning enabled for backup recovery
+    - SSE with aws:kms for encryption at rest
+    - All public access blocked
+
     When `iam_role.create = true`, creates a dedicated IAM role for backup export instead of using the shared role.
   EOT
 
@@ -205,6 +216,16 @@ variable "backup_export" {
   validation {
     condition     = !var.backup_export.enabled || (var.backup_export.bucket_name != null || try(var.backup_export.create_s3_bucket.enabled, false))
     error_message = "backup_export.enabled = true requires bucket_name OR create_s3_bucket.enabled = true."
+  }
+
+  validation {
+    condition     = !(try(var.backup_export.create_s3_bucket.name, null) != null && try(var.backup_export.create_s3_bucket.name_prefix, null) != null)
+    error_message = "Cannot use both create_s3_bucket.name and create_s3_bucket.name_prefix."
+  }
+
+  validation {
+    condition     = try(length(var.backup_export.create_s3_bucket.name_prefix), 0) <= 37
+    error_message = "create_s3_bucket.name_prefix must be 37 characters or less. S3 bucket names are limited to 63 characters and Terraform adds a 26-character random suffix."
   }
 }
 

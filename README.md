@@ -45,6 +45,7 @@ Encryption at Rest | [AWS KMS Integration with Private Endpoint](./examples/encr
 Private Link | [AWS PrivateLink Endpoint](./examples/privatelink)
 Private Link | [AWS PrivateLink Multi-Region](./examples/privatelink_multi_region)
 Private Link | [AWS PrivateLink BYOE](./examples/privatelink_byoe)
+Backup Export | [S3 Bucket Export](./examples/backup_export)
 
 <!-- END_TABLES -->
 <!-- BEGIN_TF_DOCS -->
@@ -206,6 +207,16 @@ Provide EITHER:
 - `bucket_name` (user-provided S3 bucket)
 - `create_s3_bucket.enabled = true` (module-managed S3 bucket)
 
+**Bucket Naming (when module-managed):**
+- `create_s3_bucket.name` - Exact bucket name (conflicts with name_prefix)
+- `create_s3_bucket.name_prefix` - Prefix with Terraform-generated suffix (max 37 chars)
+- Default: `atlas-backup-{project_id_suffix}-` when neither specified
+
+**Security Defaults (when module-managed):**
+- Versioning enabled for backup recovery
+- SSE with aws:kms for encryption at rest
+- All public access blocked
+
 When `iam_role.create = true`, creates a dedicated IAM role for backup export instead of using the shared role.
 
 Type:
@@ -217,6 +228,7 @@ object({
   create_s3_bucket = optional(object({
     enabled                 = bool
     name                    = optional(string)
+    name_prefix             = optional(string)
     force_destroy           = optional(bool, false)
     versioning_enabled      = optional(bool, true)
     server_side_encryption  = optional(string, "aws:kms")
@@ -224,7 +236,7 @@ object({
     block_public_policy     = optional(bool, true)
     ignore_public_acls      = optional(bool, true)
     restrict_public_buckets = optional(bool, true)
-  }))
+  }), { enabled = false })
   iam_role = optional(object({
     create               = optional(bool, false)
     name                 = optional(string)
@@ -313,6 +325,10 @@ Default: `[]`
 
 The following outputs are exported:
 
+### <a name="output_backup_export"></a> [backup\_export](#output\_backup\_export)
+
+Description: Backup export configuration
+
 ### <a name="output_encryption"></a> [encryption](#output\_encryption)
 
 Description: Encryption at rest status and configuration
@@ -320,6 +336,10 @@ Description: Encryption at rest status and configuration
 ### <a name="output_encryption_at_rest_provider"></a> [encryption\_at\_rest\_provider](#output\_encryption\_at\_rest\_provider)
 
 Description: Value for cluster's encryption\_at\_rest\_provider attribute
+
+### <a name="output_export_bucket_id"></a> [export\_bucket\_id](#output\_export\_bucket\_id)
+
+Description: Export bucket ID for backup schedule auto\_export\_enabled
 
 ### <a name="output_privatelink"></a> [privatelink](#output\_privatelink)
 
