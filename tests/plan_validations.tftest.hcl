@@ -546,3 +546,22 @@ run "region_format_mixed_styles_privatelink" {
     error_message = "Expected regional mode enabled for multi-region"
   }
 }
+
+run "aws_tags_propagated" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    encryption = {
+      enabled        = true
+      create_kms_key = { enabled = true }
+    }
+    aws_tags = {
+      Environment = "production"
+      Module      = "atlas-aws"
+    }
+  }
+  assert {
+    condition     = length(module.encryption) == 1
+    error_message = "Expected encryption module"
+  }
+}

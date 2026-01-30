@@ -31,6 +31,7 @@ examples:
       - address: module.atlas_aws.module.backup_export[0].aws_s3_bucket_versioning.atlas[0]
       - address: module.atlas_aws.module.backup_export[0].aws_s3_bucket_public_access_block.atlas[0]
       - address: module.atlas_aws.module.backup_export[0].aws_iam_role_policy.s3_access
+      - address: module.atlas_aws.module.backup_export[0].time_sleep.iam_propagation
       - address: module.atlas_aws.module.backup_export[0].mongodbatlas_cloud_backup_snapshot_export_bucket.this
 
   - name: privatelink
@@ -96,9 +97,6 @@ var_groups:
     - name: aws_region
       expose_in_workspace: false
       module_value: '"us-east-1"'
-    - name: vpc_id
-      expose_in_workspace: false
-      module_value: local.vpc_id_privatelink
     - name: subnet_ids
       expose_in_workspace: false
       module_value: local.subnet_ids_privatelink

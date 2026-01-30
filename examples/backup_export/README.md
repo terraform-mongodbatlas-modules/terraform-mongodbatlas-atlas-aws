@@ -47,6 +47,8 @@ module "atlas_aws" {
       force_destroy = var.force_destroy
     }
   }
+
+  aws_tags = var.aws_tags
 }
 
 output "backup_export" {

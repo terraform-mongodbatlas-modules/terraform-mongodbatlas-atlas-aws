@@ -71,11 +71,16 @@ resource "aws_iam_role_policy" "s3_access" {
   policy      = data.aws_iam_policy_document.s3_access.json
 }
 
+resource "time_sleep" "iam_propagation" {
+  depends_on      = [aws_iam_role_policy.s3_access, aws_s3_bucket.atlas]
+  create_duration = "30s"
+}
+
 resource "mongodbatlas_cloud_backup_snapshot_export_bucket" "this" {
   project_id     = var.project_id
   iam_role_id    = var.atlas_role_id
   bucket_name    = local.bucket_name
   cloud_provider = "AWS"
 
-  depends_on = [aws_iam_role_policy.s3_access]
+  depends_on = [time_sleep.iam_propagation, aws_s3_bucket.atlas]
 }

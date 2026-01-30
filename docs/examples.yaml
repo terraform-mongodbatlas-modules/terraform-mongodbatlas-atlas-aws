@@ -13,7 +13,8 @@ examples_readme:
       provider "aws" {
         region = var.aws_region
       }
-    skip_if_name_contains: []
+    skip_if_name_contains:
+    - backup_export
     generate_when_missing_only: false
     force_generate: false
 

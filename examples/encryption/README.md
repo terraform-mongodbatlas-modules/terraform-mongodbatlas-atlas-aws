@@ -46,6 +46,8 @@ module "atlas_aws" {
       enable_key_rotation = true
     }
   }
+
+  aws_tags = var.aws_tags
 }
 
 output "encryption" {

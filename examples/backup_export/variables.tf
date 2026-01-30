@@ -26,3 +26,9 @@ variable "force_destroy" {
   default     = false
   description = "Allow bucket deletion even if not empty"
 }
+
+variable "aws_tags" {
+  type        = map(string)
+  description = "Tags to apply to AWS resources"
+  default     = {}
+}
