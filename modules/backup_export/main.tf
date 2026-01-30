@@ -1,4 +1,6 @@
 locals {
+  # Normalize to AWS format (handles us-east-1 or US_EAST_1 input)
+  region                   = var.create_s3_bucket.region != null ? lower(replace(var.create_s3_bucket.region, "_", "-")) : null
   project_id_suffix_length = 8 # last 8 chars of project ID for unique, readable naming
   create_bucket            = var.create_s3_bucket.enabled
   project_id_suffix        = substr(var.project_id, max(0, length(var.project_id) - local.project_id_suffix_length), local.project_id_suffix_length)
@@ -19,7 +21,7 @@ resource "aws_s3_bucket" "atlas" {
   bucket_prefix = var.create_s3_bucket.name != null ? null : local.bucket_name_prefix
   force_destroy = var.create_s3_bucket.force_destroy
   tags          = var.tags
-  region        = var.create_s3_bucket.region
+  region        = local.region
 }
 
 resource "aws_s3_bucket_versioning" "atlas" {

@@ -41,7 +41,7 @@ variable "create_s3_bucket" {
     Module-managed S3 bucket configuration.
 
     **Region:**
-    - `region` - AWS region for S3 bucket (defaults to provider's region)
+    - `region` - Region (us-east-1 or US_EAST_1), defaults to provider's region
 
     **Bucket Naming:**
     - `name` - Exact bucket name (conflicts with name_prefix)

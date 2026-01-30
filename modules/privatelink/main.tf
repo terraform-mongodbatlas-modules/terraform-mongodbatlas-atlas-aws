@@ -1,4 +1,6 @@
 locals {
+  # Normalize to AWS format (handles us-east-1 or US_EAST_1 input)
+  region              = lower(replace(var.region, "_", "-"))
   create_vpc_endpoint = var.vpc_endpoint.create
   vpc_id_from_subnet  = local.create_vpc_endpoint ? data.aws_subnet.selected[0].vpc_id : null
   vpc_id              = local.create_vpc_endpoint ? local.vpc_id_from_subnet : try(data.aws_vpc_endpoint.byo[0].vpc_id, null)
@@ -21,19 +23,19 @@ locals {
 data "aws_subnet" "selected" {
   count  = local.create_vpc_endpoint ? 1 : 0
   id     = var.vpc_endpoint.subnet_ids[0]
-  region = var.region
+  region = local.region
 }
 
 data "aws_vpc" "this" {
   count  = local.should_create_sg ? 1 : 0
   id     = local.vpc_id
-  region = var.region
+  region = local.region
 }
 
 data "aws_vpc_endpoint" "byo" {
   count  = local.create_vpc_endpoint ? 0 : 1
   id     = var.byo_vpc_endpoint_id
-  region = var.region
+  region = local.region
 }
 
 resource "aws_security_group" "this" {
@@ -42,7 +44,7 @@ resource "aws_security_group" "this" {
   description = "MongoDB Atlas PrivateLink"
   vpc_id      = local.vpc_id
   tags        = var.tags
-  region      = var.region
+  region      = local.region
 
   lifecycle {
     create_before_destroy = true
@@ -51,7 +53,7 @@ resource "aws_security_group" "this" {
 
 resource "aws_security_group_rule" "ingress_cidr" {
   count             = local.create_cidr_rule ? 1 : 0
-  region            = var.region
+  region            = local.region
   type              = "ingress"
   from_port         = var.security_group.from_port
   to_port           = var.security_group.to_port
@@ -63,7 +65,7 @@ resource "aws_security_group_rule" "ingress_cidr" {
 
 resource "aws_security_group_rule" "ingress_sg" {
   for_each                 = local.create_sg_rules ? var.security_group.inbound_source_sgs : toset([])
-  region                   = var.region
+  region                   = local.region
   type                     = "ingress"
   from_port                = var.security_group.from_port
   to_port                  = var.security_group.to_port
@@ -81,7 +83,7 @@ resource "aws_vpc_endpoint" "this" {
   subnet_ids         = var.vpc_endpoint.subnet_ids
   security_group_ids = local.effective_security_group_ids
   tags               = var.tags
-  region             = var.region
+  region             = local.region
 }
 
 resource "mongodbatlas_privatelink_endpoint_service" "this" {
