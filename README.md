@@ -124,7 +124,7 @@ Provide EITHER:
   - Audit requirements mandate role isolation between Atlas features
 
 **Private Networking:**
-When `require_private_networking = true`, Atlas creates a PrivateLink connection to AWS KMS on the Atlas side. This ensures traffic from Atlas to KMS stays on AWS's private network. No user-side AWS VPC endpoint is required-Atlas manages the private connectivity.
+When `require_private_networking = true`, Atlas creates a PrivateLink connection to AWS KMS on the Atlas side. This ensures traffic from Atlas to KMS stays on AWS's private network. No user-side AWS VPC endpoint is required—Atlas manages the private connectivity.
 
 Type:
 
