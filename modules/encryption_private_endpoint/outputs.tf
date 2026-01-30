@@ -17,3 +17,8 @@ output "atlas_region" {
   description = "Normalized Atlas region format"
   value       = local.atlas_region
 }
+
+output "aws_region" {
+  description = "AWS region format"
+  value       = local.aws_region
+}

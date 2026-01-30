@@ -153,7 +153,8 @@ Configure AWS PrivateLink endpoints for secure connectivity. See the [AWS Privat
 
 ### privatelink_endpoints
 
-Multi-region PrivateLink endpoints. All regions must be UNIQUE. See https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints for port range details.
+Multi-region PrivateLink endpoints. Region accepts us-east-1 or US_EAST_1 format. All regions must be UNIQUE.
+See https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints for port range details.
 
 Type:
 
@@ -285,7 +286,7 @@ Default: `{}`
 
 ### privatelink_byoe_regions
 
-BYOE Phase 1: Key is user identifier, value is AWS region. Outputs `endpoint_service_name` in `privatelink_service_info`.
+BYOE Phase 1: Key is user identifier, value is region (us-east-1 or US_EAST_1).
 
 Type: `map(string)`
 
@@ -293,7 +294,8 @@ Default: `{}`
 
 ### privatelink_endpoints_single_region
 
-Single-region multi-endpoint pattern. All regions must MATCH (Atlas constraint). See https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints for port range details.
+Single-region multi-endpoint pattern. Region accepts us-east-1 or US_EAST_1 format. All regions must MATCH.
+See https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints for port range details.
 
 Type:
 

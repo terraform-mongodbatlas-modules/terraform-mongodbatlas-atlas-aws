@@ -1,5 +1,6 @@
 locals {
-  atlas_region = upper(replace(var.region, "-", "_"))
+  aws_region   = lower(replace(var.region, "_", "-"))
+  atlas_region = upper(replace(local.aws_region, "-", "_"))
 }
 
 resource "mongodbatlas_encryption_at_rest_private_endpoint" "this" {

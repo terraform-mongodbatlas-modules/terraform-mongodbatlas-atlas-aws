@@ -477,3 +477,53 @@ run "privatelink_byoe_multi_region_phase2" {
     error_message = "Expected regional mode enabled for multi-region BYOE"
   }
 }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Region Format Normalization Tests
+# ─────────────────────────────────────────────────────────────────────────────
+
+run "region_format_atlas_style_privatelink" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    privatelink_endpoints = [
+      { region = "US_EAST_1", subnet_ids = ["subnet-abc"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } }
+    ]
+  }
+  assert {
+    condition     = length(module.privatelink) == 1
+    error_message = "Expected privatelink module with Atlas region format"
+  }
+}
+
+run "region_format_atlas_style_encryption" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    encryption = {
+      enabled        = true
+      region         = "US_EAST_1"
+      create_kms_key = { enabled = true }
+    }
+  }
+  assert {
+    condition     = length(module.encryption) == 1
+    error_message = "Expected encryption module with Atlas region format"
+  }
+}
+
+run "region_format_atlas_style_encryption_private_endpoints" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    encryption = {
+      enabled                  = true
+      kms_key_arn              = "arn:aws:kms:us-east-1:123456789012:key/abc"
+      private_endpoint_regions = ["US_EAST_1", "US_WEST_2"]
+    }
+  }
+  assert {
+    condition     = length(module.encryption_private_endpoint) == 2
+    error_message = "Expected 2 private endpoints with Atlas region format"
+  }
+}
