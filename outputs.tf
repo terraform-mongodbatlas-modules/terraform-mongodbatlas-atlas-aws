@@ -28,9 +28,18 @@ output "encryption" {
 output "resource_ids" {
   description = "All resource IDs for data source lookups"
   value = {
-    role_id      = local.role_id
-    iam_role_arn = local.iam_role_arn
-    kms_key_arn  = try(module.encryption[0].kms_key_arn, null)
+    # Cloud Provider Access
+    role_id       = local.role_id
+    iam_role_arn  = local.iam_role_arn
+    iam_role_name = local.iam_role_name
+
+    # Encryption
+    kms_key_arn = try(module.encryption[0].kms_key_arn, null)
+    kms_key_id  = try(module.encryption[0].kms_key_id, null)
+
+    # Backup Export
+    bucket_name = try(module.backup_export[0].bucket_name, null)
+    bucket_arn  = try(module.backup_export[0].bucket_arn, null)
   }
 }
 
