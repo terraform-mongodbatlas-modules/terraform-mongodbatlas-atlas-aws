@@ -1,4 +1,6 @@
-# Atlas AWS Terraform Module
+# MongoDB Atlas AWS Terraform Module
+
+Use this Terraform module to configure MongoDB Atlas integrations with AWS. The module includes recommended defaults based on MongoDB best practices.
 
 <!-- BEGIN_TOC -->
 <!-- @generated
@@ -23,12 +25,12 @@ Run 'just gen-readme' to regenerate. -->
 
 ## Public Preview Note
 
-The MongoDB Atlas AWS Module (Public Preview) simplifies Atlas-AWS integrations and embeds MongoDB's best practices as intelligent defaults. This preview validates that these patterns meet the needs of most workloads without constant maintenance or rework. We welcome your feedback and contributions during this preview phase. MongoDB formally supports this module from its v1 release onwards.
+The MongoDB Atlas AWS Module (Public Preview) simplifies Atlas-AWS integrations and apples MongoDB's best practices as intelligent defaults. This preview validates that these patterns meet the needs of most workloads with minimal maintenance or rework. Share feedback and contribute improvements during the preview phase. MongoDB formally supports this module starting with v1.
 
 <!-- BEGIN_DISCLAIMER -->
 ## Disclaimer
 
-One of this project's primary objectives is to provide durable modules that support non-breaking migration and upgrade paths. The v0 release (public preview) of the MongoDB Atlas AWS Module focuses on gathering feedback and refining the design. Upgrades from v0 to v1 may not be seamless. We plan to deliver a finalized v1 release early next year with long term upgrade support.  
+One of the project's primary objectives is to provide durable modules that support non-breaking migration and upgrade paths. The v0 release (Public Preview) of the MongoDB Atlas AWS Module focuses on gathering feedback and refining the design. Upgrades from v0 to v1 may not be seamless. We plan to deliver a finalized v1 release early next year with long-term upgrade support.
 
 <!-- END_DISCLAIMER -->
 <!-- BEGIN_TABLES -->
@@ -94,7 +96,6 @@ MongoDB Atlas project ID
 
 Type: `string`
 
-
 ## AWS Cloud Provider Access
 
 Configure the AWS IAM role used by MongoDB Atlas. See the [AWS cloud provider access documentation](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/) for details.
@@ -110,10 +111,12 @@ Configure encryption at rest using AWS KMS. See the [AWS encryption documentatio
 Encryption at rest configuration with AWS KMS.
 
 Provide EITHER:
+
 - `kms_key_arn` (user-provided KMS key)
 - `create_kms_key.enabled = true` (module-managed KMS key)
 
 **IAM Role Strategy:**
+
 - `iam_role.create = false` (default): Uses the shared IAM role from `cloud_provider_access`. Recommended for most use cases where a single role manages all Atlas-AWS integrations.
 - `iam_role.create = true`: Creates a dedicated IAM role for encryption. Use this when:
   - Security policies require separate roles per AWS service integration
@@ -121,7 +124,7 @@ Provide EITHER:
   - Audit requirements mandate role isolation between Atlas features
 
 **Private Networking:**
-When `require_private_networking = true`, Atlas creates a PrivateLink connection to AWS KMS on the Atlas side. This ensures traffic from Atlas to KMS stays on AWS's private network. No user-side AWS VPC endpoint is required—Atlas manages the private connectivity.
+When `require_private_networking = true`, Atlas creates a PrivateLink connection to AWS KMS on the Atlas side. This ensures traffic from Atlas to KMS stays on AWS's private network. No user-side AWS VPC endpoint is required-Atlas manages the private connectivity.
 
 Type:
 
@@ -150,14 +153,13 @@ object({
 
 Default: `{}`
 
-
 ## Private Link
 
 Configure AWS PrivateLink endpoints for secure connectivity. See the [AWS PrivateLink documentation](https://www.mongodb.com/docs/atlas/security-private-endpoint/) for details.
 
 ### privatelink_endpoints
 
-Multi-region PrivateLink endpoints. All regions must be UNIQUE. See https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints for port range details.
+Multi-region PrivateLink endpoints. All regions must be UNIQUE. See [Port ranges used for private endpoints](https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints) for port range details.
 
 Type:
 
@@ -182,7 +184,7 @@ Default: `[]`
 
 ### privatelink_byoe
 
-BYOE Phase 2: Key must exist in privatelink_byoe_regions.
+BYOE Phase 2: Key must exist in `privatelink_byoe_regions`.
 
 Type:
 
@@ -194,7 +196,6 @@ map(object({
 
 Default: `{}`
 
-
 ## Backup Export
 
 Configure backup snapshot export to AWS S3.
@@ -204,15 +205,18 @@ Configure backup snapshot export to AWS S3.
 Backup snapshot export to S3 configuration.
 
 Provide EITHER:
+
 - `bucket_name` (user-provided S3 bucket)
 - `create_s3_bucket.enabled = true` (module-managed S3 bucket)
 
 **Bucket Naming (when module-managed):**
+
 - `create_s3_bucket.name` - Exact bucket name (conflicts with name_prefix)
 - `create_s3_bucket.name_prefix` - Prefix with Terraform-generated suffix (max 37 chars)
 - Default: `atlas-backup-{project_id_suffix}-` when neither specified
 
 **Security Defaults (when module-managed):**
+
 - Versioning enabled for backup recovery
 - SSE with aws:kms for encryption at rest
 - All public access blocked
@@ -248,7 +252,6 @@ object({
 ```
 
 Default: `{}`
-
 
 ## Optional Variables
 
@@ -297,7 +300,7 @@ Default: `{}`
 
 ### privatelink_endpoints_single_region
 
-Single-region multi-endpoint pattern. All regions must MATCH (Atlas constraint). See https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints for port range details.
+Single-region multi-endpoint pattern. All regions must MATCH (Atlas constraint). See [Port ranges used for private endpoints](https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints) for port range details.
 
 Type:
 
@@ -365,13 +368,15 @@ Description: Atlas role ID for reuse with other Atlas-AWS features
 
 ## FAQ
 
-### What is `provider_meta "mongodbatlas"` doing?
+### What does `provider_meta "mongodbatlas"` do?
 
-This block tracks module usage by updating the User-Agent of requests to Atlas:
+This block tracks module usage by updating the User-Agent header of requests to Atlas.
 
-```
+Example:
+
+```text
 User-Agent: terraform-provider-mongodbatlas/2.1.0 Terraform/1.13.1 module_name/atlas-aws module_version/0.1.0
 ```
 
-- `provider_meta "mongodbatlas"` does not send any configuration-specific data, only the module's name and version for feature adoption tracking
-- Use `export TF_LOG=debug` to see API requests with headers and responses
+- The `provider_meta "mongodbatlas"` block does not send configuration-specific data. It sends only the module name and version for feature adoption tracking.
+- Use `export TF_LOG=debug` to see API requests with headers and responses.
