@@ -25,7 +25,7 @@ Run 'just gen-readme' to regenerate. -->
 
 ## Public Preview Note
 
-The MongoDB Atlas AWS Module (Public Preview) simplifies Atlas-AWS integrations and apples MongoDB's best practices as intelligent defaults. This preview validates that these patterns meet the needs of most workloads with minimal maintenance or rework. Share feedback and contribute improvements during the preview phase. MongoDB formally supports this module starting with v1.
+The MongoDB Atlas AWS Module (Public Preview) simplifies Atlas-AWS integrations and applies MongoDB's best practices as intelligent defaults. This preview validates that these patterns meet the needs of most workloads with minimal maintenance or rework. Share feedback and contribute improvements during the preview phase. MongoDB formally supports this module starting with v1.
 
 <!-- BEGIN_DISCLAIMER -->
 ## Disclaimer
