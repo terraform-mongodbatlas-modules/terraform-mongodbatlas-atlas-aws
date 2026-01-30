@@ -48,10 +48,7 @@ module "atlas_aws" {
     }
   }
 
-  aws_tags = {
-    Environment = "production"
-    Module      = "atlas-aws"
-  }
+  aws_tags = var.aws_tags
 }
 
 output "backup_export" {
