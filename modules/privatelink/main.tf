@@ -96,4 +96,6 @@ data "mongodbatlas_privatelink_endpoint_service" "this" {
   private_link_id     = var.private_link_id
   endpoint_service_id = mongodbatlas_privatelink_endpoint_service.this.endpoint_service_id
   provider_name       = "AWS"
+
+  depends_on = [mongodbatlas_privatelink_endpoint_service.this]
 }
