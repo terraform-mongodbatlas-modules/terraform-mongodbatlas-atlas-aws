@@ -47,6 +47,11 @@ module "atlas_aws" {
       force_destroy = var.force_destroy
     }
   }
+
+  aws_tags = {
+    Environment = "production"
+    Module      = "atlas-aws"
+  }
 }
 
 output "backup_export" {

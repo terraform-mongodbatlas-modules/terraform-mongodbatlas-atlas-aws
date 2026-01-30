@@ -10,6 +10,11 @@ module "atlas_aws" {
       enable_key_rotation = true
     }
   }
+
+  aws_tags = {
+    Environment = "production"
+    Module      = "atlas-aws"
+  }
 }
 
 output "encryption" {

@@ -34,25 +34,6 @@ Copy and use this code to get started quickly:
 
 **main.tf**
 ```hcl
-data "aws_vpc" "this" {
-  id = var.vpc_id
-}
-
-data "aws_subnets" "private" {
-  count = var.subnet_ids == null ? 1 : 0
-  filter {
-    name   = "vpc-id"
-    values = [var.vpc_id]
-  }
-  tags = {
-    Tier = "Private"
-  }
-}
-
-locals {
-  subnet_ids = var.subnet_ids != null ? var.subnet_ids : data.aws_subnets.private[0].ids
-}
-
 module "atlas_aws" {
   source  = "terraform-mongodbatlas-modules/atlas-aws/mongodbatlas"
   project_id = var.project_id
@@ -60,7 +41,7 @@ module "atlas_aws" {
   privatelink_endpoints = [
     {
       region     = var.aws_region
-      subnet_ids = local.subnet_ids
+      subnet_ids = var.subnet_ids
     }
   ]
 }
