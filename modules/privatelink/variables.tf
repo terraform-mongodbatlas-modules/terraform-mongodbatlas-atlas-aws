@@ -5,7 +5,7 @@ variable "project_id" {
 
 variable "region" {
   type        = string
-  description = "AWS region (e.g., us-east-1)"
+  description = "Region (us-east-1 or US_EAST_1)"
 }
 
 variable "private_link_id" {

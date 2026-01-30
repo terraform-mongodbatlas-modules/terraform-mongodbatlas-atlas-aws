@@ -6,5 +6,4 @@ variable "project_id" {
 variable "aws_region" {
   type        = string
   description = "AWS region"
-  default     = ""
 }

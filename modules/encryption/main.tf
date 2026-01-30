@@ -12,7 +12,7 @@ data "aws_kms_key" "user_provided" {
 
 locals {
   create_kms_key = var.create_kms_key.enabled
-  aws_region     = coalesce(var.region, data.aws_region.current.id)
+  aws_region     = lower(replace(coalesce(var.region, data.aws_region.current.id), "_", "-"))
   atlas_region   = upper(replace(local.aws_region, "-", "_"))
   kms_key_arn    = local.create_kms_key ? aws_kms_key.atlas[0].arn : var.kms_key_arn
   kms_key_id     = local.create_kms_key ? aws_kms_key.atlas[0].key_id : data.aws_kms_key.user_provided[0].key_id

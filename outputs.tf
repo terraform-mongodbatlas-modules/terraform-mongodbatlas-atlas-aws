@@ -17,8 +17,9 @@ output "encryption" {
     private_endpoints = {
       for k, v in module.encryption_private_endpoint :
       k => {
-        id     = v.id
-        status = v.status
+        id            = v.id
+        status        = v.status
+        error_message = v.error_message
       }
     }
   } : null
@@ -27,9 +28,18 @@ output "encryption" {
 output "resource_ids" {
   description = "All resource IDs for data source lookups"
   value = {
-    role_id      = local.role_id
-    iam_role_arn = local.iam_role_arn
-    kms_key_arn  = try(module.encryption[0].kms_key_arn, null)
+    # Cloud Provider Access
+    role_id       = local.role_id
+    iam_role_arn  = local.iam_role_arn
+    iam_role_name = local.iam_role_name
+
+    # Encryption
+    kms_key_arn = try(module.encryption[0].kms_key_arn, null)
+    kms_key_id  = try(module.encryption[0].kms_key_id, null)
+
+    # Backup Export
+    bucket_name = try(module.backup_export[0].bucket_name, null)
+    bucket_arn  = try(module.backup_export[0].bucket_arn, null)
   }
 }
 
@@ -37,13 +47,13 @@ output "privatelink" {
   description = "PrivateLink status per endpoint key"
   value = {
     for key, pl in module.privatelink : key => {
-      region                = local.privatelink_module_calls[key].region
-      private_link_id       = pl.private_link_id
-      endpoint_service_name = pl.endpoint_service_name
-      vpc_endpoint_id       = pl.vpc_endpoint_id
-      status                = pl.status
-      error_message         = pl.error_message
-      security_group_id     = pl.security_group_id
+      region                      = local.privatelink_module_calls[key].region
+      atlas_private_link_id       = pl.atlas_private_link_id
+      atlas_endpoint_service_name = pl.atlas_endpoint_service_name
+      vpc_endpoint_id             = pl.vpc_endpoint_id
+      status                      = pl.status
+      error_message               = pl.error_message
+      security_group_id           = pl.security_group_id
     }
   }
 }
@@ -52,10 +62,10 @@ output "privatelink_service_info" {
   description = "Atlas PrivateLink service info for BYOE pattern"
   value = {
     for key, ep in mongodbatlas_privatelink_endpoint.this : key => {
-      region                = ep.region
-      private_link_id       = ep.private_link_id
-      endpoint_service_name = ep.endpoint_service_name
-      status                = ep.status
+      region                      = ep.region
+      atlas_private_link_id       = ep.private_link_id
+      atlas_endpoint_service_name = ep.endpoint_service_name
+      status                      = ep.status
     }
   }
 }

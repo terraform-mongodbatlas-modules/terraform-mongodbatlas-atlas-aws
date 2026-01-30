@@ -74,6 +74,9 @@ var_groups:
     - name: project_id
       expose_in_workspace: false
       module_value: local.project_id_encryption_private_endpoint
+    - name: aws_region
+      expose_in_workspace: false
+      module_value: '"us-east-1"'
 
   backup_export:
     - name: project_id

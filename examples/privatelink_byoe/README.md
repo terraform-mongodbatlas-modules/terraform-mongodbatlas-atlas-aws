@@ -63,7 +63,7 @@ module "atlas_aws" {
 # Step 2: User-managed AWS VPC Endpoint with custom configuration
 resource "aws_vpc_endpoint" "custom" {
   vpc_id             = var.vpc_id
-  service_name       = module.atlas_aws.privatelink_service_info[local.ep1].endpoint_service_name
+  service_name       = module.atlas_aws.privatelink_service_info[local.ep1].atlas_endpoint_service_name
   vpc_endpoint_type  = "Interface"
   subnet_ids         = var.subnet_ids
   security_group_ids = var.security_group_ids
