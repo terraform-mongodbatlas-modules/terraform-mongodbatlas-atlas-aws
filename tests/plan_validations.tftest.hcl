@@ -527,3 +527,22 @@ run "region_format_atlas_style_encryption_private_endpoints" {
     error_message = "Expected 2 private endpoints with Atlas region format"
   }
 }
+
+run "region_format_mixed_styles_privatelink" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    privatelink_endpoints = [
+      { region = "us-east-1", subnet_ids = ["subnet-abc"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } },
+      { region = "US_WEST_2", subnet_ids = ["subnet-def"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } }
+    ]
+  }
+  assert {
+    condition     = length(module.privatelink) == 2
+    error_message = "Expected 2 privatelink modules with mixed region formats"
+  }
+  assert {
+    condition     = output.regional_mode_enabled == true
+    error_message = "Expected regional mode enabled for multi-region"
+  }
+}
