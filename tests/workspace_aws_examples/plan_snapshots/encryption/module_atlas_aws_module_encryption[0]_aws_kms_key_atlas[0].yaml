@@ -6,3 +6,9 @@ enable_key_rotation: true
 is_enabled: true
 key_usage: ENCRYPT_DECRYPT
 region: us-east-1
+tags:
+  Environment: production
+  Module: atlas-aws
+tags_all:
+  Environment: production
+  Module: atlas-aws

@@ -2,3 +2,9 @@ force_detach_policies: false
 max_session_duration: 3600
 name_prefix: mongodb-atlas-abc-shared
 path: /
+tags:
+  Environment: production
+  Module: atlas-aws
+tags_all:
+  Environment: production
+  Module: atlas-aws

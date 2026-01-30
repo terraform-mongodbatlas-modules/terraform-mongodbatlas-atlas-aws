@@ -1,3 +1,9 @@
 bucket_prefix: mongodb-atlas-tf-
 force_destroy: <force_destroy>
 region: us-east-1
+tags:
+  Environment: production
+  Module: atlas-aws
+tags_all:
+  Environment: production
+  Module: atlas-aws
