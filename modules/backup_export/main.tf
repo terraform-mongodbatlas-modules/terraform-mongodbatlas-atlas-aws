@@ -77,5 +77,5 @@ resource "mongodbatlas_cloud_backup_snapshot_export_bucket" "this" {
   bucket_name    = local.bucket_name
   cloud_provider = "AWS"
 
-  depends_on = [aws_iam_role_policy.s3_access]
+  depends_on = [aws_iam_role_policy.s3_access, aws_s3_bucket.atlas]
 }
