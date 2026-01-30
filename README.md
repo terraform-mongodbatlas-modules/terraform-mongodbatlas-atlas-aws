@@ -155,7 +155,7 @@ Configure AWS PrivateLink endpoints for secure connectivity. See the [AWS Privat
 ### privatelink_endpoints
 
 Multi-region PrivateLink endpoints. Region accepts us-east-1 or US_EAST_1 format. All regions must be UNIQUE.
-See https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints for port range details.
+See [Port ranges used for private endpoints](https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints) for port range details.
 
 Type:
 
@@ -297,7 +297,7 @@ Default: `{}`
 ### privatelink_endpoints_single_region
 
 Single-region multi-endpoint pattern. Region accepts us-east-1 or US_EAST_1 format. All regions must MATCH.
-See https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints for port range details.
+See [Port ranges used for private endpoints](https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints) for port range details.
 
 Type:
 
