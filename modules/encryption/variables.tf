@@ -22,7 +22,7 @@ variable "kms_key_arn" {
 variable "region" {
   type        = string
   default     = null
-  description = "Region (us-east-1 or US_EAST_1). Defaults to provider's region."
+  description = "Region (us-east-1 or US_EAST_1). Defaults to AWS provider's region."
 }
 
 variable "create_kms_key" {
