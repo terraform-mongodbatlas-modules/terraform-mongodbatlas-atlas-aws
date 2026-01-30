@@ -11,4 +11,9 @@ terraform {
       version = ">= 6.0"
     }
   }
+
+  provider_meta "mongodbatlas" {
+    module_name    = "atlas-aws"
+    module_version = "local"
+  }
 }
