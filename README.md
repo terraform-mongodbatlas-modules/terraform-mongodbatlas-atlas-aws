@@ -1,4 +1,6 @@
-# Atlas AWS Terraform Module
+# MongoDB Atlas AWS Terraform Module
+
+Use this Terraform module to configure MongoDB Atlas integrations with AWS. The module includes recommended defaults based on MongoDB best practices.
 
 <!-- BEGIN_TOC -->
 <!-- @generated
@@ -23,12 +25,12 @@ Run 'just gen-readme' to regenerate. -->
 
 ## Public Preview Note
 
-The MongoDB Atlas AWS Module (Public Preview) simplifies Atlas-AWS integrations and embeds MongoDB's best practices as intelligent defaults. This preview validates that these patterns meet the needs of most workloads without constant maintenance or rework. We welcome your feedback and contributions during this preview phase. MongoDB formally supports this module from its v1 release onwards.
+The MongoDB Atlas AWS Module (Public Preview) simplifies Atlas-AWS integrations and applies MongoDB's best practices as intelligent defaults. This preview validates that these patterns meet the needs of most workloads with minimal maintenance or rework. Share feedback and contribute improvements during the preview phase. MongoDB formally supports this module starting with v1.
 
 <!-- BEGIN_DISCLAIMER -->
 ## Disclaimer
 
-One of this project's primary objectives is to provide durable modules that support non-breaking migration and upgrade paths. The v0 release (public preview) of the MongoDB Atlas AWS Module focuses on gathering feedback and refining the design. Upgrades from v0 to v1 may not be seamless. We plan to deliver a finalized v1 release early next year with long term upgrade support.  
+One of the project's primary objectives is to provide durable modules that support non-breaking migration and upgrade paths. The v0 release (Public Preview) of the MongoDB Atlas AWS Module focuses on gathering feedback and refining the design. Upgrades from v0 to v1 may not be seamless. We plan to deliver a finalized v1 release early next year with long-term upgrade support.
 
 <!-- END_DISCLAIMER -->
 <!-- BEGIN_TABLES -->
@@ -154,7 +156,7 @@ Configure AWS PrivateLink endpoints for secure connectivity. See the [AWS Privat
 ### privatelink_endpoints
 
 Multi-region PrivateLink endpoints. Region accepts us-east-1 or US_EAST_1 format. All regions must be UNIQUE.
-See https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints for port range details.
+See [Port ranges used for private endpoints](https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints) for port range details.
 
 Type:
 
@@ -179,7 +181,7 @@ Default: `[]`
 
 ### privatelink_byoe
 
-BYOE Phase 2: Key must exist in privatelink_byoe_regions.
+BYOE Phase 2: Key must exist in `privatelink_byoe_regions`.
 
 Type:
 
@@ -295,7 +297,7 @@ Default: `{}`
 ### privatelink_endpoints_single_region
 
 Single-region multi-endpoint pattern. Region accepts us-east-1 or US_EAST_1 format. All regions must MATCH.
-See https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints for port range details.
+See [Port ranges used for private endpoints](https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints) for port range details.
 
 Type:
 
@@ -363,13 +365,15 @@ Description: Atlas role ID for reuse with other Atlas-AWS features
 
 ## FAQ
 
-### What is `provider_meta "mongodbatlas"` doing?
+### What does `provider_meta "mongodbatlas"` do?
 
-This block tracks module usage by updating the User-Agent of requests to Atlas:
+This block tracks module usage by updating the User-Agent header of requests to Atlas.
 
-```
+Example:
+
+```text
 User-Agent: terraform-provider-mongodbatlas/2.1.0 Terraform/1.13.1 module_name/atlas-aws module_version/0.1.0
 ```
 
-- `provider_meta "mongodbatlas"` does not send any configuration-specific data, only the module's name and version for feature adoption tracking
-- Use `export TF_LOG=debug` to see API requests with headers and responses
+- The `provider_meta "mongodbatlas"` block does not send configuration-specific data. It sends only the module name and version for feature adoption tracking.
+- Use `export TF_LOG=debug` to see API requests with headers and responses.

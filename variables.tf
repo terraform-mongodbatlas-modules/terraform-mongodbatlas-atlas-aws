@@ -101,7 +101,7 @@ variable "privatelink_endpoints" {
   default     = []
   description = <<-EOT
     Multi-region PrivateLink endpoints. Region accepts us-east-1 or US_EAST_1 format. All regions must be UNIQUE.
-    See https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints for port range details.
+    See [Port ranges used for private endpoints](https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints) for port range details.
   EOT
 
   validation {
@@ -128,7 +128,7 @@ variable "privatelink_endpoints_single_region" {
   default     = []
   description = <<-EOT
     Single-region multi-endpoint pattern. Region accepts us-east-1 or US_EAST_1 format. All regions must MATCH.
-    See https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints for port range details.
+    See [Port ranges used for private endpoints](https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints) for port range details.
   EOT
 
   validation {
@@ -149,7 +149,7 @@ variable "privatelink_byoe_regions" {
 
   validation {
     condition     = length(setintersection(keys(var.privatelink_byoe_regions), [for ep in var.privatelink_endpoints : ep.region])) == 0
-    error_message = "Regions in privatelink_byoe_regions must not overlap with regions in privatelink_endpoints."
+    error_message = "Regions in `privatelink_byoe_regions` must not overlap with regions in privatelink_endpoints."
   }
 }
 
@@ -158,11 +158,11 @@ variable "privatelink_byoe" {
     vpc_endpoint_id = string
   }))
   default     = {}
-  description = "BYOE Phase 2: Key must exist in privatelink_byoe_regions."
+  description = "BYOE Phase 2: Key must exist in `privatelink_byoe_regions`."
 
   validation {
     condition     = alltrue([for k in keys(var.privatelink_byoe) : contains(keys(var.privatelink_byoe_regions), k)])
-    error_message = "All keys in privatelink_byoe must exist in privatelink_byoe_regions."
+    error_message = "All keys in `privatelink_byoe` must exist in `privatelink_byoe_regions`."
   }
 }
 
