@@ -96,6 +96,7 @@ MongoDB Atlas project ID
 
 Type: `string`
 
+
 ## AWS Cloud Provider Access
 
 Configure the AWS IAM role used by MongoDB Atlas. See the [AWS cloud provider access documentation](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/) for details.
@@ -111,7 +112,6 @@ Configure encryption at rest using AWS KMS. See the [AWS encryption documentatio
 Encryption at rest configuration with AWS KMS.
 
 Provide EITHER:
-
 - `kms_key_arn` (user-provided KMS key)
 - `create_kms_key.enabled = true` (module-managed KMS key)
 
@@ -147,6 +147,7 @@ object({
 ```
 
 Default: `{}`
+
 
 ## Private Link
 
@@ -192,6 +193,7 @@ map(object({
 
 Default: `{}`
 
+
 ## Backup Export
 
 Configure backup snapshot export to AWS S3.
@@ -201,18 +203,15 @@ Configure backup snapshot export to AWS S3.
 Backup snapshot export to S3 configuration.
 
 Provide EITHER:
-
 - `bucket_name` (user-provided S3 bucket)
 - `create_s3_bucket.enabled = true` (module-managed S3 bucket)
 
 **Bucket Naming (when module-managed):**
-
 - `create_s3_bucket.name` - Exact bucket name (conflicts with name_prefix)
 - `create_s3_bucket.name_prefix` - Prefix with Terraform-generated suffix (max 37 chars)
 - Default: `atlas-backup-{project_id_suffix}-` when neither specified
 
 **Security Defaults (when module-managed):**
-
 - Versioning enabled for backup recovery
 - SSE with aws:kms for encryption at rest
 - All public access blocked
@@ -248,6 +247,7 @@ object({
 ```
 
 Default: `{}`
+
 
 ## Optional Variables
 
