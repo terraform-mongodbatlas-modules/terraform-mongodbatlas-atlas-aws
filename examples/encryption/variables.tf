@@ -8,3 +8,9 @@ variable "aws_region" {
   description = "AWS region"
   default     = ""
 }
+
+variable "aws_tags" {
+  type        = map(string)
+  description = "Tags to apply to AWS resources"
+  default     = {}
+}
