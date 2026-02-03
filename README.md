@@ -89,33 +89,42 @@ resource "mongodbatlas_project" "this" {
 
 Take the following steps to configure encryption at rest with AWS KMS:
 
-1. Prepare your `vars.tfvars` file.
+1. Prepare your terraform files.
   
-    The following example shows a basic `vars.tfvars` configuration that creates a new KMS key managed by this module:
+   You can copy the files directly from the ones provided in this module:
+
+    - [examples/encryption/main.tf](examples/encryption/main.tf)
+    - [examples/encryption/variables.tf](examples/encryption/variables.tf)
+    - [examples/encryption/versions.tf](examples/encryption/versions.tf)
+
+    The following code example shows a basic example of a `main.tf` file configuration:
+
+    ```hcl
+    module "atlas_aws" {
+      source     = "terraform-mongodbatlas-modules/atlas-aws/mongodbatlas"
+      project_id = var.project_id
+
+      encryption = {
+        enabled = true
+        create_kms_key = {
+          enabled             = true
+          alias               = "alias/atlas-encryption"
+          enable_key_rotation = true
+        }
+      }
+    }
+    ```
+
+2. Prepare your [variables](#required-variables)
+
+    The following example shows `vars.tfvars` with the minimum required values to provide at `apply` time:
 
     ```hcl
     # vars.tfvars
     project_id = "YOUR_ATLAS_PROJECT_ID"
     ```
 
-    This configuration enables the following defaults:
-    - Creates a new KMS key with automatic key rotation enabled
-    - Uses the alias `alias/atlas-encryption`
-    - Automatically configures the necessary IAM roles and policies for Atlas to access the KMS key
-
-    For advanced configurations, you can customize the encryption settings:
-
-    ```hcl
-    # vars.tfvars (advanced)
-    project_id = "YOUR_ATLAS_PROJECT_ID"
-    aws_region = "us-east-1"
-    aws_tags = {
-      Environment = "production"
-      ManagedBy   = "terraform"
-    }
-    ```
-
-2. Ensure your authentication environment variables are configured.
+3. Ensure your authentication environment variables are configured.
 
     ```sh
     export MONGODB_ATLAS_CLIENT_ID="your-client-id-goes-here"
@@ -126,12 +135,11 @@ Take the following steps to configure encryption at rest with AWS KMS:
 
     See [Prerequisites](#prerequisites) for more details.
 
-3. Initialize and apply your Terraform configuration (see [Commands](#commands)).
+4. Initialize and apply your Terraform configuration (see [Commands](#commands)).
 
-4. Verify outputs. After apply, note:
+5. Verify outputs. After running the `apply` command, note:
   
     - [encryption](#output_encryption) - Contains details about the KMS key and encryption configuration
-    - [cloud_provider_access](#output_cloud_provider_access) - Contains the IAM role ARN used by Atlas
 
 You now have encryption at rest configured with AWS KMS.
 
