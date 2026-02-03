@@ -1,7 +1,9 @@
 <!-- path-sync copy -n sdlc -->
 # Contributing Guides
 
-This directory contains guides for contributors to the terraform-mongodbatlas-cluster module.
+This directory contains guides for contributors to the terraform-mongodbatlas-atlas-aws module.
+
+Start with the [Development Guide](development-guide.md) to set up your environment.
 
 ## Available Guides
 
