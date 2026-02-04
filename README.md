@@ -87,7 +87,7 @@ resource "mongodbatlas_project" "this" {
 
 ### Set Up Encryption at Rest with AWS KMS
 
-Take the following steps to configure encryption at rest with AWS KMS:
+Complete the following steps to configure encryption at rest with AWS KMS:
 
 1. Prepare your terraform files.
   
