@@ -117,14 +117,40 @@ Take the following steps to configure encryption at rest with AWS KMS:
 
 2. Prepare your [variables](#required-variables)
 
-    The following example shows `vars.tfvars` with the minimum required values to provide at `apply` time:
+    The following example shows a `vars.tfvars` with the recommended variables to provide at `apply` time:
 
     ```hcl
-    # vars.tfvars
-    project_id = "YOUR_ATLAS_PROJECT_ID"
+    variable "project_id" {
+      type        = string
+      description = "MongoDB Atlas project ID"
+    }
+
+    variable "aws_region" {
+      type        = string
+      description = "AWS region"
+      default     = ""
+    }
+
+    variable "aws_tags" {
+      type        = map(string)
+      description = "Tags to apply to AWS resources"
+      default     = {}
+    }
     ```
 
+    **Note:** The `project_id` variable is the only [required variable](#required-variables).
+
 3. Ensure your authentication environment variables are configured.
+
+    The best practice is to use an [`AWS_PROFILE`](https://docs.aws.amazon.com/cli/latest/reference/configure/) environment variable.
+
+    ```sh
+    export MONGODB_ATLAS_CLIENT_ID="your-client-id-goes-here"
+    export MONGODB_ATLAS_CLIENT_SECRET="your-client-secret-goes-here"
+    export AWS_PROFILE="your-aws-profile-goes-here"
+    ```
+
+    Alternatively, you can use an access key and ID.
 
     ```sh
     export MONGODB_ATLAS_CLIENT_ID="your-client-id-goes-here"
@@ -133,9 +159,11 @@ Take the following steps to configure encryption at rest with AWS KMS:
     export AWS_SECRET_ACCESS_KEY="your-aws-secret-access-key"
     ```
 
-    See [Prerequisites](#prerequisites) for more details.
+    **Note:** If you decide to use an access key and ID, ensure you have `aws_region` set in your `vars.tfvars`file.
 
-4. Initialize and apply your Terraform configuration (see [Commands](#commands)).
+    For more details on authentication methods, see [Prerequisites](#prerequisites).
+
+4. Initialize and apply your Terraform configuration (See [Commands](#commands)).
 
 5. Verify outputs. After running the `apply` command, note:
   
