@@ -124,7 +124,7 @@ Complete the following steps to configure encryption at rest with AWS KMS:
 
     The following example shows a `vars.tfvars` with the variables to provide at `apply` time:
 
-    ```sh
+    ```hcl
     project_id = "YOUR_PROJECT_ID"
     aws_region = "YOUR_AWS_REGION"
     ```
