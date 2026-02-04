@@ -3,11 +3,6 @@ variable "project_id" {
   description = "MongoDB Atlas project ID"
 }
 
-variable "aws_region" {
-  type        = string
-  description = "AWS region"
-}
-
 variable "cloud_provider_access" {
   type = object({
     create = optional(bool, true)
