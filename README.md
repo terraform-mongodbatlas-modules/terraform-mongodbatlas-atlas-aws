@@ -81,17 +81,17 @@ resource "mongodbatlas_project" "this" {
 }
 ```
 
-- You can use this and replace the `var.project_id` with `mongodbatlas_project.this.project_id` in the [main.tf](./main.tf) file.
+- Replace the `var.project_id` with `mongodbatlas_project.this.project_id` in the [main.tf](./main.tf) file.
 
 <!-- END_GETTING_STARTED -->
 
 ### Set Up Encryption at Rest with AWS KMS
 
-Take the following steps to configure encryption at rest with AWS KMS:
+Complete the following steps to configure encryption at rest with AWS KMS:
 
 1. Prepare your terraform files.
   
-   You can copy the files directly from the ones provided in this module:
+   You can copy the files directly from the examples provided in this module:
 
     - [examples/encryption/main.tf](examples/encryption/main.tf)
     - [examples/encryption/variables.tf](examples/encryption/variables.tf)
