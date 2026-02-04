@@ -112,6 +112,11 @@ Take the following steps to configure encryption at rest with AWS KMS:
           enable_key_rotation = true
         }
       }
+    
+      output "all_outputs" {
+        value = module.atlas_aws
+      }
+    
     }
     ```
 
@@ -155,9 +160,7 @@ Take the following steps to configure encryption at rest with AWS KMS:
 
 4. Initialize and apply your Terraform configuration (See [Commands](#commands)).
 
-5. Verify outputs. After running the `apply` command, note:
-  
-    - [encryption](#output_encryption) - Contains details about the KMS key and encryption configuration
+5. Verify your [outputs](#outputs).
 
 You now have encryption at rest configured with AWS KMS.
 
