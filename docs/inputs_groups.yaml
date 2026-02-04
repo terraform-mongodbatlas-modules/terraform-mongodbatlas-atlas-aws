@@ -5,6 +5,7 @@ sections:
     match:
       names:
         - project_id
+        - aws_region
 
   - id: cloud_provider_access
     title: "AWS Cloud Provider Access"
