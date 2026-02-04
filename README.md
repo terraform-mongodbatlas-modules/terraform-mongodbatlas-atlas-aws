@@ -120,22 +120,8 @@ Take the following steps to configure encryption at rest with AWS KMS:
     The following example shows a `vars.tfvars` with the recommended variables to provide at `apply` time:
 
     ```hcl
-    variable "project_id" {
-      type        = string
-      description = "MongoDB Atlas project ID"
-    }
-
-    variable "aws_region" {
-      type        = string
-      description = "AWS region"
-      default     = ""
-    }
-
-    variable "aws_tags" {
-      type        = map(string)
-      description = "Tags to apply to AWS resources"
-      default     = {}
-    }
+    # vars.tfvars
+    aws_region = "YOUR_AWS_REGION
     ```
 
     **Note:** The `project_id` variable is the only [required variable](#required-variables).
