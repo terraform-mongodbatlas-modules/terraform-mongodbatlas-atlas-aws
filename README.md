@@ -121,7 +121,7 @@ Take the following steps to configure encryption at rest with AWS KMS:
 
     ```hcl
     # vars.tfvars
-    project_id = "YOUR_ATLAS_PROJECT_ID"
+    aws_region = "YOUR_AWS_REGION
     ```
 
 3. Ensure your authentication environment variables are configured.
