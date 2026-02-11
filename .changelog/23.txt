@@ -1,0 +1,3 @@
+```release-note:bug
+output/export_bucket_id: Uses correct `export_bucket_id` instead of internal `id` field
+```
