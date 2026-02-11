@@ -46,7 +46,7 @@ resource "mongodbatlas_project" "this" {
 }
 ```
 
-- Replace the `var.project_id` with `mongodbatlas_project.this.project_id` in the [main.tf](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.1.1/examples/encryption_private_endpoint/main.tf) file.
+- Replace the `var.project_id` with `mongodbatlas_project.this.project_id` in the [main.tf](./main.tf) file.
 <!-- END_GETTING_STARTED -->
 
 ## Code Snippet
@@ -63,7 +63,6 @@ resource "aws_kms_key" "atlas" {
 
 module "atlas_aws" {
   source  = "terraform-mongodbatlas-modules/atlas-aws/mongodbatlas"
-  version = "v0.1.1"
   project_id = var.project_id
 
   encryption = {
@@ -79,8 +78,8 @@ output "encryption" {
 ```
 
 **Additional files needed:**
-- [variables.tf](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.1.1/examples/encryption_private_endpoint/variables.tf)
-- [versions.tf](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.1.1/examples/encryption_private_endpoint/versions.tf)
+- [variables.tf](./variables.tf)
+- [versions.tf](./versions.tf)
 
 
 

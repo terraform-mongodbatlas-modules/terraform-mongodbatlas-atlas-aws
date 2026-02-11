@@ -81,7 +81,7 @@ resource "mongodbatlas_project" "this" {
 }
 ```
 
-- Replace the `var.project_id` with `mongodbatlas_project.this.project_id` in the [main.tf](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.1.1/main.tf) file.
+- Replace the `var.project_id` with `mongodbatlas_project.this.project_id` in the [main.tf](./main.tf) file.
 
 <!-- END_GETTING_STARTED -->
 
@@ -93,9 +93,9 @@ Complete the following steps to configure encryption at rest with AWS KMS:
   
    You can copy the files directly from the examples provided in this module:
 
-    - [examples/encryption/main.tf](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.1.1/examples/encryption/main.tf)
-    - [examples/encryption/variables.tf](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.1.1/examples/encryption/variables.tf)
-    - [examples/encryption/versions.tf](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.1.1/examples/encryption/versions.tf)
+    - [examples/encryption/main.tf](examples/encryption/main.tf)
+    - [examples/encryption/variables.tf](examples/encryption/variables.tf)
+    - [examples/encryption/versions.tf](examples/encryption/versions.tf)
 
     The following code example shows a basic example of a `main.tf` file configuration:
 
@@ -171,12 +171,12 @@ Run 'just gen-readme' to regenerate. -->
 
 Feature | Name
 --- | ---
-Encryption at Rest | [AWS KMS Integration](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.1.1/examples/encryption)
-Encryption at Rest | [AWS KMS Integration with Private Endpoint](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.1.1/examples/encryption_private_endpoint)
-Private Link | [AWS PrivateLink Endpoint](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.1.1/examples/privatelink)
-Private Link | [AWS PrivateLink Multi-Region](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.1.1/examples/privatelink_multi_region)
-Private Link | [AWS PrivateLink BYOE](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.1.1/examples/privatelink_byoe)
-Backup Export | [S3 Bucket Export](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.1.1/examples/backup_export)
+Encryption at Rest | [AWS KMS Integration](./examples/encryption)
+Encryption at Rest | [AWS KMS Integration with Private Endpoint](./examples/encryption_private_endpoint)
+Private Link | [AWS PrivateLink Endpoint](./examples/privatelink)
+Private Link | [AWS PrivateLink Multi-Region](./examples/privatelink_multi_region)
+Private Link | [AWS PrivateLink BYOE](./examples/privatelink_byoe)
+Backup Export | [S3 Bucket Export](./examples/backup_export)
 
 <!-- END_TABLES -->
 <!-- BEGIN_TF_DOCS -->
