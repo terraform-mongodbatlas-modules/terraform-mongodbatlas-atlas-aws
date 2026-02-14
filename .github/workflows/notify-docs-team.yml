@@ -20,9 +20,8 @@ jobs:
         with:
           filters: |
             files:
-              - '.changelog/*.txt'
-              - 'README.md'
-              - 'docs/*.md'
+              - '.changelog/**'
+              - '**/*.md'
 
   slack-notification:
     needs: check
