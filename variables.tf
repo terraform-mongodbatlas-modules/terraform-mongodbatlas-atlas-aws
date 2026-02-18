@@ -43,6 +43,7 @@ variable "encryption" {
       enable_key_rotation     = optional(bool, true)
       policy_override         = optional(string)
     }))
+    enabled_for_search_nodes = optional(bool, true)
     private_endpoint_regions = optional(set(string), [])
     iam_role = optional(object({
       create               = optional(bool, false)
@@ -62,6 +63,9 @@ variable "encryption" {
     **IAM Role Strategy:**
     - `iam_role.create = false` (default): Uses the shared IAM role from `cloud_provider_access`.
     - `iam_role.create = true`: Creates a dedicated IAM role for encryption.
+
+    **Search Node Encryption:**
+    `enabled_for_search_nodes` (default: `true`) controls whether BYOK encryption applies to dedicated search nodes. The module defaults to `true` (provider default is `false`) for a secure-by-default experience. Flipping from `false` to `true` on a deployment with dedicated search nodes triggers reprovisioning and index rebuild.
 
     **Private Networking:**
     When `private_endpoint_regions` is non-empty, Atlas creates PrivateLink connections to AWS KMS. Traffic stays on AWS's private network. No user-side VPC endpoint required.

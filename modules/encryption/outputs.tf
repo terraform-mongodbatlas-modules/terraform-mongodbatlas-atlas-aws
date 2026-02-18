@@ -32,3 +32,8 @@ output "aws_region" {
   description = "AWS region format"
   value       = local.aws_region
 }
+
+output "enabled_for_search_nodes" {
+  description = "Whether encryption at rest is enabled for dedicated search nodes"
+  value       = mongodbatlas_encryption_at_rest.this.enabled_for_search_nodes
+}

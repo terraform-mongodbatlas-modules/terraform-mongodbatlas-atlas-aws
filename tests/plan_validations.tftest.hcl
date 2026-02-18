@@ -171,6 +171,37 @@ run "encryption_with_private_endpoints" {
   }
 }
 
+run "encryption_enabled_for_search_nodes_default_true" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    encryption = {
+      enabled     = true
+      kms_key_arn = "arn:aws:kms:us-east-1:123456789012:key/abc"
+    }
+  }
+  assert {
+    condition     = output.encryption.enabled_for_search_nodes == true
+    error_message = "Expected enabled_for_search_nodes to default to true"
+  }
+}
+
+run "encryption_enabled_for_search_nodes_explicit_false" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    encryption = {
+      enabled                  = true
+      kms_key_arn              = "arn:aws:kms:us-east-1:123456789012:key/abc"
+      enabled_for_search_nodes = false
+    }
+  }
+  assert {
+    condition     = output.encryption.enabled_for_search_nodes == false
+    error_message = "Expected enabled_for_search_nodes to be false when explicitly set"
+  }
+}
+
 run "encryption_no_private_endpoints_by_default" {
   command = plan
   variables {

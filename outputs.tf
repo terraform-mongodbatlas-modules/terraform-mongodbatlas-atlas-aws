@@ -11,9 +11,10 @@ output "encryption_at_rest_provider" {
 output "encryption" {
   description = "Encryption at rest status and configuration"
   value = var.encryption.enabled ? {
-    valid       = module.encryption[0].valid
-    kms_key_arn = module.encryption[0].kms_key_arn
-    kms_key_id  = module.encryption[0].kms_key_id
+    valid                    = module.encryption[0].valid
+    kms_key_arn              = module.encryption[0].kms_key_arn
+    kms_key_id               = module.encryption[0].kms_key_id
+    enabled_for_search_nodes = module.encryption[0].enabled_for_search_nodes
     private_endpoints = {
       for k, v in module.encryption_private_endpoint :
       k => {

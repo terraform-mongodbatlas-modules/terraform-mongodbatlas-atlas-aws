@@ -67,7 +67,8 @@ resource "aws_iam_role_policy" "kms_access" {
 # ─────────────────────────────────────────────────────────────────────────────
 
 resource "mongodbatlas_encryption_at_rest" "this" {
-  project_id = var.project_id
+  project_id               = var.project_id
+  enabled_for_search_nodes = var.enabled_for_search_nodes
 
   aws_kms_config {
     enabled                    = true

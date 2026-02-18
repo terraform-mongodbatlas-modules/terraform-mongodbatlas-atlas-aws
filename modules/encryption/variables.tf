@@ -51,3 +51,9 @@ variable "require_private_networking" {
   default     = false
   description = "Require private networking for KMS"
 }
+
+variable "enabled_for_search_nodes" {
+  type        = bool
+  default     = true
+  description = "Whether BYOK encryption at rest applies to dedicated search nodes. Module defaults to true (provider default is false) for secure-by-default."
+}
