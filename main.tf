@@ -45,6 +45,7 @@ module "encryption" {
   create_kms_key             = var.encryption.create_kms_key
   tags                       = var.aws_tags
   require_private_networking = local.encryption_require_private_networking
+  enabled_for_search_nodes   = var.encryption.enabled_for_search_nodes
 
   depends_on = [module.cloud_provider_access, module.encryption_cloud_provider_access]
 }
