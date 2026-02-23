@@ -6,7 +6,6 @@ resource "mongodbatlas_cloud_provider_access_setup" "this" {
 locals {
   project_id_suffix = substr(var.project_id, max(0, length(var.project_id) - 8), 8)
   default_prefix    = "mongodb-atlas-${local.project_id_suffix}-${var.purpose}"
-  iam_role_name     = coalesce(var.iam_role_name, local.default_prefix)
   name_prefix       = var.iam_role_name == null ? local.default_prefix : null
 }
 
