@@ -1,5 +1,3 @@
-data "aws_region" "current" {}
-
 module "cloud_provider_access" {
   count  = local.create_cloud_provider_access ? 1 : 0
   source = "./modules/cloud_provider_access"
