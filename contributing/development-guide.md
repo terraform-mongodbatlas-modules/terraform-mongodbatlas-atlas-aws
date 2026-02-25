@@ -108,7 +108,7 @@ To skip hooks temporarily: `git commit --no-verify` or `git push --no-verify`.
 
 ## Testing
 
-See [test-guide.md](./test-guide.md) for detailed testing documentation including:
+See [test-guide.md](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.2.0/contributing/test-guide.md) for detailed testing documentation including:
 - Authentication setup
 - Unit and integration tests
 - Version compatibility testing
@@ -187,6 +187,6 @@ git push origin feature/your-feature-name
 
 ## Getting Help
 
-- Check [Issues](../../../issues) for similar problems
+- Check [Issues](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.2.0/../../../issues) for similar problems
 - Create new issue with output from `just pre-commit` if needed
 - See [Terraform docs](https://www.terraform.io/docs) and [MongoDB Atlas Provider docs](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs)
