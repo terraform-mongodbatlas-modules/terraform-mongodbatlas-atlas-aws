@@ -46,7 +46,7 @@ resource "mongodbatlas_project" "this" {
 }
 ```
 
-- Replace the `var.project_id` with `mongodbatlas_project.this.project_id` in the [main.tf](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.2.0/examples/privatelink_byoe/main.tf) file.
+- Replace the `var.project_id` with `mongodbatlas_project.this.project_id` in the [main.tf](./main.tf) file.
 <!-- END_GETTING_STARTED -->
 
 ## Code Snippet
@@ -71,7 +71,6 @@ locals {
 
 module "atlas_aws" {
   source  = "terraform-mongodbatlas-modules/atlas-aws/mongodbatlas"
-  version = "v0.2.0"
 
   project_id = var.project_id
 
@@ -107,8 +106,8 @@ output "vpc_endpoint_id" {
 ```
 
 **Additional files needed:**
-- [variables.tf](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.2.0/examples/privatelink_byoe/variables.tf)
-- [versions.tf](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.2.0/examples/privatelink_byoe/versions.tf)
+- [variables.tf](./variables.tf)
+- [versions.tf](./versions.tf)
 
 
 
