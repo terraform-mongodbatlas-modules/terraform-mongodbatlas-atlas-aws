@@ -1,0 +1,3 @@
+```release-note:enhancement
+variable/timeouts: Adds configurable timeout overrides for Atlas resources (cloud_provider_access, encryption_private_endpoint, privatelink_endpoint, privatelink_endpoint_service, privatelink_regional_mode)
+```
