@@ -14,5 +14,6 @@ variable "timeouts" {
     delete                   = optional(string)
     delete_on_create_timeout = optional(bool)
   })
-  default = null
+  default     = null
+  description = "Timeout overrides for encryption_at_rest_private_endpoint. See root module timeouts variable."
 }

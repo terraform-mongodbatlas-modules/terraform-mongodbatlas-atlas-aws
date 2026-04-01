@@ -69,5 +69,6 @@ variable "timeouts" {
     delete                   = optional(string)
     delete_on_create_timeout = optional(bool)
   })
-  default = null
+  default     = null
+  description = "Timeout overrides for privatelink_endpoint_service. See root module timeouts variable."
 }

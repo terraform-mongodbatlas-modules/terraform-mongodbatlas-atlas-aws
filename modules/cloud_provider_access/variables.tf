@@ -46,5 +46,6 @@ variable "timeouts" {
     create                   = optional(string)
     delete_on_create_timeout = optional(bool)
   })
-  default = null
+  default     = null
+  description = "Timeout overrides for cloud_provider_access_setup. See root module timeouts variable."
 }
