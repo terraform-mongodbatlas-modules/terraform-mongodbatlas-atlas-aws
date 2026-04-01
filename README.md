@@ -450,6 +450,45 @@ list(object({
 
 Default: `[]`
 
+### timeouts
+
+Timeout overrides for Atlas resources. All fields default to null (provider behavior).
+Timeout strings use Go duration format (e.g., "30m", "1h").
+`delete_on_create_timeout`: when true, a create that times out also triggers a delete.
+
+Type:
+
+```hcl
+object({
+  cloud_provider_access = optional(object({
+    create                   = optional(string)
+    delete_on_create_timeout = optional(bool)
+  }))
+  encryption_private_endpoint = optional(object({
+    create                   = optional(string)
+    delete                   = optional(string)
+    delete_on_create_timeout = optional(bool)
+  }))
+  privatelink_endpoint = optional(object({
+    create                   = optional(string)
+    delete                   = optional(string)
+    delete_on_create_timeout = optional(bool)
+  }))
+  privatelink_endpoint_service = optional(object({
+    create                   = optional(string)
+    delete                   = optional(string)
+    delete_on_create_timeout = optional(bool)
+  }))
+  privatelink_regional_mode = optional(object({
+    create = optional(string)
+    delete = optional(string)
+    update = optional(string)
+  }))
+})
+```
+
+Default: `{}`
+
 <!-- END_TF_INPUTS_RAW -->
 
 ## Outputs

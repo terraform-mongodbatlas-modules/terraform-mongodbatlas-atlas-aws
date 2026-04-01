@@ -8,6 +8,7 @@ module "cloud_provider_access" {
   iam_role_path                 = var.cloud_provider_access.iam_role_path
   iam_role_permissions_boundary = var.cloud_provider_access.iam_role_permissions_boundary
   tags                          = var.aws_tags
+  timeouts                      = var.timeouts.cloud_provider_access
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -24,6 +25,7 @@ module "encryption_cloud_provider_access" {
   iam_role_path                 = var.encryption.iam_role.path
   iam_role_permissions_boundary = var.encryption.iam_role.permissions_boundary
   tags                          = var.aws_tags
+  timeouts                      = var.timeouts.cloud_provider_access
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -54,6 +56,7 @@ module "encryption_private_endpoint" {
 
   project_id = var.project_id
   region     = each.key
+  timeouts   = var.timeouts.encryption_private_endpoint
 
   depends_on = [module.encryption]
 }
@@ -72,6 +75,7 @@ module "backup_export_cloud_provider_access" {
   iam_role_path                 = var.backup_export.iam_role.path
   iam_role_permissions_boundary = var.backup_export.iam_role.permissions_boundary
   tags                          = var.aws_tags
+  timeouts                      = var.timeouts.cloud_provider_access
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -100,6 +104,15 @@ resource "mongodbatlas_private_endpoint_regional_mode" "this" {
   count      = local.enable_regional_mode ? 1 : 0
   project_id = var.project_id
   enabled    = true
+
+  dynamic "timeouts" {
+    for_each = var.timeouts.regional_mode[*]
+    content {
+      create = timeouts.value.create
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
+  }
 }
 
 resource "mongodbatlas_privatelink_endpoint" "this" {
@@ -107,6 +120,15 @@ resource "mongodbatlas_privatelink_endpoint" "this" {
   project_id    = var.project_id
   provider_name = "AWS"
   region        = lower(replace(each.value.region, "_", "-")) # AWS format (us-east-1)
+
+  dynamic "timeouts" {
+    for_each = var.timeouts.privatelink_endpoint[*]
+    content {
+      create = timeouts.value.create
+      delete = timeouts.value.delete
+    }
+  }
+  delete_on_create_timeout = try(var.timeouts.privatelink_endpoint.delete_on_create_timeout, null)
 }
 
 module "privatelink" {
@@ -134,7 +156,8 @@ module "privatelink" {
     to_port             = try(each.value.security_group.to_port, 65535)
   }
 
-  tags = merge(var.aws_tags, each.value.tags)
+  tags     = merge(var.aws_tags, each.value.tags)
+  timeouts = var.timeouts.privatelink_endpoint_service
 
   depends_on = [mongodbatlas_private_endpoint_regional_mode.this]
 }

@@ -40,3 +40,11 @@ variable "tags" {
   default     = {}
   description = "Tags for AWS resources"
 }
+
+variable "timeouts" {
+  type = object({
+    create                   = optional(string)
+    delete_on_create_timeout = optional(bool)
+  })
+  default = null
+}

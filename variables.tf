@@ -236,6 +236,41 @@ variable "backup_export" {
   }
 }
 
+variable "timeouts" {
+  type = object({
+    cloud_provider_access = optional(object({
+      create                   = optional(string)
+      delete_on_create_timeout = optional(bool)
+    }))
+    encryption_private_endpoint = optional(object({
+      create                   = optional(string)
+      delete                   = optional(string)
+      delete_on_create_timeout = optional(bool)
+    }))
+    privatelink_endpoint = optional(object({
+      create                   = optional(string)
+      delete                   = optional(string)
+      delete_on_create_timeout = optional(bool)
+    }))
+    privatelink_endpoint_service = optional(object({
+      create                   = optional(string)
+      delete                   = optional(string)
+      delete_on_create_timeout = optional(bool)
+    }))
+    regional_mode = optional(object({
+      create = optional(string)
+      delete = optional(string)
+      update = optional(string)
+    }))
+  })
+  default     = {}
+  description = <<-EOT
+    Timeout overrides for Atlas resources. All fields default to null (provider behavior).
+    Timeout strings use Go duration format (e.g., "30m", "1h").
+    `delete_on_create_timeout`: when true, a create that times out also triggers a delete.
+  EOT
+}
+
 variable "aws_tags" {
   type        = map(string)
   default     = {}
