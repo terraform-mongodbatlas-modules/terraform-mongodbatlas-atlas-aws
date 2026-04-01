@@ -529,6 +529,10 @@ run "region_format_atlas_style_privatelink" {
     condition     = contains(keys(output.privatelink_service_info), "us-east-1")
     error_message = "Expected normalized key us-east-1 in privatelink_service_info"
   }
+  assert {
+    condition     = contains(keys(output.privatelink), "us-east-1")
+    error_message = "Expected normalized key us-east-1 in privatelink output"
+  }
 }
 
 run "region_format_atlas_style_encryption" {
@@ -583,6 +587,20 @@ run "privatelink_duplicate_regions_mixed_format" {
   expect_failures = [var.privatelink_endpoints]
 }
 
+run "privatelink_byoe_key_overlap_normalized" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    privatelink_endpoints = [
+      { region = "US_EAST_1", subnet_ids = ["subnet-abc"] }
+    ]
+    privatelink_byoe_regions = {
+      "us-east-1" = "us-east-1"
+    }
+  }
+  expect_failures = [var.privatelink_byoe_regions]
+}
+
 run "region_format_mixed_styles_privatelink" {
   command = plan
   variables {
@@ -599,6 +617,14 @@ run "region_format_mixed_styles_privatelink" {
   assert {
     condition     = output.regional_mode_enabled == true
     error_message = "Expected regional mode enabled for multi-region"
+  }
+  assert {
+    condition     = contains(keys(output.privatelink), "us-east-1")
+    error_message = "Expected normalized key us-east-1 in privatelink output"
+  }
+  assert {
+    condition     = contains(keys(output.privatelink), "us-west-2")
+    error_message = "Expected normalized key us-west-2 in privatelink output"
   }
 }
 

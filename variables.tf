@@ -152,7 +152,7 @@ variable "privatelink_byoe_regions" {
   description = "BYOE Phase 1: Key is user identifier, value is region (us-east-1 or US_EAST_1)."
 
   validation {
-    condition     = length(setintersection(keys(var.privatelink_byoe_regions), [for ep in var.privatelink_endpoints : ep.region])) == 0
+    condition     = length(setintersection(keys(var.privatelink_byoe_regions), [for ep in var.privatelink_endpoints : lower(replace(ep.region, "_", "-"))])) == 0
     error_message = "Regions in `privatelink_byoe_regions` must not overlap with regions in privatelink_endpoints."
   }
 }
