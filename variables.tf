@@ -109,7 +109,7 @@ variable "privatelink_endpoints" {
   EOT
 
   validation {
-    condition     = length(var.privatelink_endpoints) == length(distinct([for ep in var.privatelink_endpoints : ep.region]))
+    condition     = length(var.privatelink_endpoints) == length(distinct([for ep in var.privatelink_endpoints : lower(replace(ep.region, "_", "-"))]))
     error_message = "All regions in privatelink_endpoints must be unique. Use privatelink_endpoints_single_region for multiple endpoints in the same region."
   }
 }

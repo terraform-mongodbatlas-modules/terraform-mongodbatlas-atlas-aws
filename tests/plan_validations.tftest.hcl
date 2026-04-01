@@ -525,6 +525,10 @@ run "region_format_atlas_style_privatelink" {
     condition     = length(module.privatelink) == 1
     error_message = "Expected privatelink module with Atlas region format"
   }
+  assert {
+    condition     = contains(keys(output.privatelink_service_info), "us-east-1")
+    error_message = "Expected normalized key us-east-1 in privatelink_service_info"
+  }
 }
 
 run "region_format_atlas_style_encryption" {
@@ -557,6 +561,26 @@ run "region_format_atlas_style_encryption_private_endpoints" {
     condition     = length(module.encryption_private_endpoint) == 2
     error_message = "Expected 2 private endpoints with Atlas region format"
   }
+  assert {
+    condition     = contains(keys(output.encryption.private_endpoints), "us-east-1")
+    error_message = "Expected normalized key us-east-1 in encryption private_endpoints"
+  }
+  assert {
+    condition     = contains(keys(output.encryption.private_endpoints), "us-west-2")
+    error_message = "Expected normalized key us-west-2 in encryption private_endpoints"
+  }
+}
+
+run "privatelink_duplicate_regions_mixed_format" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    privatelink_endpoints = [
+      { region = "us-east-1", subnet_ids = ["subnet-abc"] },
+      { region = "US_EAST_1", subnet_ids = ["subnet-def"] }
+    ]
+  }
+  expect_failures = [var.privatelink_endpoints]
 }
 
 run "region_format_mixed_styles_privatelink" {
