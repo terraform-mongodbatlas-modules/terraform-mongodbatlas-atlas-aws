@@ -257,7 +257,7 @@ variable "timeouts" {
       delete                   = optional(string)
       delete_on_create_timeout = optional(bool)
     }))
-    regional_mode = optional(object({
+    privatelink_regional_mode = optional(object({
       create = optional(string)
       delete = optional(string)
       update = optional(string)

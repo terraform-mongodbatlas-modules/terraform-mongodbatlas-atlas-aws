@@ -106,7 +106,7 @@ resource "mongodbatlas_private_endpoint_regional_mode" "this" {
   enabled    = true
 
   dynamic "timeouts" {
-    for_each = var.timeouts.regional_mode[*]
+    for_each = var.timeouts.privatelink_regional_mode[*]
     content {
       create = timeouts.value.create
       update = timeouts.value.update
