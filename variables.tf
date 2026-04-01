@@ -264,6 +264,7 @@ variable "timeouts" {
     }))
   })
   default     = {}
+  nullable    = false
   description = <<-EOT
     Timeout overrides for Atlas resources. All fields default to null (provider behavior).
     Timeout strings use Go duration format (e.g., "30m", "1h").
