@@ -259,8 +259,9 @@ variable "log_integration" {
       restrict_public_buckets = optional(bool, true)
       expiration_days         = optional(number, 90)
     }), { enabled = false })
-    kms_key = optional(string)
-    tags    = optional(map(string), {})
+    kms_key          = optional(string)
+    kms_key_skip_iam = optional(bool, false)
+    tags             = optional(map(string), {})
     iam_role = optional(object({
       create               = optional(bool, false)
       name                 = optional(string)
@@ -277,14 +278,20 @@ variable "log_integration" {
     - `create_s3_bucket.enabled = true` (module-managed S3 bucket)
     - Per-integration `bucket_name` override (BYO only)
 
+    **IAM Permissions (auto-attached to the CPA role):**
+    The module attaches an IAM role policy with `s3:PutObject` and
+    `s3:GetBucketLocation` for all target buckets (module-managed + BYO +
+    per-integration overrides). No manual S3 policy setup is required.
+
     **Bucket Naming (when module-managed):**
     - `create_s3_bucket.name` - Exact bucket name (conflicts with name_prefix)
     - `create_s3_bucket.name_prefix` - Prefix with Terraform-generated suffix (max 37 chars)
     - Default: `atlas-logs-{project_id_suffix}-` when neither specified
 
     **KMS Encryption:**
-    `kms_key` is the Atlas-side KMS key ARN used to encrypt log objects before
-    writing them to S3. Separate from S3 bucket server-side encryption.
+    `kms_key` is the KMS key ARN used to encrypt log objects via S3 SSE-KMS.
+    The module attaches `kms:GenerateDataKey` + `kms:Decrypt` to the CPA role.
+    Set `kms_key_skip_iam = true` if the KMS key policy already grants access.
 
     **Integrations:**
     Each entry creates one `mongodbatlas_log_integration` resource.

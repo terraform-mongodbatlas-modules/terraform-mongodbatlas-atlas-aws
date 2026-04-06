@@ -13,7 +13,8 @@ locals {
     [for b in data.aws_s3_bucket.integration_byo : b.arn],
   )))
 
-  integrations_map = { for idx, i in var.integrations : tostring(idx) => i }
+  integrations_map  = { for idx, i in var.integrations : tostring(idx) => i }
+  attach_kms_policy = var.kms_key != null && !var.kms_key_skip_iam
 }
 
 data "aws_s3_bucket" "user_provided" {
@@ -96,8 +97,23 @@ resource "aws_iam_role_policy" "s3_access" {
   policy      = data.aws_iam_policy_document.s3_access.json
 }
 
+data "aws_iam_policy_document" "kms_access" {
+  count = local.attach_kms_policy ? 1 : 0
+  statement {
+    actions   = ["kms:GenerateDataKey", "kms:Decrypt"]
+    resources = [var.kms_key]
+  }
+}
+
+resource "aws_iam_role_policy" "kms_access" {
+  count       = local.attach_kms_policy ? 1 : 0
+  name_prefix = "atlas-log-integration-kms-"
+  role        = var.iam_role_name
+  policy      = data.aws_iam_policy_document.kms_access[0].json
+}
+
 resource "time_sleep" "iam_propagation" {
-  depends_on      = [aws_iam_role_policy.s3_access, aws_s3_bucket.atlas]
+  depends_on      = [aws_iam_role_policy.s3_access, aws_iam_role_policy.kms_access, aws_s3_bucket.atlas]
   create_duration = "30s"
 }
 

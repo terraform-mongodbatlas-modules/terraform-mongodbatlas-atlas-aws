@@ -128,6 +128,7 @@ module "log_integration" {
   create_s3_bucket = var.log_integration.create_s3_bucket
   integrations     = var.log_integration.integrations
   kms_key          = var.log_integration.kms_key
+  kms_key_skip_iam = var.log_integration.kms_key_skip_iam
   tags             = merge(var.aws_tags, var.log_integration.tags)
 
   depends_on = [module.cloud_provider_access, module.log_integration_cloud_provider_access]
