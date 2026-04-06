@@ -1,11 +1,12 @@
 locals {
-  region              = var.create_s3_bucket.region != null ? lower(replace(var.create_s3_bucket.region, "_", "-")) : null
-  project_id_suffix   = substr(var.project_id, max(0, length(var.project_id) - 8), 8)
-  default_name_prefix = "atlas-logs-${local.project_id_suffix}-"
-  bucket_name_prefix  = coalesce(var.create_s3_bucket.name_prefix, local.default_name_prefix)
-  create_bucket       = var.create_s3_bucket.enabled
-  bucket_name         = local.create_bucket ? aws_s3_bucket.atlas[0].id : var.bucket_name
-  bucket_arn          = local.create_bucket ? aws_s3_bucket.atlas[0].arn : data.aws_s3_bucket.user_provided[0].arn
+  region                   = var.create_s3_bucket.region != null ? lower(replace(var.create_s3_bucket.region, "_", "-")) : null
+  project_id_suffix_length = 8
+  project_id_suffix        = substr(var.project_id, max(0, length(var.project_id) - local.project_id_suffix_length), local.project_id_suffix_length)
+  default_name_prefix      = "atlas-logs-${local.project_id_suffix}-"
+  bucket_name_prefix       = coalesce(var.create_s3_bucket.name_prefix, local.default_name_prefix)
+  create_bucket            = var.create_s3_bucket.enabled
+  bucket_name              = local.create_bucket ? aws_s3_bucket.atlas[0].id : var.bucket_name
+  bucket_arn               = local.create_bucket ? aws_s3_bucket.atlas[0].arn : data.aws_s3_bucket.user_provided[0].arn
 
   byo_bucket_names = distinct(compact([for i in var.integrations : i.bucket_name]))
   all_target_buckets = distinct(compact(concat(

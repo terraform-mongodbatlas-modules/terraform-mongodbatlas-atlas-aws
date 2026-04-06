@@ -46,6 +46,15 @@ sections:
       names:
         - backup_export
 
+  - id: log_integration
+    title: "Log Integration"
+    level: 2
+    description: |
+      Configure Atlas log export to AWS S3. See the [push logs documentation](https://www.mongodb.com/docs/atlas/push-logs/) for details.
+    match:
+      names:
+        - log_integration
+
   - id: optional
     title: "Optional Variables"
     level: 2

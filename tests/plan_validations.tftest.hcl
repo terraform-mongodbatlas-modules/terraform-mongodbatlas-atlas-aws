@@ -693,6 +693,10 @@ run "log_integration_with_module_managed_bucket" {
     condition     = length(module.cloud_provider_access) == 1
     error_message = "Expected shared CPA created"
   }
+  assert {
+    condition     = output.log_integration != null
+    error_message = "Expected non-null log_integration output"
+  }
 }
 
 run "log_integration_with_byo_bucket" {
@@ -743,6 +747,42 @@ run "log_integration_multiple_integrations" {
         { log_types = ["MONGOD"], prefix_path = "operational/" },
         { log_types = ["MONGOD_AUDIT"], prefix_path = "audit/" },
       ]
+    }
+  }
+  assert {
+    condition     = length(module.log_integration) == 1
+    error_message = "Expected log_integration module"
+  }
+}
+
+run "log_integration_with_per_integration_byo_bucket" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    log_integration = {
+      enabled     = true
+      bucket_name = "default-bucket"
+      integrations = [
+        { log_types = ["MONGOD"] },
+        { log_types = ["MONGOD_AUDIT"], bucket_name = "audit-bucket" },
+      ]
+    }
+  }
+  assert {
+    condition     = length(module.log_integration) == 1
+    error_message = "Expected log_integration module"
+  }
+}
+
+run "log_integration_with_kms_key" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    log_integration = {
+      enabled          = true
+      create_s3_bucket = { enabled = true }
+      integrations     = [{ log_types = ["MONGOD"] }]
+      kms_key          = "arn:aws:kms:us-east-1:123456789012:key/log-key"
     }
   }
   assert {

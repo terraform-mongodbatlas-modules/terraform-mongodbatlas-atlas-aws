@@ -19,6 +19,7 @@ Run 'just gen-readme' to regenerate. -->
 - [Encryption at Rest](#encryption-at-rest)
 - [Private Link](#private-link)
 - [Backup Export](#backup-export)
+- [Log Integration](#log-integration)
 - [Optional Variables](#optional-variables)
 - [Outputs](#outputs)
 - [FAQ](#faq)
@@ -379,42 +380,9 @@ object({
 Default: `{}`
 
 
-## Optional Variables
+## Log Integration
 
-### aws_tags
-
-Tags to apply to all AWS resources created by this module.
-
-Type: `map(string)`
-
-Default: `{}`
-
-### cloud_provider_access
-
-Cloud provider access configuration for Atlas-AWS integration.
-
-- `create = true` (default): Creates a shared IAM role and Atlas authorization
-- `create = false`: Use existing role via `existing.role_id` and `existing.iam_role_arn`
-- `iam_role_name`: Custom name for the IAM role (default: atlas-{project_id_suffix}-{purpose})
-- `iam_role_path`: IAM role path (default: /)
-- `iam_role_permissions_boundary`: ARN of permissions boundary policy
-
-Type:
-
-```hcl
-object({
-  create = optional(bool, true)
-  existing = optional(object({
-    role_id      = string
-    iam_role_arn = string
-  }))
-  iam_role_name                 = optional(string)
-  iam_role_path                 = optional(string, "/")
-  iam_role_permissions_boundary = optional(string)
-})
-```
-
-Default: `{}`
+Configure Atlas log export to AWS S3. See the [push logs documentation](https://www.mongodb.com/docs/atlas/push-logs/) for details.
 
 ### log_integration
 
@@ -425,14 +393,20 @@ Provide EITHER:
 - `create_s3_bucket.enabled = true` (module-managed S3 bucket)
 - Per-integration `bucket_name` override (BYO only)
 
+**IAM Permissions (auto-attached to the CPA role):**
+The module attaches an IAM role policy with `s3:PutObject` and
+`s3:GetBucketLocation` for all target buckets (module-managed + BYO +
+per-integration overrides). No manual S3 policy setup is required.
+
 **Bucket Naming (when module-managed):**
 - `create_s3_bucket.name` - Exact bucket name (conflicts with name_prefix)
 - `create_s3_bucket.name_prefix` - Prefix with Terraform-generated suffix (max 37 chars)
 - Default: `atlas-logs-{project_id_suffix}-` when neither specified
 
 **KMS Encryption:**
-`kms_key` is the Atlas-side KMS key ARN used to encrypt log objects before
-writing them to S3. Separate from S3 bucket server-side encryption.
+`kms_key` is the KMS key ARN used to encrypt log objects via S3 SSE-KMS.
+The module attaches `kms:GenerateDataKey` + `kms:Decrypt` to the CPA role.
+Set `kms_key_skip_iam = true` if the KMS key policy already grants access.
 
 **Integrations:**
 Each entry creates one `mongodbatlas_log_integration` resource.
@@ -466,14 +440,53 @@ object({
     restrict_public_buckets = optional(bool, true)
     expiration_days         = optional(number, 90)
   }), { enabled = false })
-  kms_key = optional(string)
-  tags    = optional(map(string), {})
+  kms_key          = optional(string)
+  kms_key_skip_iam = optional(bool, false)
+  tags             = optional(map(string), {})
   iam_role = optional(object({
     create               = optional(bool, false)
     name                 = optional(string)
     path                 = optional(string, "/")
     permissions_boundary = optional(string)
   }), { create = false })
+})
+```
+
+Default: `{}`
+
+
+## Optional Variables
+
+### aws_tags
+
+Tags to apply to all AWS resources created by this module.
+
+Type: `map(string)`
+
+Default: `{}`
+
+### cloud_provider_access
+
+Cloud provider access configuration for Atlas-AWS integration.
+
+- `create = true` (default): Creates a shared IAM role and Atlas authorization
+- `create = false`: Use existing role via `existing.role_id` and `existing.iam_role_arn`
+- `iam_role_name`: Custom name for the IAM role (default: atlas-{project_id_suffix}-{purpose})
+- `iam_role_path`: IAM role path (default: /)
+- `iam_role_permissions_boundary`: ARN of permissions boundary policy
+
+Type:
+
+```hcl
+object({
+  create = optional(bool, true)
+  existing = optional(object({
+    role_id      = string
+    iam_role_arn = string
+  }))
+  iam_role_name                 = optional(string)
+  iam_role_path                 = optional(string, "/")
+  iam_role_permissions_boundary = optional(string)
 })
 ```
 
