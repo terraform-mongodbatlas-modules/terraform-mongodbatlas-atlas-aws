@@ -382,7 +382,7 @@ Default: `{}`
 
 ## Log Integration
 
-Configure Atlas log export to AWS S3. See the [push logs documentation](https://www.mongodb.com/docs/atlas/push-logs/) for details.
+Configure Atlas log export to AWS S3 buckets. Supports multiple integrations per project and per-integration bucket overrides. See the [export logs to AWS S3 documentation](https://www.mongodb.com/docs/atlas/export-logs-external-sinks/) for details.
 
 ### log_integration
 
