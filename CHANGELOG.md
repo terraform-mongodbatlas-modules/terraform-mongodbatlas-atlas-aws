@@ -1,5 +1,9 @@
 ## (Unreleased)
 
+ENHANCEMENTS:
+
+* variable/timeouts: Adds configurable timeout overrides for Atlas resources (cloud_provider_access, encryption_private_endpoint, privatelink_endpoint, privatelink_endpoint_service, privatelink_regional_mode) ([#32](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/32))
+
 ## 0.2.0 (February 25, 2026)
 
 BREAKING CHANGES:
