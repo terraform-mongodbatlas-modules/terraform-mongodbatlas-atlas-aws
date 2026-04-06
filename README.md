@@ -193,13 +193,13 @@ The following requirements are needed by this module:
 
 - <a name="requirement_aws"></a> [aws](https://registry.terraform.io/providers/hashicorp/aws/latest/docs) (>= 6.0)
 
-- <a name="requirement_mongodbatlas"></a> [mongodbatlas](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs) (~> 2.1)
+- <a name="requirement_mongodbatlas"></a> [mongodbatlas](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs) (~> 2.8)
 
 ## Providers
 
 The following providers are used by this module:
 
-- <a name="provider_mongodbatlas"></a> [mongodbatlas](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs) (~> 2.1)
+- <a name="provider_mongodbatlas"></a> [mongodbatlas](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs) (~> 2.8)
 
 ## Resources
 
@@ -416,6 +416,69 @@ object({
 
 Default: `{}`
 
+### log_integration
+
+Log integration configuration for exporting Atlas logs to S3.
+
+Provide EITHER:
+- `bucket_name` (user-provided S3 bucket, default for all integrations)
+- `create_s3_bucket.enabled = true` (module-managed S3 bucket)
+- Per-integration `bucket_name` override (BYO only)
+
+**Bucket Naming (when module-managed):**
+- `create_s3_bucket.name` - Exact bucket name (conflicts with name_prefix)
+- `create_s3_bucket.name_prefix` - Prefix with Terraform-generated suffix (max 37 chars)
+- Default: `atlas-logs-{project_id_suffix}-` when neither specified
+
+**KMS Encryption:**
+`kms_key` is the Atlas-side KMS key ARN used to encrypt log objects before
+writing them to S3. Separate from S3 bucket server-side encryption.
+
+**Integrations:**
+Each entry creates one `mongodbatlas_log_integration` resource.
+Valid `log_types`: MONGOD, MONGOS, MONGOD_AUDIT, MONGOS_AUDIT.
+
+**S3 Lifecycle:**
+Module-managed buckets default to `expiration_days = 90`. Set to `null` to disable.
+
+Type:
+
+```hcl
+object({
+  enabled = optional(bool, false)
+  integrations = optional(list(object({
+    log_types   = list(string)
+    prefix_path = optional(string, "")
+    bucket_name = optional(string)
+  })), [])
+  bucket_name = optional(string)
+  create_s3_bucket = optional(object({
+    enabled                 = bool
+    region                  = optional(string)
+    name                    = optional(string)
+    name_prefix             = optional(string)
+    force_destroy           = optional(bool, false)
+    versioning_enabled      = optional(bool, true)
+    server_side_encryption  = optional(string, "aws:kms")
+    block_public_acls       = optional(bool, true)
+    block_public_policy     = optional(bool, true)
+    ignore_public_acls      = optional(bool, true)
+    restrict_public_buckets = optional(bool, true)
+    expiration_days         = optional(number, 90)
+  }), { enabled = false })
+  kms_key = optional(string)
+  tags    = optional(map(string), {})
+  iam_role = optional(object({
+    create               = optional(bool, false)
+    name                 = optional(string)
+    path                 = optional(string, "/")
+    permissions_boundary = optional(string)
+  }), { create = false })
+})
+```
+
+Default: `{}`
+
 ### privatelink_byoe_regions
 
 BYOE Phase 1: Key is user identifier, value is region (us-east-1 or US_EAST_1).
@@ -510,6 +573,10 @@ Description: Value for cluster's encryption\_at\_rest\_provider attribute
 ### <a name="output_export_bucket_id"></a> [export\_bucket\_id](#output\_export\_bucket\_id)
 
 Description: Export bucket ID for backup schedule auto\_export\_enabled
+
+### <a name="output_log_integration"></a> [log\_integration](#output\_log\_integration)
+
+Description: Log integration configuration
 
 ### <a name="output_privatelink"></a> [privatelink](#output\_privatelink)
 

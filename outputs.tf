@@ -41,6 +41,10 @@ output "resource_ids" {
     # Backup Export
     bucket_name = try(module.backup_export[0].bucket_name, null)
     bucket_arn  = try(module.backup_export[0].bucket_arn, null)
+
+    # Log Integration
+    log_bucket_name = try(module.log_integration[0].bucket_name, null)
+    log_bucket_arn  = try(module.log_integration[0].bucket_arn, null)
   }
 }
 
@@ -87,5 +91,14 @@ output "backup_export" {
     export_bucket_id = module.backup_export[0].export_bucket_id
     bucket_name      = module.backup_export[0].bucket_name
     bucket_arn       = module.backup_export[0].bucket_arn
+  } : null
+}
+
+output "log_integration" {
+  description = "Log integration configuration"
+  value = var.log_integration.enabled ? {
+    bucket_name     = module.log_integration[0].bucket_name
+    bucket_arn      = module.log_integration[0].bucket_arn
+    integration_ids = module.log_integration[0].integration_ids
   } : null
 }

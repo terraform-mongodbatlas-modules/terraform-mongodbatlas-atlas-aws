@@ -596,3 +596,176 @@ run "aws_tags_propagated" {
     error_message = "Expected encryption module"
   }
 }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Log Integration Validations
+# ─────────────────────────────────────────────────────────────────────────────
+
+run "log_integration_validation_enabled_without_integrations" {
+  command = plan
+  variables {
+    project_id      = var.project_id
+    log_integration = { enabled = true, create_s3_bucket = { enabled = true } }
+  }
+  expect_failures = [var.log_integration]
+}
+
+run "log_integration_validation_enabled_without_bucket" {
+  command = plan
+  variables {
+    project_id      = var.project_id
+    log_integration = { enabled = true, integrations = [{ log_types = ["MONGOD"] }] }
+  }
+  expect_failures = [var.log_integration]
+}
+
+run "log_integration_validation_byo_and_create_conflict" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    log_integration = {
+      enabled          = true
+      bucket_name      = "my-bucket"
+      create_s3_bucket = { enabled = true }
+      integrations     = [{ log_types = ["MONGOD"] }]
+    }
+  }
+  expect_failures = [var.log_integration]
+}
+
+run "log_integration_name_and_prefix_conflict" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    log_integration = {
+      enabled          = true
+      create_s3_bucket = { enabled = true, name = "my-bucket", name_prefix = "my-prefix-" }
+      integrations     = [{ log_types = ["MONGOD"] }]
+    }
+  }
+  expect_failures = [var.log_integration]
+}
+
+run "log_integration_name_prefix_too_long" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    log_integration = {
+      enabled          = true
+      create_s3_bucket = { enabled = true, name_prefix = "this-prefix-is-way-too-long-for-s3-bucket-names-" }
+      integrations     = [{ log_types = ["MONGOD"] }]
+    }
+  }
+  expect_failures = [var.log_integration]
+}
+
+run "log_integration_disabled_by_default" {
+  command = plan
+  variables {
+    project_id      = var.project_id
+    log_integration = {}
+  }
+  assert {
+    condition     = length(module.log_integration) == 0
+    error_message = "Expected no log_integration module when disabled"
+  }
+  assert {
+    condition     = output.log_integration == null
+    error_message = "Expected null log_integration output"
+  }
+}
+
+run "log_integration_with_module_managed_bucket" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    log_integration = {
+      enabled          = true
+      create_s3_bucket = { enabled = true }
+      integrations     = [{ log_types = ["MONGOD"] }]
+    }
+  }
+  assert {
+    condition     = length(module.log_integration) == 1
+    error_message = "Expected log_integration module"
+  }
+  assert {
+    condition     = length(module.cloud_provider_access) == 1
+    error_message = "Expected shared CPA created"
+  }
+}
+
+run "log_integration_with_byo_bucket" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    log_integration = {
+      enabled      = true
+      bucket_name  = "existing-bucket"
+      integrations = [{ log_types = ["MONGOD"] }]
+    }
+  }
+  assert {
+    condition     = length(module.log_integration) == 1
+    error_message = "Expected log_integration module"
+  }
+}
+
+run "log_integration_with_dedicated_iam_role" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    log_integration = {
+      enabled          = true
+      create_s3_bucket = { enabled = true }
+      integrations     = [{ log_types = ["MONGOD"] }]
+      iam_role         = { create = true }
+    }
+  }
+  assert {
+    condition     = length(module.log_integration_cloud_provider_access) == 1
+    error_message = "Expected dedicated log integration IAM role"
+  }
+  assert {
+    condition     = length(module.log_integration) == 1
+    error_message = "Expected log_integration module"
+  }
+}
+
+run "log_integration_multiple_integrations" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    log_integration = {
+      enabled          = true
+      create_s3_bucket = { enabled = true }
+      integrations = [
+        { log_types = ["MONGOD"], prefix_path = "operational/" },
+        { log_types = ["MONGOD_AUDIT"], prefix_path = "audit/" },
+      ]
+    }
+  }
+  assert {
+    condition     = length(module.log_integration) == 1
+    error_message = "Expected log_integration module"
+  }
+}
+
+run "enable_cloud_provider_access_log_integration" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    log_integration = {
+      enabled          = true
+      create_s3_bucket = { enabled = true }
+      integrations     = [{ log_types = ["MONGOD"] }]
+    }
+    privatelink_endpoints = [
+      { region = "us-east-1", subnet_ids = ["subnet-abc"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } }
+    ]
+  }
+  assert {
+    condition     = length(module.cloud_provider_access) == 1
+    error_message = "Expected cloud_provider_access with log_integration"
+  }
+}

@@ -4,6 +4,7 @@ locals {
   skip_cloud_provider_access = (
     !var.encryption.enabled &&
     !var.backup_export.enabled &&
+    !var.log_integration.enabled &&
     local.privatelink_configured
   )
 
@@ -35,6 +36,15 @@ locals {
   ) : local.role_id
   backup_export_iam_role_name = local.create_backup_export_dedicated_role ? (
     module.backup_export_cloud_provider_access[0].iam_role_name
+  ) : local.iam_role_name
+
+  # Log integration IAM role: dedicated or shared
+  create_log_integration_dedicated_role = var.log_integration.enabled && var.log_integration.iam_role.create
+  log_integration_role_id = local.create_log_integration_dedicated_role ? (
+    module.log_integration_cloud_provider_access[0].role_id
+  ) : local.role_id
+  log_integration_iam_role_name = local.create_log_integration_dedicated_role ? (
+    module.log_integration_cloud_provider_access[0].iam_role_name
   ) : local.iam_role_name
 
   # Private endpoint regions: inferred from presence of private_endpoint_regions
