@@ -414,7 +414,9 @@ Set `kms_key_skip_iam = true` if the KMS key policy already grants access.
 
 **Integrations:**
 Each entry creates one `mongodbatlas_log_integration` resource.
-Valid `log_types`: MONGOD, MONGOS, MONGOD_AUDIT, MONGOS_AUDIT.
+- `log_types` (required) - Valid values: MONGOD, MONGOS, MONGOD_AUDIT, MONGOS_AUDIT.
+- `prefix_path` (required) - S3 object key prefix for log delivery (e.g. "operational/", "audit/").
+- `bucket_name` (optional) - Per-integration bucket override.
 
 **S3 Lifecycle:**
 Module-managed buckets default to `expiration_days = 90`. Set to `null` to disable.
@@ -426,7 +428,7 @@ object({
   enabled = optional(bool, false)
   integrations = optional(list(object({
     log_types   = list(string)
-    prefix_path = optional(string, "")
+    prefix_path = string
     bucket_name = optional(string)
   })), [])
   bucket_name = optional(string)

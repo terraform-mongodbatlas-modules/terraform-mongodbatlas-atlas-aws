@@ -64,10 +64,10 @@ variable "create_s3_bucket" {
 variable "integrations" {
   type = list(object({
     log_types   = list(string)
-    prefix_path = optional(string, "")
+    prefix_path = string
     bucket_name = optional(string)
   }))
-  description = "List of log integration configurations. Each entry creates one mongodbatlas_log_integration resource."
+  description = "List of log integration configurations. Each entry creates one mongodbatlas_log_integration resource. `prefix_path` (required) sets the S3 object key prefix for log delivery. `bucket_name` (optional) overrides the default bucket."
 }
 
 variable "kms_key" {

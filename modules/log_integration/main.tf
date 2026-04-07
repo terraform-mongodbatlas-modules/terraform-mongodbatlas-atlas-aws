@@ -100,7 +100,7 @@ resource "aws_iam_role_policy" "s3_access" {
 data "aws_iam_policy_document" "kms_access" {
   count = local.attach_kms_policy ? 1 : 0
   statement {
-    actions   = ["kms:GenerateDataKey", "kms:Decrypt"]
+    actions   = ["kms:GenerateDataKey", "kms:Decrypt", "kms:DescribeKey"]
     resources = [var.kms_key]
   }
 }
