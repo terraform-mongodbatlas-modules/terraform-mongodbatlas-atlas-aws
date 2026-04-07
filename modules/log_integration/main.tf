@@ -14,7 +14,6 @@ locals {
     [for b in data.aws_s3_bucket.integration_byo : b.arn],
   )))
 
-  integrations_map  = { for idx, i in var.integrations : tostring(idx) => i }
   attach_kms_policy = var.kms_key != null && !var.kms_key_skip_iam
 }
 
@@ -119,13 +118,13 @@ resource "time_sleep" "iam_propagation" {
 }
 
 resource "mongodbatlas_log_integration" "this" {
-  for_each    = local.integrations_map
+  count       = length(var.integrations)
   project_id  = var.project_id
   type        = "S3_LOG_EXPORT"
   iam_role_id = var.atlas_role_id
-  bucket_name = coalesce(each.value.bucket_name, local.bucket_name)
-  prefix_path = each.value.prefix_path
-  log_types   = each.value.log_types
+  bucket_name = coalesce(var.integrations[count.index].bucket_name, local.bucket_name)
+  prefix_path = var.integrations[count.index].prefix_path
+  log_types   = var.integrations[count.index].log_types
 
   kms_key = var.kms_key
 

@@ -9,6 +9,6 @@ output "bucket_arn" {
 }
 
 output "integration_ids" {
-  description = "Map of integration index to resource ID"
-  value       = { for k, v in mongodbatlas_log_integration.this : k => v.integration_id }
+  description = "List of integration resource IDs"
+  value       = mongodbatlas_log_integration.this[*].integration_id
 }
