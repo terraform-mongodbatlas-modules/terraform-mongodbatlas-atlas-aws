@@ -70,3 +70,13 @@ variable "tags" {
   default     = {}
   description = "Tags for AWS resources"
 }
+
+variable "timeouts" {
+  type = object({
+    create = optional(string, "30m")
+    update = optional(string, "30m")
+    delete = optional(string, "30m")
+  })
+  default     = {}
+  description = "Timeout overrides. See root module timeouts variable."
+}

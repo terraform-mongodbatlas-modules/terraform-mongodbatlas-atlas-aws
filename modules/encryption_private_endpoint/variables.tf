@@ -10,10 +10,10 @@ variable "region" {
 
 variable "timeouts" {
   type = object({
-    create                   = optional(string)
-    delete                   = optional(string)
-    delete_on_create_timeout = optional(bool)
+    create = optional(string, "30m")
+    update = optional(string, "30m")
+    delete = optional(string, "30m")
   })
-  default     = null
-  description = "Timeout overrides for encryption_at_rest_private_endpoint. See root module timeouts variable."
+  default     = {}
+  description = "Timeout overrides. See root module timeouts variable."
 }

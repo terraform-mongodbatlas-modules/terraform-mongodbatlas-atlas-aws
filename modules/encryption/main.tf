@@ -29,6 +29,10 @@ resource "aws_kms_key" "atlas" {
   enable_key_rotation     = var.create_kms_key.enable_key_rotation
   policy                  = var.create_kms_key.policy_override
   tags                    = var.tags
+
+  timeouts {
+    create = var.timeouts.create
+  }
 }
 
 resource "aws_kms_alias" "atlas" {

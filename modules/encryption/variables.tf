@@ -57,3 +57,13 @@ variable "enabled_for_search_nodes" {
   default     = true
   description = "Whether BYOK encryption at rest applies to dedicated search nodes. Module defaults to true (provider default is false) for secure-by-default."
 }
+
+variable "timeouts" {
+  type = object({
+    create = optional(string, "30m")
+    update = optional(string, "30m")
+    delete = optional(string, "30m")
+  })
+  default     = {}
+  description = "Timeout overrides. See root module timeouts variable."
+}

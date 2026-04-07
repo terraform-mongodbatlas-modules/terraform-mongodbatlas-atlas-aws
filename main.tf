@@ -8,7 +8,7 @@ module "cloud_provider_access" {
   iam_role_path                 = var.cloud_provider_access.iam_role_path
   iam_role_permissions_boundary = var.cloud_provider_access.iam_role_permissions_boundary
   tags                          = var.aws_tags
-  timeouts                      = var.timeouts.cloud_provider_access
+  timeouts                      = var.timeouts
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -25,7 +25,7 @@ module "encryption_cloud_provider_access" {
   iam_role_path                 = var.encryption.iam_role.path
   iam_role_permissions_boundary = var.encryption.iam_role.permissions_boundary
   tags                          = var.aws_tags
-  timeouts                      = var.timeouts.cloud_provider_access
+  timeouts                      = var.timeouts
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -46,6 +46,7 @@ module "encryption" {
   tags                       = var.aws_tags
   require_private_networking = local.encryption_require_private_networking
   enabled_for_search_nodes   = var.encryption.enabled_for_search_nodes
+  timeouts                   = var.timeouts
 
   depends_on = [module.cloud_provider_access, module.encryption_cloud_provider_access]
 }
@@ -56,7 +57,7 @@ module "encryption_private_endpoint" {
 
   project_id = var.project_id
   region     = each.key
-  timeouts   = var.timeouts.encryption_private_endpoint
+  timeouts   = var.timeouts
 
   depends_on = [module.encryption]
 }
@@ -75,7 +76,7 @@ module "backup_export_cloud_provider_access" {
   iam_role_path                 = var.backup_export.iam_role.path
   iam_role_permissions_boundary = var.backup_export.iam_role.permissions_boundary
   tags                          = var.aws_tags
-  timeouts                      = var.timeouts.cloud_provider_access
+  timeouts                      = var.timeouts
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -92,6 +93,7 @@ module "backup_export" {
   bucket_name      = var.backup_export.bucket_name
   create_s3_bucket = var.backup_export.create_s3_bucket
   tags             = var.aws_tags
+  timeouts         = var.timeouts
 
   depends_on = [module.cloud_provider_access, module.backup_export_cloud_provider_access]
 }
@@ -105,13 +107,10 @@ resource "mongodbatlas_private_endpoint_regional_mode" "this" {
   project_id = var.project_id
   enabled    = true
 
-  dynamic "timeouts" {
-    for_each = var.timeouts.privatelink_regional_mode[*]
-    content {
-      create = timeouts.value.create
-      update = timeouts.value.update
-      delete = timeouts.value.delete
-    }
+  timeouts {
+    create = var.timeouts.create
+    update = var.timeouts.update
+    delete = var.timeouts.delete
   }
 }
 
@@ -121,14 +120,10 @@ resource "mongodbatlas_privatelink_endpoint" "this" {
   provider_name = "AWS"
   region        = local._privatelink_aws_region[each.key]
 
-  dynamic "timeouts" {
-    for_each = var.timeouts.privatelink_endpoint[*]
-    content {
-      create = timeouts.value.create
-      delete = timeouts.value.delete
-    }
+  timeouts {
+    create = var.timeouts.create
+    delete = var.timeouts.delete
   }
-  delete_on_create_timeout = try(var.timeouts.privatelink_endpoint.delete_on_create_timeout, null)
 }
 
 module "privatelink" {
@@ -157,7 +152,7 @@ module "privatelink" {
   }
 
   tags     = merge(var.aws_tags, each.value.tags)
-  timeouts = var.timeouts.privatelink_endpoint_service
+  timeouts = var.timeouts
 
   depends_on = [mongodbatlas_private_endpoint_regional_mode.this]
 }
