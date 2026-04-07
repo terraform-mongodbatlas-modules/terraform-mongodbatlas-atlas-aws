@@ -91,6 +91,15 @@ resource "mongodbatlas_privatelink_endpoint_service" "this" {
   private_link_id     = var.private_link_id
   provider_name       = "AWS"
   endpoint_service_id = local.create_vpc_endpoint ? aws_vpc_endpoint.this[0].id : var.byo_vpc_endpoint_id
+
+  dynamic "timeouts" {
+    for_each = var.timeouts[*]
+    content {
+      create = timeouts.value.create
+      delete = timeouts.value.delete
+    }
+  }
+  delete_on_create_timeout = try(var.timeouts.delete_on_create_timeout, null)
 }
 
 data "mongodbatlas_privatelink_endpoint_service" "this" {
