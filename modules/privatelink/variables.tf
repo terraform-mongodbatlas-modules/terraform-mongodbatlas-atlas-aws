@@ -70,5 +70,6 @@ variable "timeouts" {
     delete = optional(string, "30m")
   })
   default     = {}
+  nullable    = false
   description = "Timeout overrides. See root module timeouts variable."
 }
