@@ -61,7 +61,8 @@ locals {
     local.privatelink_module_managed,
     { for k, region in var.privatelink_byoe_regions : k => { region = region, subnet_ids = [], security_group = { create = false }, tags = {} } if contains(keys(var.privatelink_byoe), k) }
   )
-  # Enable regional mode only for multi-region pattern
-  privatelink_all_regions = toset([for k, value in local.privatelink_endpoints : lower(replace(value.region, "_", "-"))])
+  # Normalized AWS region per endpoint key: "US_EAST_1" → "us-east-1"
+  _privatelink_aws_region = { for k, v in local.privatelink_endpoints : k => lower(replace(v.region, "_", "-")) }
+  privatelink_all_regions = toset(values(local._privatelink_aws_region))
   enable_regional_mode    = length(local.privatelink_all_regions) > 1
 }
