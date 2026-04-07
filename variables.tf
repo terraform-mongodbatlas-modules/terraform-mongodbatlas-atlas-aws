@@ -259,9 +259,9 @@ variable "log_integration" {
       restrict_public_buckets = optional(bool, true)
       expiration_days         = optional(number, 90)
     }), { enabled = false })
-    kms_key          = optional(string)
-    kms_key_skip_iam = optional(bool, false)
-    tags             = optional(map(string), {})
+    kms_key                 = optional(string)
+    kms_key_skip_iam_policy = optional(bool, false)
+    tags                    = optional(map(string), {})
     iam_role = optional(object({
       create               = optional(bool, false)
       name                 = optional(string)
@@ -294,8 +294,8 @@ variable "log_integration" {
     `kms_key` is the KMS key ARN passed to `mongodbatlas_log_integration` for
     Atlas-side log encryption before delivery to S3. This is separate from S3
     bucket server-side encryption (`create_s3_bucket.server_side_encryption`).
-    The module attaches `kms:GenerateDataKey` + `kms:Decrypt` to the CPA role.
-    Set `kms_key_skip_iam = true` if the KMS key policy already grants access.
+    The module attaches `kms:GenerateDataKey` + `kms:Decrypt` + `kms:DescribeKey` to the CPA role.
+    Set `kms_key_skip_iam_policy = true` if the KMS key policy already grants access.
 
     **Integrations:**
     Each entry creates one `mongodbatlas_log_integration` resource.

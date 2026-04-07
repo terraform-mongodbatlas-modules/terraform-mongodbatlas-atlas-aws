@@ -121,15 +121,15 @@ module "log_integration" {
   count  = var.log_integration.enabled ? 1 : 0
   source = "./modules/log_integration"
 
-  project_id       = var.project_id
-  atlas_role_id    = local.log_integration_role_id
-  iam_role_name    = local.log_integration_iam_role_name
-  bucket_name      = var.log_integration.bucket_name
-  create_s3_bucket = var.log_integration.create_s3_bucket
-  integrations     = var.log_integration.integrations
-  kms_key          = var.log_integration.kms_key
-  kms_key_skip_iam = var.log_integration.kms_key_skip_iam
-  tags             = merge(var.aws_tags, var.log_integration.tags)
+  project_id              = var.project_id
+  atlas_role_id           = local.log_integration_role_id
+  iam_role_name           = local.log_integration_iam_role_name
+  bucket_name             = var.log_integration.bucket_name
+  create_s3_bucket        = var.log_integration.create_s3_bucket
+  integrations            = var.log_integration.integrations
+  kms_key                 = var.log_integration.kms_key
+  kms_key_skip_iam_policy = var.log_integration.kms_key_skip_iam_policy
+  tags                    = merge(var.aws_tags, var.log_integration.tags)
 
   depends_on = [module.cloud_provider_access, module.log_integration_cloud_provider_access]
 }

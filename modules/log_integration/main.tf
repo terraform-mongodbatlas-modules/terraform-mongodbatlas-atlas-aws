@@ -14,7 +14,7 @@ locals {
     [for b in data.aws_s3_bucket.integration_byo : b.arn],
   )))
 
-  attach_kms_policy = var.kms_key != null && !var.kms_key_skip_iam
+  attach_kms_policy = var.kms_key != null && !var.kms_key_skip_iam_policy
 }
 
 data "aws_s3_bucket" "user_provided" {

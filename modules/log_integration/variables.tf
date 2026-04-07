@@ -76,10 +76,10 @@ variable "kms_key" {
   description = "Atlas-side KMS key ARN for encrypting log objects before writing to S3"
 }
 
-variable "kms_key_skip_iam" {
+variable "kms_key_skip_iam_policy" {
   type        = bool
   default     = false
-  description = "Skip attaching kms:GenerateDataKey + kms:Decrypt to the CPA role. Set to true when the KMS key policy already grants access."
+  description = "Skip attaching kms:GenerateDataKey + kms:Decrypt + kms:DescribeKey to the CPA role. Set to true when the KMS key policy already grants access."
 }
 
 variable "tags" {
