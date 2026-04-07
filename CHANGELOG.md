@@ -1,5 +1,9 @@
 ## (Unreleased)
 
+BREAKING CHANGES:
+
+* module: Normalizes `for_each` keys to lowercase AWS region format (`us-east-1`). Users who deployed with Atlas-format regions (`US_EAST_1`) must add `moved` blocks or run `terraform state mv` before upgrading, see [v0.3.0 Upgrade Guide](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/main/docs/v0.3.0-upgrade-guide.md) ([#33](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/33))
+
 ENHANCEMENTS:
 
 * variable/timeouts: Adds configurable timeout overrides for Atlas resources (cloud_provider_access, encryption_private_endpoint, privatelink_endpoint, privatelink_endpoint_service, privatelink_regional_mode) ([#32](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/32))
