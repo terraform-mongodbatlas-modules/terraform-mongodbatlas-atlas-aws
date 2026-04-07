@@ -1,5 +1,5 @@
 log_types:
 - MONGOD_AUDIT
-prefix_path: audit/
+prefix_path: audit
 project_id: <project_id>
 type: S3_LOG_EXPORT

@@ -123,7 +123,7 @@ resource "mongodbatlas_log_integration" "this" {
   type        = "S3_LOG_EXPORT"
   iam_role_id = var.atlas_role_id
   bucket_name = coalesce(var.integrations[count.index].bucket_name, local.bucket_name)
-  prefix_path = var.integrations[count.index].prefix_path
+  prefix_path = trimsuffix(var.integrations[count.index].prefix_path, "/")
   log_types   = var.integrations[count.index].log_types
 
   kms_key = var.kms_key

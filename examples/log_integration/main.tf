@@ -10,8 +10,8 @@ module "atlas_aws" {
       force_destroy = var.force_destroy
     }
     integrations = [
-      { log_types = ["MONGOD"], prefix_path = "operational/" },
-      { log_types = ["MONGOD_AUDIT"], prefix_path = "audit/" },
+      { log_types = ["MONGOD"], prefix_path = "operational" },
+      { log_types = ["MONGOD_AUDIT"], prefix_path = "audit" },
     ]
   }
 
