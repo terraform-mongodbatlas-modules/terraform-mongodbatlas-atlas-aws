@@ -40,14 +40,14 @@ locals {
   # Private endpoint regions: inferred from presence of private_endpoint_regions
   encryption_private_endpoint_regions = (
     var.encryption.enabled && length(var.encryption.private_endpoint_regions) > 0
-    ? var.encryption.private_endpoint_regions
+    ? toset([for r in var.encryption.private_endpoint_regions : lower(replace(r, "_", "-"))])
     : toset([])
   )
   encryption_require_private_networking = length(local.encryption_private_endpoint_regions) > 0
 
   # PrivateLink: convert lists to maps for for_each
   # Multi-region: use region as key (guaranteed unique by validation)
-  privatelink_endpoints_map = { for ep in var.privatelink_endpoints : ep.region => ep }
+  privatelink_endpoints_map = { for ep in var.privatelink_endpoints : lower(replace(ep.region, "_", "-")) => ep }
   # Single-region: use index as key (regions are same)
   privatelink_endpoints_single_region_map = { for idx, ep in var.privatelink_endpoints_single_region : tostring(idx) => ep }
   # Combined module-managed endpoints
@@ -61,7 +61,8 @@ locals {
     local.privatelink_module_managed,
     { for k, region in var.privatelink_byoe_regions : k => { region = region, subnet_ids = [], security_group = { create = false }, tags = {} } if contains(keys(var.privatelink_byoe), k) }
   )
-  # Enable regional mode only for multi-region pattern
-  privatelink_all_regions = toset([for k, value in local.privatelink_endpoints : value.region])
+  # Normalized AWS region per endpoint key: "US_EAST_1" → "us-east-1"
+  _privatelink_aws_region = { for k, v in local.privatelink_endpoints : k => lower(replace(v.region, "_", "-")) }
+  privatelink_all_regions = toset(values(local._privatelink_aws_region))
   enable_regional_mode    = length(local.privatelink_all_regions) > 1
 }
