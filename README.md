@@ -382,7 +382,7 @@ Default: `{}`
 
 ## Log Integration
 
-Configure Atlas log export to AWS S3 buckets. Supports multiple integrations per project and per-integration bucket overrides. See the [export logs to AWS S3 documentation](https://www.mongodb.com/docs/atlas/export-logs-external-sinks/) for details.
+Configure Atlas log export to AWS S3 buckets. Supports multiple integrations per project and optional per-integration bucket overrides in addition to a required default bucket. See the [export logs to AWS S3 documentation](https://www.mongodb.com/docs/atlas/export-logs-external-sinks/) for details.
 
 ### log_integration
 
@@ -391,7 +391,9 @@ Log integration configuration for exporting Atlas logs to S3.
 Provide EITHER:
 - `bucket_name` (user-provided S3 bucket, default for all integrations)
 - `create_s3_bucket.enabled = true` (module-managed S3 bucket)
-- Per-integration `bucket_name` override (BYO only)
+
+Per-integration `bucket_name` overrides are supported in addition to the
+root bucket above, but do not replace the requirement for a default bucket.
 
 **IAM Permissions (auto-attached to the CPA role):**
 The module attaches an IAM role policy with `s3:PutObject` and
@@ -404,7 +406,9 @@ per-integration overrides). No manual S3 policy setup is required.
 - Default: `atlas-logs-{project_id_suffix}-` when neither specified
 
 **KMS Encryption:**
-`kms_key` is the KMS key ARN used to encrypt log objects via S3 SSE-KMS.
+`kms_key` is the KMS key ARN passed to `mongodbatlas_log_integration` for
+Atlas-side log encryption before delivery to S3. This is separate from S3
+bucket server-side encryption (`create_s3_bucket.server_side_encryption`).
 The module attaches `kms:GenerateDataKey` + `kms:Decrypt` to the CPA role.
 Set `kms_key_skip_iam = true` if the KMS key policy already grants access.
 
