@@ -2,6 +2,3 @@
 variable/timeouts: Adds configurable timeout defaults (30m) for all Atlas and AWS resources that support timeout configuration
 ```
 
-```release-note:note
-variable/timeouts: Removes delete_on_create_timeout from the variable interface; Atlas resources use the provider code-level default (true) automatically
-```
