@@ -47,7 +47,7 @@ variable "create_s3_bucket" {
     - Default: `atlas-logs-{project_id_suffix}-` when neither specified
 
     **Lifecycle:**
-    - `expiration_days` - Auto-delete objects after N days (default 90, null to disable)
+    - `expiration_days` - Auto-delete objects after N days (default 90, 0 to disable)
   EOT
 
   validation {

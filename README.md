@@ -15,7 +15,7 @@ Run 'just gen-readme' to regenerate. -->
 - [Providers](#providers)
 - [Resources](#resources)
 - [Required Variables](#required-variables)
-- [AWS Cloud Provider Access & IAM Policy](#aws-cloud-provider-access--iam-policy)
+- [AWS Cloud Provider Access & IAM Policy](#aws-cloud-provider-access-iam-policy)
 - [Encryption at Rest](#encryption-at-rest)
 - [Private Link](#private-link)
 - [Backup Export](#backup-export)
@@ -347,6 +347,9 @@ Provide EITHER:
 - SSE with aws:kms for encryption at rest
 - All public access blocked
 
+**Lifecycle:**
+- `expiration_days` - Auto-delete objects after N days (default 365, 0 to disable)
+
 When `iam_role.create = true`, creates a dedicated IAM role for backup export instead of using the shared role.
 
 Type:
@@ -367,6 +370,7 @@ object({
     block_public_policy     = optional(bool, true)
     ignore_public_acls      = optional(bool, true)
     restrict_public_buckets = optional(bool, true)
+    expiration_days         = optional(number, 365)
   }), { enabled = false })
   iam_role = optional(object({
     create               = optional(bool, false)
@@ -419,7 +423,7 @@ Each entry creates one `mongodbatlas_log_integration` resource.
 - `bucket_name` (optional) - Per-integration bucket override.
 
 **S3 Lifecycle:**
-Module-managed buckets default to `expiration_days = 90`. Set to `null` to disable.
+Module-managed buckets default to `expiration_days = 90`. Set to `0` to disable.
 
 Type:
 

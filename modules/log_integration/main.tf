@@ -62,7 +62,7 @@ resource "aws_s3_bucket_public_access_block" "atlas" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "atlas" {
-  count  = local.create_bucket && var.create_s3_bucket.expiration_days != null ? 1 : 0
+  count  = local.create_bucket && var.create_s3_bucket.expiration_days > 0 ? 1 : 0
   bucket = aws_s3_bucket.atlas[0].id
 
   rule {

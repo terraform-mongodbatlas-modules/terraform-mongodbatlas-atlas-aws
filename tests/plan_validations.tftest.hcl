@@ -305,6 +305,73 @@ run "backup_export_with_auto_name_prefix" {
     condition     = length(module.backup_export) == 1
     error_message = "Expected backup_export module"
   }
+  assert {
+    condition     = output.backup_export.expiration_days == 365
+    error_message = "Expected default expiration_days = 365"
+  }
+}
+
+run "backup_export_lifecycle_disabled" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    backup_export = {
+      enabled = true
+      create_s3_bucket = {
+        enabled         = true
+        expiration_days = 0
+      }
+    }
+  }
+  assert {
+    condition     = length(module.backup_export) == 1
+    error_message = "Expected backup_export module"
+  }
+  assert {
+    condition     = output.backup_export.expiration_days == 0
+    error_message = "Expected expiration_days = 0 (disabled)"
+  }
+}
+
+run "backup_export_lifecycle_custom_days" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    backup_export = {
+      enabled = true
+      create_s3_bucket = {
+        enabled         = true
+        expiration_days = 30
+      }
+    }
+  }
+  assert {
+    condition     = length(module.backup_export) == 1
+    error_message = "Expected backup_export module"
+  }
+  assert {
+    condition     = output.backup_export.expiration_days == 30
+    error_message = "Expected expiration_days = 30"
+  }
+}
+
+run "log_integration_lifecycle_disabled" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    log_integration = {
+      enabled = true
+      create_s3_bucket = {
+        enabled         = true
+        expiration_days = 0
+      }
+      integrations = [{ log_types = ["MONGOD"], prefix_path = "test" }]
+    }
+  }
+  assert {
+    condition     = length(module.log_integration) == 1
+    error_message = "Expected log_integration module"
+  }
 }
 
 run "backup_export_name_and_prefix_conflict" {

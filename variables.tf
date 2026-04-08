@@ -214,7 +214,7 @@ variable "backup_export" {
     - All public access blocked
 
     **Lifecycle:**
-    - `expiration_days` - Auto-delete objects after N days (default 365, null to disable)
+    - `expiration_days` - Auto-delete objects after N days (default 365, 0 to disable)
 
     When `iam_role.create = true`, creates a dedicated IAM role for backup export instead of using the shared role.
   EOT
@@ -308,7 +308,7 @@ variable "log_integration" {
     - `bucket_name` (optional) - Per-integration bucket override.
 
     **S3 Lifecycle:**
-    Module-managed buckets default to `expiration_days = 90`. Set to `null` to disable.
+    Module-managed buckets default to `expiration_days = 90`. Set to `0` to disable.
   EOT
 
   validation {
