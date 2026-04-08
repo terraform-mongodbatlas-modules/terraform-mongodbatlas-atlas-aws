@@ -14,6 +14,7 @@ project_ids = {
   encryption                  = "PROJECT_ID"
   encryption_private_endpoint = "PROJECT_ID"
   backup_export               = "PROJECT_ID"
+  log_integration             = "PROJECT_ID"
   privatelink                 = "PROJECT_ID"
   privatelink_byoe            = "PROJECT_ID"
   privatelink_multi_region    = "PROJECT_ID"

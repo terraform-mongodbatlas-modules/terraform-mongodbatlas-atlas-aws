@@ -14,7 +14,7 @@ locals {
     [for b in data.aws_s3_bucket.integration_byo : b.arn],
   )))
 
-  attach_kms_policy = var.kms_key != null && !var.kms_key_skip_iam
+  attach_kms_policy = var.kms_key != null && !var.kms_key_skip_iam_policy
 }
 
 data "aws_s3_bucket" "user_provided" {
@@ -100,7 +100,7 @@ resource "aws_iam_role_policy" "s3_access" {
 data "aws_iam_policy_document" "kms_access" {
   count = local.attach_kms_policy ? 1 : 0
   statement {
-    actions   = ["kms:GenerateDataKey", "kms:Decrypt"]
+    actions   = ["kms:GenerateDataKey", "kms:Decrypt", "kms:DescribeKey"]
     resources = [var.kms_key]
   }
 }
@@ -123,7 +123,7 @@ resource "mongodbatlas_log_integration" "this" {
   type        = "S3_LOG_EXPORT"
   iam_role_id = var.atlas_role_id
   bucket_name = coalesce(var.integrations[count.index].bucket_name, local.bucket_name)
-  prefix_path = var.integrations[count.index].prefix_path
+  prefix_path = trimsuffix(var.integrations[count.index].prefix_path, "/")
   log_types   = var.integrations[count.index].log_types
 
   kms_key = var.kms_key

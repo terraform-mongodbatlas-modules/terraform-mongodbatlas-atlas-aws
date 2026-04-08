@@ -1,0 +1,17 @@
+region: us-east-1
+rule:
+- abort_incomplete_multipart_upload: []
+  expiration:
+  - days: 90
+    expired_object_delete_marker: false
+  filter:
+  - and: []
+    prefix: ''
+    tag: []
+  id: log-expiration
+  noncurrent_version_expiration: []
+  noncurrent_version_transition: []
+  prefix: ''
+  status: Enabled
+  transition: []
+transition_default_minimum_object_size: all_storage_classes_128K

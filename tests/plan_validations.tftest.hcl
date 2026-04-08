@@ -614,7 +614,7 @@ run "log_integration_validation_enabled_without_bucket" {
   command = plan
   variables {
     project_id      = var.project_id
-    log_integration = { enabled = true, integrations = [{ log_types = ["MONGOD"] }] }
+    log_integration = { enabled = true, integrations = [{ log_types = ["MONGOD"], prefix_path = "test" }] }
   }
   expect_failures = [var.log_integration]
 }
@@ -627,7 +627,7 @@ run "log_integration_validation_byo_and_create_conflict" {
       enabled          = true
       bucket_name      = "my-bucket"
       create_s3_bucket = { enabled = true }
-      integrations     = [{ log_types = ["MONGOD"] }]
+      integrations     = [{ log_types = ["MONGOD"], prefix_path = "test" }]
     }
   }
   expect_failures = [var.log_integration]
@@ -640,7 +640,7 @@ run "log_integration_name_and_prefix_conflict" {
     log_integration = {
       enabled          = true
       create_s3_bucket = { enabled = true, name = "my-bucket", name_prefix = "my-prefix-" }
-      integrations     = [{ log_types = ["MONGOD"] }]
+      integrations     = [{ log_types = ["MONGOD"], prefix_path = "test" }]
     }
   }
   expect_failures = [var.log_integration]
@@ -653,7 +653,7 @@ run "log_integration_name_prefix_too_long" {
     log_integration = {
       enabled          = true
       create_s3_bucket = { enabled = true, name_prefix = "this-prefix-is-way-too-long-for-s3-bucket-names-" }
-      integrations     = [{ log_types = ["MONGOD"] }]
+      integrations     = [{ log_types = ["MONGOD"], prefix_path = "test" }]
     }
   }
   expect_failures = [var.log_integration]
@@ -682,7 +682,7 @@ run "log_integration_with_module_managed_bucket" {
     log_integration = {
       enabled          = true
       create_s3_bucket = { enabled = true }
-      integrations     = [{ log_types = ["MONGOD"] }]
+      integrations     = [{ log_types = ["MONGOD"], prefix_path = "test" }]
     }
   }
   assert {
@@ -706,7 +706,7 @@ run "log_integration_with_byo_bucket" {
     log_integration = {
       enabled      = true
       bucket_name  = "existing-bucket"
-      integrations = [{ log_types = ["MONGOD"] }]
+      integrations = [{ log_types = ["MONGOD"], prefix_path = "test" }]
     }
   }
   assert {
@@ -722,7 +722,7 @@ run "log_integration_with_dedicated_iam_role" {
     log_integration = {
       enabled          = true
       create_s3_bucket = { enabled = true }
-      integrations     = [{ log_types = ["MONGOD"] }]
+      integrations     = [{ log_types = ["MONGOD"], prefix_path = "test" }]
       iam_role         = { create = true }
     }
   }
@@ -763,8 +763,8 @@ run "log_integration_with_per_integration_byo_bucket" {
       enabled     = true
       bucket_name = "default-bucket"
       integrations = [
-        { log_types = ["MONGOD"] },
-        { log_types = ["MONGOD_AUDIT"], bucket_name = "audit-bucket" },
+        { log_types = ["MONGOD"], prefix_path = "operational" },
+        { log_types = ["MONGOD_AUDIT"], prefix_path = "audit", bucket_name = "audit-bucket" },
       ]
     }
   }
@@ -781,7 +781,7 @@ run "log_integration_with_kms_key" {
     log_integration = {
       enabled          = true
       create_s3_bucket = { enabled = true }
-      integrations     = [{ log_types = ["MONGOD"] }]
+      integrations     = [{ log_types = ["MONGOD"], prefix_path = "test" }]
       kms_key          = "arn:aws:kms:us-east-1:123456789012:key/log-key"
     }
   }
@@ -798,7 +798,7 @@ run "enable_cloud_provider_access_log_integration" {
     log_integration = {
       enabled          = true
       create_s3_bucket = { enabled = true }
-      integrations     = [{ log_types = ["MONGOD"] }]
+      integrations     = [{ log_types = ["MONGOD"], prefix_path = "test" }]
     }
     privatelink_endpoints = [
       { region = "us-east-1", subnet_ids = ["subnet-abc"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } }

@@ -64,10 +64,10 @@ variable "create_s3_bucket" {
 variable "integrations" {
   type = list(object({
     log_types   = list(string)
-    prefix_path = optional(string, "")
+    prefix_path = string
     bucket_name = optional(string)
   }))
-  description = "List of log integration configurations. Each entry creates one mongodbatlas_log_integration resource."
+  description = "List of log integration configurations. Each entry creates one mongodbatlas_log_integration resource. `prefix_path` (required) sets the S3 object key prefix for log delivery. `bucket_name` (optional) overrides the default bucket."
 }
 
 variable "kms_key" {
@@ -76,10 +76,10 @@ variable "kms_key" {
   description = "Atlas-side KMS key ARN for encrypting log objects before writing to S3"
 }
 
-variable "kms_key_skip_iam" {
+variable "kms_key_skip_iam_policy" {
   type        = bool
   default     = false
-  description = "Skip attaching kms:GenerateDataKey + kms:Decrypt to the CPA role. Set to true when the KMS key policy already grants access."
+  description = "Skip attaching kms:GenerateDataKey + kms:Decrypt + kms:DescribeKey to the CPA role. Set to true when the KMS key policy already grants access."
 }
 
 variable "tags" {
