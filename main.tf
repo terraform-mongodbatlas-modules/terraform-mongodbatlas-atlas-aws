@@ -97,6 +97,44 @@ module "backup_export" {
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Dedicated IAM role for log integration (when log_integration.iam_role.create = true)
+# ─────────────────────────────────────────────────────────────────────────────
+
+module "log_integration_cloud_provider_access" {
+  count  = local.create_log_integration_dedicated_role ? 1 : 0
+  source = "./modules/cloud_provider_access"
+
+  project_id                    = var.project_id
+  purpose                       = "logs"
+  iam_role_name                 = var.log_integration.iam_role.name
+  iam_role_path                 = var.log_integration.iam_role.path
+  iam_role_permissions_boundary = var.log_integration.iam_role.permissions_boundary
+  tags                          = var.aws_tags
+  timeouts                      = var.timeouts.cloud_provider_access
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Log Integration (S3)
+# ─────────────────────────────────────────────────────────────────────────────
+
+module "log_integration" {
+  count  = var.log_integration.enabled ? 1 : 0
+  source = "./modules/log_integration"
+
+  project_id              = var.project_id
+  atlas_role_id           = local.log_integration_role_id
+  iam_role_name           = local.log_integration_iam_role_name
+  bucket_name             = var.log_integration.bucket_name
+  create_s3_bucket        = var.log_integration.create_s3_bucket
+  integrations            = var.log_integration.integrations
+  kms_key                 = var.log_integration.kms_key
+  kms_key_skip_iam_policy = var.log_integration.kms_key_skip_iam_policy
+  tags                    = merge(var.aws_tags, var.log_integration.tags)
+
+  depends_on = [module.cloud_provider_access, module.log_integration_cloud_provider_access]
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
 # PrivateLink
 # ─────────────────────────────────────────────────────────────────────────────
 

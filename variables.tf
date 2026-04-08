@@ -236,6 +236,103 @@ variable "backup_export" {
   }
 }
 
+variable "log_integration" {
+  type = object({
+    enabled = optional(bool, false)
+    integrations = optional(list(object({
+      log_types   = list(string)
+      prefix_path = string
+      bucket_name = optional(string)
+    })), [])
+    bucket_name = optional(string)
+    create_s3_bucket = optional(object({
+      enabled                 = bool
+      region                  = optional(string)
+      name                    = optional(string)
+      name_prefix             = optional(string)
+      force_destroy           = optional(bool, false)
+      versioning_enabled      = optional(bool, true)
+      server_side_encryption  = optional(string, "aws:kms")
+      block_public_acls       = optional(bool, true)
+      block_public_policy     = optional(bool, true)
+      ignore_public_acls      = optional(bool, true)
+      restrict_public_buckets = optional(bool, true)
+      expiration_days         = optional(number, 90)
+    }), { enabled = false })
+    kms_key                 = optional(string)
+    kms_key_skip_iam_policy = optional(bool, false)
+    tags                    = optional(map(string), {})
+    iam_role = optional(object({
+      create               = optional(bool, false)
+      name                 = optional(string)
+      path                 = optional(string, "/")
+      permissions_boundary = optional(string)
+    }), { create = false })
+  })
+  default     = {}
+  description = <<-EOT
+    Log integration configuration for exporting Atlas logs to S3.
+
+    Provide EITHER:
+    - `bucket_name` (user-provided S3 bucket, default for all integrations)
+    - `create_s3_bucket.enabled = true` (module-managed S3 bucket)
+
+    Per-integration `bucket_name` overrides are supported in addition to the
+    root bucket above, but do not replace the requirement for a default bucket.
+
+    **IAM Permissions (auto-attached to the CPA role):**
+    The module attaches an IAM role policy with `s3:PutObject` and
+    `s3:GetBucketLocation` for all target buckets (module-managed + BYO +
+    per-integration overrides). No manual S3 policy setup is required.
+
+    **Bucket Naming (when module-managed):**
+    - `create_s3_bucket.name` - Exact bucket name (conflicts with name_prefix)
+    - `create_s3_bucket.name_prefix` - Prefix with Terraform-generated suffix (max 37 chars)
+    - Default: `atlas-logs-{project_id_suffix}-` when neither specified
+
+    **KMS Encryption:**
+    `kms_key` is the KMS key ARN passed to `mongodbatlas_log_integration` for
+    Atlas-side log encryption before delivery to S3. This is separate from S3
+    bucket server-side encryption (`create_s3_bucket.server_side_encryption`).
+    The module attaches `kms:GenerateDataKey` + `kms:Decrypt` + `kms:DescribeKey` to the CPA role.
+    Set `kms_key_skip_iam_policy = true` if the KMS key policy already grants access.
+
+    **Integrations:**
+    Each entry creates one `mongodbatlas_log_integration` resource.
+    - `log_types` (required) - Valid values: MONGOD, MONGOS, MONGOD_AUDIT, MONGOS_AUDIT.
+    - `prefix_path` (required) - S3 object key prefix for log delivery (e.g. "operational/", "audit/").
+    - `bucket_name` (optional) - Per-integration bucket override.
+
+    **S3 Lifecycle:**
+    Module-managed buckets default to `expiration_days = 90`. Set to `null` to disable.
+  EOT
+
+  validation {
+    condition     = !var.log_integration.enabled || length(var.log_integration.integrations) > 0
+    error_message = "log_integration.enabled = true requires at least one entry in integrations."
+  }
+
+  validation {
+    condition     = !var.log_integration.enabled || (var.log_integration.bucket_name != null || try(var.log_integration.create_s3_bucket.enabled, false))
+    error_message = "log_integration.enabled = true requires bucket_name OR create_s3_bucket.enabled = true. Per-integration bucket_name overrides do not replace a default bucket."
+  }
+
+  validation {
+    condition     = !(var.log_integration.bucket_name != null && try(var.log_integration.create_s3_bucket.enabled, false))
+    error_message = "Cannot use both bucket_name (user-provided) and create_s3_bucket.enabled = true (module-managed)."
+  }
+
+  validation {
+    condition     = !(try(var.log_integration.create_s3_bucket.name, null) != null && try(var.log_integration.create_s3_bucket.name_prefix, null) != null)
+    error_message = "Cannot use both create_s3_bucket.name and create_s3_bucket.name_prefix."
+  }
+
+  validation {
+    condition     = try(length(var.log_integration.create_s3_bucket.name_prefix), 0) <= 37
+    error_message = "create_s3_bucket.name_prefix must be 37 characters or less. S3 bucket names are limited to 63 characters and Terraform adds a 26-character random suffix."
+  }
+}
+
 variable "timeouts" {
   type = object({
     cloud_provider_access = optional(object({
