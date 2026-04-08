@@ -46,6 +46,15 @@ sections:
       names:
         - backup_export
 
+  - id: log_integration
+    title: "Log Integration"
+    level: 2
+    description: |
+      Configure Atlas log export to AWS S3 buckets. Supports multiple integrations per project and optional per-integration bucket overrides in addition to a required default bucket. See the [export logs to AWS S3 documentation](https://www.mongodb.com/docs/atlas/export-logs-external-sinks/) for details.
+    match:
+      names:
+        - log_integration
+
   - id: optional
     title: "Optional Variables"
     level: 2

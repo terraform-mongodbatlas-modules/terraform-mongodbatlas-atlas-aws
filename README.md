@@ -19,6 +19,7 @@ Run 'just gen-readme' to regenerate. -->
 - [Encryption at Rest](#encryption-at-rest)
 - [Private Link](#private-link)
 - [Backup Export](#backup-export)
+- [Log Integration](#log-integration)
 - [Optional Variables](#optional-variables)
 - [Outputs](#outputs)
 - [FAQ](#faq)
@@ -193,13 +194,13 @@ The following requirements are needed by this module:
 
 - <a name="requirement_aws"></a> [aws](https://registry.terraform.io/providers/hashicorp/aws/latest/docs) (>= 6.0)
 
-- <a name="requirement_mongodbatlas"></a> [mongodbatlas](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs) (~> 2.1)
+- <a name="requirement_mongodbatlas"></a> [mongodbatlas](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs) (~> 2.8)
 
 ## Providers
 
 The following providers are used by this module:
 
-- <a name="provider_mongodbatlas"></a> [mongodbatlas](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs) (~> 2.1)
+- <a name="provider_mongodbatlas"></a> [mongodbatlas](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs) (~> 2.8)
 
 ## Resources
 
@@ -379,6 +380,87 @@ object({
 Default: `{}`
 
 
+## Log Integration
+
+Configure Atlas log export to AWS S3 buckets. Supports multiple integrations per project and optional per-integration bucket overrides in addition to a required default bucket. See the [export logs to AWS S3 documentation](https://www.mongodb.com/docs/atlas/export-logs-external-sinks/) for details.
+
+### log_integration
+
+Log integration configuration for exporting Atlas logs to S3.
+
+Provide EITHER:
+- `bucket_name` (user-provided S3 bucket, default for all integrations)
+- `create_s3_bucket.enabled = true` (module-managed S3 bucket)
+
+Per-integration `bucket_name` overrides are supported in addition to the
+root bucket above, but do not replace the requirement for a default bucket.
+
+**IAM Permissions (auto-attached to the CPA role):**
+The module attaches an IAM role policy with `s3:PutObject` and
+`s3:GetBucketLocation` for all target buckets (module-managed + BYO +
+per-integration overrides). No manual S3 policy setup is required.
+
+**Bucket Naming (when module-managed):**
+- `create_s3_bucket.name` - Exact bucket name (conflicts with name_prefix)
+- `create_s3_bucket.name_prefix` - Prefix with Terraform-generated suffix (max 37 chars)
+- Default: `atlas-logs-{project_id_suffix}-` when neither specified
+
+**KMS Encryption:**
+`kms_key` is the KMS key ARN passed to `mongodbatlas_log_integration` for
+Atlas-side log encryption before delivery to S3. This is separate from S3
+bucket server-side encryption (`create_s3_bucket.server_side_encryption`).
+The module attaches `kms:GenerateDataKey` + `kms:Decrypt` + `kms:DescribeKey` to the CPA role.
+Set `kms_key_skip_iam_policy = true` if the KMS key policy already grants access.
+
+**Integrations:**
+Each entry creates one `mongodbatlas_log_integration` resource.
+- `log_types` (required) - Valid values: MONGOD, MONGOS, MONGOD_AUDIT, MONGOS_AUDIT.
+- `prefix_path` (required) - S3 object key prefix for log delivery (e.g. "operational/", "audit/").
+- `bucket_name` (optional) - Per-integration bucket override.
+
+**S3 Lifecycle:**
+Module-managed buckets default to `expiration_days = 90`. Set to `null` to disable.
+
+Type:
+
+```hcl
+object({
+  enabled = optional(bool, false)
+  integrations = optional(list(object({
+    log_types   = list(string)
+    prefix_path = string
+    bucket_name = optional(string)
+  })), [])
+  bucket_name = optional(string)
+  create_s3_bucket = optional(object({
+    enabled                 = bool
+    region                  = optional(string)
+    name                    = optional(string)
+    name_prefix             = optional(string)
+    force_destroy           = optional(bool, false)
+    versioning_enabled      = optional(bool, true)
+    server_side_encryption  = optional(string, "aws:kms")
+    block_public_acls       = optional(bool, true)
+    block_public_policy     = optional(bool, true)
+    ignore_public_acls      = optional(bool, true)
+    restrict_public_buckets = optional(bool, true)
+    expiration_days         = optional(number, 90)
+  }), { enabled = false })
+  kms_key                 = optional(string)
+  kms_key_skip_iam_policy = optional(bool, false)
+  tags                    = optional(map(string), {})
+  iam_role = optional(object({
+    create               = optional(bool, false)
+    name                 = optional(string)
+    path                 = optional(string, "/")
+    permissions_boundary = optional(string)
+  }), { create = false })
+})
+```
+
+Default: `{}`
+
+
 ## Optional Variables
 
 ### aws_tags
@@ -497,6 +579,10 @@ Description: Value for cluster's encryption\_at\_rest\_provider attribute
 ### <a name="output_export_bucket_id"></a> [export\_bucket\_id](#output\_export\_bucket\_id)
 
 Description: Export bucket ID for backup schedule auto\_export\_enabled
+
+### <a name="output_log_integration"></a> [log\_integration](#output\_log\_integration)
+
+Description: Log integration configuration
 
 ### <a name="output_privatelink"></a> [privatelink](#output\_privatelink)
 
