@@ -245,17 +245,17 @@ variable "timeouts" {
   default     = {}
   nullable    = false
   description = <<-EOT
-    Timeout defaults applied to all wrapped resources (Atlas and AWS).
+    Timeout defaults that Terraform applies to all wrapped resources (Atlas and AWS).
     Timeout strings use Go duration format (e.g., "30m", "1h").
 
     Atlas resources that support `delete_on_create_timeout` use the provider's
-    code-level default (true). This attribute is not exposed because setting it
+    code-level default (`true`). Terraform does not expose this attribute because setting it
     explicitly causes ForceNew diffs on `privatelink_endpoint`,
-    `privatelink_endpoint_service`, `cloud_provider_access_setup` and errors
+    `privatelink_endpoint_service`, and `cloud_provider_access_setup`, and errors
     on imported `encryption_at_rest_private_endpoint` resources.
 
     AWS resources do not support `delete_on_create_timeout`. On create timeout,
-    AWS resources are marked as tainted and recreated on the next apply.
+    Terraform marks AWS resources as tainted and recreates them on the next apply.
   EOT
 }
 
