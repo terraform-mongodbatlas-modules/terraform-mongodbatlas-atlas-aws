@@ -15,7 +15,7 @@ Run 'just gen-readme' to regenerate. -->
 - [Providers](#providers)
 - [Resources](#resources)
 - [Required Variables](#required-variables)
-- [AWS Cloud Provider Access](#aws-cloud-provider-access)
+- [AWS Cloud Provider Access & IAM Policy](#aws-cloud-provider-access--iam-policy)
 - [Encryption at Rest](#encryption-at-rest)
 - [Private Link](#private-link)
 - [Backup Export](#backup-export)
@@ -224,9 +224,9 @@ MongoDB Atlas project ID
 Type: `string`
 
 
-## AWS Cloud Provider Access
+## AWS Cloud Provider Access & IAM Policy
 
-Configure the AWS IAM role used by MongoDB Atlas. See the [AWS cloud provider access documentation](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/) for details.
+Configure the AWS IAM role used by MongoDB Atlas. See the [AWS cloud provider access documentation](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/) for details. For least-privilege IAM permissions per feature, see [IAM Permissions Reference](./docs/iam-permissions.md).
 
 _No variables in this section yet._
 

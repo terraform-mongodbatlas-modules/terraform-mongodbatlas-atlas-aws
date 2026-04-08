@@ -186,6 +186,7 @@ variable "backup_export" {
       block_public_policy     = optional(bool, true)
       ignore_public_acls      = optional(bool, true)
       restrict_public_buckets = optional(bool, true)
+      expiration_days         = optional(number, 365)
     }), { enabled = false })
     iam_role = optional(object({
       create               = optional(bool, false)
@@ -211,6 +212,9 @@ variable "backup_export" {
     - Versioning enabled for backup recovery
     - SSE with aws:kms for encryption at rest
     - All public access blocked
+
+    **Lifecycle:**
+    - `expiration_days` - Auto-delete objects after N days (default 365, null to disable)
 
     When `iam_role.create = true`, creates a dedicated IAM role for backup export instead of using the shared role.
   EOT

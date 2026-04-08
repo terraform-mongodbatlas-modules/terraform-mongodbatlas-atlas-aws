@@ -54,6 +54,20 @@ resource "aws_s3_bucket_public_access_block" "atlas" {
   restrict_public_buckets = var.create_s3_bucket.restrict_public_buckets
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "atlas" {
+  count  = local.create_bucket && var.create_s3_bucket.expiration_days > 0 ? 1 : 0
+  bucket = aws_s3_bucket.atlas[0].id
+
+  rule {
+    id     = "backup-expiration"
+    status = "Enabled"
+    filter {}
+    expiration {
+      days = var.create_s3_bucket.expiration_days
+    }
+  }
+}
+
 data "aws_iam_policy_document" "s3_access" {
   statement {
     actions   = ["s3:GetBucketLocation"]

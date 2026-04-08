@@ -7,10 +7,10 @@ sections:
         - project_id
 
   - id: cloud_provider_access
-    title: "AWS Cloud Provider Access"
+    title: "AWS Cloud Provider Access & IAM Policy"
     level: 2
     description: |
-      Configure the AWS IAM role used by MongoDB Atlas. See the [AWS cloud provider access documentation](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/) for details.
+      Configure the AWS IAM role used by MongoDB Atlas. See the [AWS cloud provider access documentation](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/) for details. For least-privilege IAM permissions per feature, see [IAM Permissions Reference](./docs/iam-permissions.md).
     match:
       names:
         - create_iam_role
