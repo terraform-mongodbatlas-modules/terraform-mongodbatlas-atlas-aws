@@ -3,8 +3,7 @@
   attributes on Framework resources (timeouts = {}). Neither is exposed as a
   plannable resource attribute, so we cannot assert on timeout values directly.
   We verify default values on the variable and rely on plan success to confirm
-  the static blocks are syntactically valid across all resource types.
-  Submodule resource attributes are also inaccessible from root-level assertions.
+  the dynamic/conditional blocks are syntactically valid across all resource types.
 */
 
 mock_provider "mongodbatlas" {}
@@ -49,6 +48,50 @@ run "timeouts_custom_override" {
   }
 }
 
+run "timeouts_explicit_null" {
+  command = plan
+  variables {
+    timeouts = null
+  }
+  assert {
+    condition     = var.timeouts == null
+    error_message = "Expected timeouts to be null"
+  }
+}
+
+run "timeouts_null_all_features" {
+  command = plan
+  variables {
+    timeouts = null
+    encryption = {
+      enabled                  = true
+      kms_key_arn              = "arn:aws:kms:us-east-1:123456789012:key/abc"
+      private_endpoint_regions = ["us-east-1"]
+    }
+    privatelink_endpoints = [
+      { region = "us-east-1", subnet_ids = ["subnet-abc"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } },
+      { region = "us-west-2", subnet_ids = ["subnet-def"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } }
+    ]
+    backup_export = {
+      enabled          = true
+      create_s3_bucket = { enabled = true }
+    }
+    log_integration = {
+      enabled          = true
+      create_s3_bucket = { enabled = true }
+      integrations     = [{ log_types = ["MONGOD"], prefix_path = "" }]
+    }
+  }
+  assert {
+    condition     = length(module.cloud_provider_access) == 1
+    error_message = "Expected cloud_provider_access module"
+  }
+  assert {
+    condition     = length(module.log_integration) == 1
+    error_message = "Expected log_integration module"
+  }
+}
+
 run "timeouts_all_resources_plan_succeeds" {
   command = plan
   variables {
@@ -65,6 +108,11 @@ run "timeouts_all_resources_plan_succeeds" {
     backup_export = {
       enabled          = true
       create_s3_bucket = { enabled = true }
+    }
+    log_integration = {
+      enabled          = true
+      create_s3_bucket = { enabled = true }
+      integrations     = [{ log_types = ["MONGOD"], prefix_path = "" }]
     }
   }
   assert {
@@ -86,5 +134,9 @@ run "timeouts_all_resources_plan_succeeds" {
   assert {
     condition     = length(module.backup_export) == 1
     error_message = "Expected backup_export module (timeout path exercised)"
+  }
+  assert {
+    condition     = length(module.log_integration) == 1
+    error_message = "Expected log_integration module (timeout path exercised)"
   }
 }

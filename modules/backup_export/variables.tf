@@ -77,7 +77,7 @@ variable "timeouts" {
     update = optional(string, "30m")
     delete = optional(string, "30m")
   })
-  default     = {}
-  nullable    = false
-  description = "Timeout overrides. See root module timeouts variable."
+  default     = null
+  nullable    = true
+  description = "Timeout overrides. null = provider defaults."
 }

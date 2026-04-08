@@ -8,10 +8,10 @@ resource "mongodbatlas_encryption_at_rest_private_endpoint" "this" {
   cloud_provider = "AWS"
   region_name    = local.atlas_region
 
-  timeouts = {
+  timeouts = var.timeouts != null ? {
     create = var.timeouts.create
     delete = var.timeouts.delete
-  }
+  } : null
 }
 
 data "mongodbatlas_encryption_at_rest_private_endpoint" "this" {

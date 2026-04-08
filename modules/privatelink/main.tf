@@ -46,9 +46,12 @@ resource "aws_security_group" "this" {
   tags        = var.tags
   region      = local.region
 
-  timeouts {
-    create = var.timeouts.create
-    delete = var.timeouts.delete
+  dynamic "timeouts" {
+    for_each = var.timeouts[*]
+    content {
+      create = timeouts.value.create
+      delete = timeouts.value.delete
+    }
   }
 
   lifecycle {
@@ -90,10 +93,13 @@ resource "aws_vpc_endpoint" "this" {
   tags               = var.tags
   region             = local.region
 
-  timeouts {
-    create = var.timeouts.create
-    update = var.timeouts.update
-    delete = var.timeouts.delete
+  dynamic "timeouts" {
+    for_each = var.timeouts[*]
+    content {
+      create = timeouts.value.create
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
   }
 }
 
@@ -103,9 +109,12 @@ resource "mongodbatlas_privatelink_endpoint_service" "this" {
   provider_name       = "AWS"
   endpoint_service_id = local.create_vpc_endpoint ? aws_vpc_endpoint.this[0].id : var.byo_vpc_endpoint_id
 
-  timeouts {
-    create = var.timeouts.create
-    delete = var.timeouts.delete
+  dynamic "timeouts" {
+    for_each = var.timeouts[*]
+    content {
+      create = timeouts.value.create
+      delete = timeouts.value.delete
+    }
   }
 }
 

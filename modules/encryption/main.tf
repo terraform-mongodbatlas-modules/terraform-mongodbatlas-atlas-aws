@@ -30,8 +30,11 @@ resource "aws_kms_key" "atlas" {
   policy                  = var.create_kms_key.policy_override
   tags                    = var.tags
 
-  timeouts {
-    create = var.timeouts.create
+  dynamic "timeouts" {
+    for_each = var.timeouts[*]
+    content {
+      create = timeouts.value.create
+    }
   }
 }
 

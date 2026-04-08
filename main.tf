@@ -112,7 +112,7 @@ module "log_integration_cloud_provider_access" {
   iam_role_path                 = var.log_integration.iam_role.path
   iam_role_permissions_boundary = var.log_integration.iam_role.permissions_boundary
   tags                          = var.aws_tags
-  timeouts                      = var.timeouts.cloud_provider_access
+  timeouts                      = var.timeouts
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -132,6 +132,7 @@ module "log_integration" {
   kms_key                 = var.log_integration.kms_key
   kms_key_skip_iam_policy = var.log_integration.kms_key_skip_iam_policy
   tags                    = merge(var.aws_tags, var.log_integration.tags)
+  timeouts                = var.timeouts
 
   depends_on = [module.cloud_provider_access, module.log_integration_cloud_provider_access]
 }
@@ -145,10 +146,13 @@ resource "mongodbatlas_private_endpoint_regional_mode" "this" {
   project_id = var.project_id
   enabled    = true
 
-  timeouts {
-    create = var.timeouts.create
-    update = var.timeouts.update
-    delete = var.timeouts.delete
+  dynamic "timeouts" {
+    for_each = var.timeouts[*]
+    content {
+      create = timeouts.value.create
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
   }
 }
 
@@ -158,9 +162,12 @@ resource "mongodbatlas_privatelink_endpoint" "this" {
   provider_name = "AWS"
   region        = local._privatelink_aws_region[each.key]
 
-  timeouts {
-    create = var.timeouts.create
-    delete = var.timeouts.delete
+  dynamic "timeouts" {
+    for_each = var.timeouts[*]
+    content {
+      create = timeouts.value.create
+      delete = timeouts.value.delete
+    }
   }
 }
 

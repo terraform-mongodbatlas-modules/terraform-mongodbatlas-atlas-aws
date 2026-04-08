@@ -2,8 +2,11 @@ resource "mongodbatlas_cloud_provider_access_setup" "this" {
   project_id    = var.project_id
   provider_name = "AWS"
 
-  timeouts {
-    create = var.timeouts.create
+  dynamic "timeouts" {
+    for_each = var.timeouts[*]
+    content {
+      create = timeouts.value.create
+    }
   }
 }
 
