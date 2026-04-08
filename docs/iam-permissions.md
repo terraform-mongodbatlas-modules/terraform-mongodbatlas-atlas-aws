@@ -2,7 +2,7 @@
 
 This page documents the least-privilege IAM permissions the `atlas-aws` module requires. The module operates in two IAM scopes:
 
-- **CPA role** -- the IAM role Atlas assumes via [Cloud Provider Access](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/). The module attaches inline policies to this role automatically. Platform teams replicate these policies manually when using `skip_iam_policy_attachments = true`
+- **CPA role** -- the IAM role Atlas assumes via [Cloud Provider Access](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/). The module attaches inline policies to this role automatically. Platform teams replicate these policies manually when using `skip_iam_policy_attachments = true` (planned, not yet implemented)
 - **Terraform caller** -- the IAM identity (user, role, or CI runner) that runs `terraform apply`. This identity creates and manages the AWS resources the module provisions
 
 ## CPA Role Permissions
@@ -48,7 +48,7 @@ The module attaches this policy only when `kms_key` is set and `kms_key_skip_iam
 
 Source: `modules/log_integration/main.tf` -- `data.aws_iam_policy_document.kms_access`
 
-Note: `kms_key_skip_iam_policy = true` skips this KMS policy. `skip_iam_policy_attachments = true` skips all policies including this one.
+Note: `kms_key_skip_iam_policy = true` skips this KMS policy. `skip_iam_policy_attachments = true` (planned) skips all policies including this one.
 
 ### PrivateLink
 
@@ -119,9 +119,10 @@ When `expiration_days` is set on module-managed buckets (default 365):
 
 ### Log Integration
 
-Same as backup export, plus:
+Same S3 bucket management permissions as Backup Export above (create, delete, versioning, encryption, public access block, lifecycle, IAM policy attachment). Additionally:
 
 - **Per-integration BYO buckets:** `s3:ListBucket`, `s3:GetBucketLocation` on each BYO bucket (data source lookup)
+- **KMS policy attachment** (when `kms_key` is set): `iam:PutRolePolicy`, `iam:GetRolePolicy`, `iam:DeleteRolePolicy` for the KMS inline policy
 
 ### PrivateLink
 
@@ -142,9 +143,11 @@ Same as backup export, plus:
 
 - `ec2:DescribeVpcEndpoints` (data source lookup on the BYO endpoint)
 
-## BYO Role with Read-Only AWS Access
+## BYO Role with Read-Only AWS Access (planned)
 
-When `cloud_provider_access.create = false` and `skip_iam_policy_attachments = true`, the module creates zero `aws_iam_role` and zero `aws_iam_role_policy` resources. The Terraform caller only needs read-only AWS access for data source lookups.
+> **Follow-up:** `skip_iam_policy_attachments` is not yet implemented. This section describes the planned behavior pending a design decision on how platform teams opt out of module-managed IAM policy attachments. Do not rely on this section until the feature ships.
+
+When `cloud_provider_access.create = false` and `skip_iam_policy_attachments = true`, the module would create zero `aws_iam_role` and zero `aws_iam_role_policy` resources. The Terraform caller would only need read-only AWS access for data source lookups.
 
 ### Minimal Terraform caller policy
 
@@ -188,14 +191,14 @@ Each statement below applies only when the corresponding feature is enabled. Dro
 
 ### Platform team responsibilities
 
-The platform team must pre-attach these policies to the CPA IAM role before the app team runs `terraform apply`:
+When `skip_iam_policy_attachments` ships, the platform team must pre-attach these policies to the CPA IAM role before the app team runs `terraform apply`:
 
 - **Encryption:** `kms:Encrypt`, `kms:Decrypt`, `kms:GenerateDataKey*`, `kms:DescribeKey` on the KMS key
 - **Backup export:** `s3:GetBucketLocation`, `s3:PutObject` on the backup bucket
 - **Log integration:** `s3:GetBucketLocation`, `s3:PutObject` on all target log buckets
 - **Log integration KMS** (when `kms_key` is set): `kms:GenerateDataKey`, `kms:Decrypt`, `kms:DescribeKey` on the KMS key
 
-These match the CPA role permissions in the first section of this document. The module normally attaches them automatically; `skip_iam_policy_attachments = true` shifts that responsibility to the platform team.
+These match the CPA role permissions in the first section of this document. The module normally attaches them automatically; `skip_iam_policy_attachments` would shift that responsibility to the platform team.
 
 ## Reference IAM Policy Examples
 
@@ -223,7 +226,7 @@ Terraform caller policy when using module-managed KMS key, S3 buckets, and VPC e
         "iam:GetRolePolicy",
         "iam:DeleteRolePolicy"
       ],
-      "Resource": "arn:aws:iam::*:role/mongodb-atlas-*"
+      "Resource": "arn:aws:iam::<account-id>:role/mongodb-atlas-*"
     },
     {
       "Sid": "KmsKeyManagement",
@@ -249,8 +252,8 @@ Terraform caller policy when using module-managed KMS key, S3 buckets, and VPC e
         "kms:DeleteAlias"
       ],
       "Resource": [
-        "arn:aws:kms:*:*:alias/atlas-encryption",
-        "arn:aws:kms:*:*:key/*"
+        "arn:aws:kms:*:<account-id>:alias/atlas-encryption",
+        "arn:aws:kms:*:<account-id>:key/*"
       ]
     },
     {
@@ -322,7 +325,7 @@ Terraform caller policy for encryption with a module-managed KMS key (no S3, no 
         "iam:GetRolePolicy",
         "iam:DeleteRolePolicy"
       ],
-      "Resource": "arn:aws:iam::*:role/mongodb-atlas-*"
+      "Resource": "arn:aws:iam::<account-id>:role/mongodb-atlas-*"
     },
     {
       "Sid": "KmsKeyManagement",
@@ -348,8 +351,8 @@ Terraform caller policy for encryption with a module-managed KMS key (no S3, no 
         "kms:DeleteAlias"
       ],
       "Resource": [
-        "arn:aws:kms:*:*:alias/atlas-encryption",
-        "arn:aws:kms:*:*:key/*"
+        "arn:aws:kms:*:<account-id>:alias/atlas-encryption",
+        "arn:aws:kms:*:<account-id>:key/*"
       ]
     }
   ]
@@ -358,6 +361,8 @@ Terraform caller policy for encryption with a module-managed KMS key (no S3, no 
 
 ## Notes
 
+- Replace `<account-id>` with your AWS account ID in the reference policies above
+- The KMS alias ARN (`alias/atlas-encryption`) matches the module default. If you override `create_kms_key.alias`, update the alias ARN accordingly
 - The Terraform caller permissions depend on the AWS provider version. Consult the [AWS IAM Actions Reference](https://docs.aws.amazon.com/service-authorization/latest/reference/reference.html) for the authoritative list of actions per resource type
 - `ec2:Describe*` actions do not support resource-level restrictions. The resource must be `*`
 - `kms:CreateKey` does not support resource-level restrictions (the key does not exist yet). Scope KMS management actions to `*` and use [KMS key policies](https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html) for additional access control

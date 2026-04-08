@@ -272,6 +272,10 @@ run "backup_export_with_byo_bucket" {
     condition     = length(module.backup_export) == 1
     error_message = "Expected backup_export module"
   }
+  assert {
+    condition     = output.backup_export.expiration_days == null
+    error_message = "Expected expiration_days = null for BYO bucket"
+  }
 }
 
 run "backup_export_with_name_prefix" {
@@ -371,6 +375,33 @@ run "log_integration_lifecycle_disabled" {
   assert {
     condition     = length(module.log_integration) == 1
     error_message = "Expected log_integration module"
+  }
+  assert {
+    condition     = output.log_integration.expiration_days == 0
+    error_message = "Expected expiration_days = 0 (disabled)"
+  }
+}
+
+run "log_integration_lifecycle_custom_days" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    log_integration = {
+      enabled = true
+      create_s3_bucket = {
+        enabled         = true
+        expiration_days = 30
+      }
+      integrations = [{ log_types = ["MONGOD"], prefix_path = "test" }]
+    }
+  }
+  assert {
+    condition     = length(module.log_integration) == 1
+    error_message = "Expected log_integration module"
+  }
+  assert {
+    condition     = output.log_integration.expiration_days == 30
+    error_message = "Expected expiration_days = 30"
   }
 }
 
@@ -829,6 +860,10 @@ run "log_integration_with_byo_bucket" {
   assert {
     condition     = length(module.log_integration) == 1
     error_message = "Expected log_integration module"
+  }
+  assert {
+    condition     = output.log_integration.expiration_days == null
+    error_message = "Expected expiration_days = null for BYO bucket"
   }
 }
 
