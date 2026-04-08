@@ -1,52 +1,52 @@
 # IAM Permissions Reference
 
-This page documents the least-privilege IAM permissions the `atlas-aws` module requires. The module operates in two IAM scopes:
+This page documents the least-privilege IAM permissions the `atlas-aws` module requires. The module operates in the following IAM scopes:
 
-- **CPA role** -- the IAM role Atlas assumes via [Cloud Provider Access](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/). The module attaches inline policies to this role automatically. Platform teams replicate these policies manually when using `skip_iam_policy_attachments = true` (planned, not yet implemented)
-- **Terraform caller** -- the IAM identity (user, role, or CI runner) that runs `terraform apply`. This identity creates and manages the AWS resources the module provisions
+- **CPA role**: IAM role Atlas assumes through [Cloud Provider Access](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/). The module attaches inline policies to this role automatically. Platform teams replicate these policies manually when using `skip_iam_policy_attachments = true` (planned, not yet implemented).
+- **Terraform caller**: IAM identity (user, role, or CI runner) that runs `terraform apply`. This identity creates and manages the AWS resources the module provisions.
 
 ## CPA Role Permissions
 
 The module attaches these inline policies to the CPA IAM role via `aws_iam_role_policy` resources. Atlas uses these permissions at runtime to interact with AWS services.
 
-Note: the module skips CPA creation entirely when only PrivateLink is configured (no encryption, backup export, or log integration). In that case, none of the policies below apply.
+Note: The module skips CPA creation entirely when only PrivateLink is configured (no encryption, backup export, or log integration). In that case, none of the following policies apply.
 
 ### Encryption (KMS)
 
-- **`kms:Encrypt`** -- encrypt data at rest
-- **`kms:Decrypt`** -- decrypt data at rest
-- **`kms:GenerateDataKey*`** -- generate data encryption keys for envelope encryption
-- **`kms:DescribeKey`** -- validate the KMS key exists and retrieve metadata
-- **Resource:** the KMS key ARN (module-managed or BYO)
+- **`kms:Encrypt`**: Encrypt data at rest.
+- **`kms:Decrypt`**: Decrypt data at rest.
+- **`kms:GenerateDataKey*`**: Generate data encryption keys for envelope encryption.
+- **`kms:DescribeKey`**: Validate the KMS key exists and retrieve metadata.
+- **Resource:** KMS key ARN (module-managed or BYO).
 
-Source: `modules/encryption/main.tf` -- `data.aws_iam_policy_document.kms_access`
+Source: `modules/encryption/main.tf`, `data.aws_iam_policy_document.kms_access`
 
 ### Backup Export (S3)
 
-- **`s3:GetBucketLocation`** -- determine the bucket's region for API routing
-- **`s3:PutObject`** -- write backup snapshot exports
-- **Resources:** bucket ARN (for `GetBucketLocation`), `{bucket_arn}/*` (for `PutObject`)
+- **`s3:GetBucketLocation`**: Determine the bucket's region for API routing.
+- **`s3:PutObject`**: Write backup snapshot exports.
+- **Resources:** Bucket ARN (for `GetBucketLocation`), `{bucket_arn}/*` (for `PutObject`).
 
-Source: `modules/backup_export/main.tf` -- `data.aws_iam_policy_document.s3_access`
+Source: `modules/backup_export/main.tf`, `data.aws_iam_policy_document.s3_access`
 
 ### Log Integration (S3)
 
-- **`s3:GetBucketLocation`** -- determine each target bucket's region
-- **`s3:PutObject`** -- write log files to S3
-- **Resources:** all target bucket ARNs (module-managed + BYO + per-integration overrides)
+- **`s3:GetBucketLocation`**: Determine each target bucket's region.
+- **`s3:PutObject`**: Write log files to S3.
+- **Resources:** All target bucket ARNs (module-managed + BYO + per-integration overrides).
 
-Source: `modules/log_integration/main.tf` -- `data.aws_iam_policy_document.s3_access`
+Source: `modules/log_integration/main.tf`, `data.aws_iam_policy_document.s3_access`
 
 ### Log Integration (KMS, optional)
 
 The module attaches this policy only when `kms_key` is set and `kms_key_skip_iam_policy = false`:
 
-- **`kms:GenerateDataKey`** -- generate data keys for Atlas-side log encryption before delivery to S3
-- **`kms:Decrypt`** -- decrypt data keys
-- **`kms:DescribeKey`** -- validate the KMS key
-- **Resource:** the KMS key ARN
+- **`kms:GenerateDataKey`**: Generate data keys for Atlas-side log encryption before delivery to S3.
+- **`kms:Decrypt`**: Decrypt data keys.
+- **`kms:DescribeKey`**: Validate the KMS key.
+- **Resource:** KMS key ARN.
 
-Source: `modules/log_integration/main.tf` -- `data.aws_iam_policy_document.kms_access`
+Source: `modules/log_integration/main.tf`, `data.aws_iam_policy_document.kms_access`
 
 Note: `kms_key_skip_iam_policy = true` skips this KMS policy. `skip_iam_policy_attachments = true` (planned) skips all policies including this one.
 
@@ -71,7 +71,7 @@ The module creates an `aws_iam_role` with a trust policy allowing Atlas to assum
   - `iam:UpdateAssumeRolePolicy`
   - `iam:ListRolePolicies`, `iam:ListAttachedRolePolicies`
   - `iam:TagRole`, `iam:UntagRole` (when `aws_tags` is set)
-- **Resource scope:** `arn:aws:iam::*:role/mongodb-atlas-*` (default name prefix) or the custom name set via `iam_role_name`
+- **Resource scope:** `arn:aws:iam::*:role/mongodb-atlas-*` (default name prefix) or the custom name set via `iam_role_name`.
 
 When `cloud_provider_access.create = false`, the caller needs no IAM role permissions for CPA.
 
@@ -185,9 +185,9 @@ Each statement below applies only when the corresponding feature is enabled. Dro
 }
 ```
 
-- **`KmsReadOnly`** -- needed when `encryption.enabled = true` with a BYO KMS key
-- **`S3ReadOnly`** -- needed when `backup_export` or `log_integration` uses a BYO bucket. Include per-integration BYO bucket ARNs for log integration
-- **`VpcEndpointReadOnly`** -- needed when using `privatelink_byoe`. `ec2:Describe*` actions do not support resource-level restrictions, so the resource must be `*`
+- **`KmsReadOnly`**: Needed when `encryption.enabled = true` with a BYO KMS key.
+- **`S3ReadOnly`**: Needed when `backup_export` or `log_integration` uses a BYO bucket. Include per-integration BYO bucket ARNs for log integration.
+- **`VpcEndpointReadOnly`**: Needed when using `privatelink_byoe`. `ec2:Describe*` actions do not support resource-level restrictions, so the resource must be `*`.
 
 ### Platform team responsibilities
 
@@ -361,9 +361,10 @@ Terraform caller policy for encryption with a module-managed KMS key (no S3, no 
 
 ## Notes
 
-- Replace `<account-id>` with your AWS account ID in the reference policies above
-- The KMS alias ARN (`alias/atlas-encryption`) matches the module default. If you override `create_kms_key.alias`, update the alias ARN accordingly
-- The Terraform caller permissions depend on the AWS provider version. Consult the [AWS IAM Actions Reference](https://docs.aws.amazon.com/service-authorization/latest/reference/reference.html) for the authoritative list of actions per resource type
-- `ec2:Describe*` actions do not support resource-level restrictions. The resource must be `*`
-- `kms:CreateKey` does not support resource-level restrictions (the key does not exist yet). Scope KMS management actions to `*` and use [KMS key policies](https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html) for additional access control
-- The module uses inline IAM policies (`aws_iam_role_policy`), not managed policies (`aws_iam_policy`). The caller needs `iam:PutRolePolicy` / `iam:GetRolePolicy` / `iam:DeleteRolePolicy`, not `iam:AttachRolePolicy` / `iam:DetachRolePolicy`
+- Replace `<account-id>` with your AWS account ID in the reference policies above.
+- The KMS alias ARN (`alias/atlas-encryption`) matches the module default. If you override `create_kms_key.alias`, update the alias ARN accordingly.
+- The Terraform caller permissions depend on the AWS provider version. Consult the [AWS IAM Actions Reference](https://docs.aws.amazon.com/service-authorization/latest/reference/reference.html) for the authoritative list of actions per resource type.
+- `ec2:Describe*` actions do not support resource-level restrictions. The resource must be `*`.
+- `kms:CreateKey` does not support resource-level restrictions (the key does not exist yet). Scope KMS management actions to `*` and use [KMS key policies](https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html) for additional access control.
+- `iam:CreateRole` supports resource-level restrictions. AWS evaluates the action against the ARN of the role being created, so the `mongodb-atlas-*` pattern correctly limits role creation to that prefix.
+- The module uses inline IAM policies (`aws_iam_role_policy`), not managed policies (`aws_iam_policy`). The caller needs `iam:PutRolePolicy` / `iam:GetRolePolicy` / `iam:DeleteRolePolicy`, not `iam:AttachRolePolicy` / `iam:DetachRolePolicy`.

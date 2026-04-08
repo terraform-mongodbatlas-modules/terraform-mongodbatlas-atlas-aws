@@ -421,6 +421,36 @@ run "backup_export_name_and_prefix_conflict" {
   expect_failures = [var.backup_export]
 }
 
+run "backup_export_negative_expiration_days" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    backup_export = {
+      enabled = true
+      create_s3_bucket = {
+        enabled         = true
+        expiration_days = -1
+      }
+    }
+  }
+  expect_failures = [var.backup_export]
+}
+
+run "backup_export_fractional_expiration_days" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    backup_export = {
+      enabled = true
+      create_s3_bucket = {
+        enabled         = true
+        expiration_days = 1.5
+      }
+    }
+  }
+  expect_failures = [var.backup_export]
+}
+
 run "privatelink_byoe_key_overlap_validation" {
   command = plan
   variables {
@@ -801,6 +831,32 @@ run "log_integration_name_prefix_too_long" {
     log_integration = {
       enabled          = true
       create_s3_bucket = { enabled = true, name_prefix = "this-prefix-is-way-too-long-for-s3-bucket-names-" }
+      integrations     = [{ log_types = ["MONGOD"], prefix_path = "test" }]
+    }
+  }
+  expect_failures = [var.log_integration]
+}
+
+run "log_integration_negative_expiration_days" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    log_integration = {
+      enabled          = true
+      create_s3_bucket = { enabled = true, expiration_days = -1 }
+      integrations     = [{ log_types = ["MONGOD"], prefix_path = "test" }]
+    }
+  }
+  expect_failures = [var.log_integration]
+}
+
+run "log_integration_fractional_expiration_days" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    log_integration = {
+      enabled          = true
+      create_s3_bucket = { enabled = true, expiration_days = 1.5 }
       integrations     = [{ log_types = ["MONGOD"], prefix_path = "test" }]
     }
   }
