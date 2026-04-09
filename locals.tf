@@ -19,7 +19,10 @@ locals {
   ) : try(var.cloud_provider_access.existing.iam_role_arn, null)
   iam_role_name = local.create_cloud_provider_access ? (
     module.cloud_provider_access[0].iam_role_name
-  ) : local.skip_iam_policy_attachments ? null : try(regex("[^/]+$", var.cloud_provider_access.existing.iam_role_arn), null)
+  ) : local.skip_iam_policy_attachments ? null : try(regex("role/(?:.+/)?(?P<name>[^/]+)$", var.cloud_provider_access.existing.iam_role_arn)["name"], null)
+  iam_role_name_output = local.create_cloud_provider_access ? (
+    module.cloud_provider_access[0].iam_role_name
+  ) : try(regex("role/(?:.+/)?(?P<name>[^/]+)$", var.cloud_provider_access.existing.iam_role_arn)["name"], null)
 
   # Encryption IAM role: dedicated or shared
   create_encryption_dedicated_role = var.encryption.enabled && var.encryption.iam_role.create

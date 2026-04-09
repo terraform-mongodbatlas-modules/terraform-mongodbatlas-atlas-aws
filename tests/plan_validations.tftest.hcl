@@ -44,8 +44,8 @@ run "skip_iam_policy_attachments_all_features" {
     error_message = "Expected log_integration module"
   }
   assert {
-    condition     = output.resource_ids.iam_role_name == null
-    error_message = "Expected null iam_role_name when skip_iam_policy_attachments = true"
+    condition     = output.resource_ids.iam_role_name == "atlas-role"
+    error_message = "Expected iam_role_name derived from ARN even when skip_iam_policy_attachments = true"
   }
 }
 
@@ -1089,8 +1089,8 @@ run "skip_iam_policy_attachments_with_encryption" {
     error_message = "Expected role_id from existing"
   }
   assert {
-    condition     = output.resource_ids.iam_role_name == null
-    error_message = "Expected null iam_role_name when skip_iam_policy_attachments = true"
+    condition     = output.resource_ids.iam_role_name == "atlas-role"
+    error_message = "Expected iam_role_name derived from ARN even when skip_iam_policy_attachments = true"
   }
 }
 
@@ -1205,7 +1205,7 @@ run "skip_iam_with_dedicated_encryption_role" {
     error_message = "Expected encryption module"
   }
   assert {
-    condition     = output.resource_ids.iam_role_name == null
-    error_message = "Expected null shared iam_role_name when skip_iam_policy_attachments = true"
+    condition     = output.resource_ids.iam_role_name == "atlas-role"
+    error_message = "Expected iam_role_name derived from ARN even when skip_iam_policy_attachments = true"
   }
 }
