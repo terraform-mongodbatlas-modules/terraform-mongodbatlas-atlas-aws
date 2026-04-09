@@ -5,7 +5,6 @@ locals {
   default_name_prefix      = "atlas-logs-${local.project_id_suffix}-"
   bucket_name_prefix       = coalesce(var.create_s3_bucket.name_prefix, local.default_name_prefix)
   create_bucket            = var.create_s3_bucket.enabled
-  attach_iam_policy        = var.attach_iam_policy
   bucket_name              = local.create_bucket ? aws_s3_bucket.atlas[0].id : var.bucket_name
   bucket_arn               = local.create_bucket ? aws_s3_bucket.atlas[0].arn : data.aws_s3_bucket.user_provided[0].arn
 
@@ -15,7 +14,7 @@ locals {
     [for b in data.aws_s3_bucket.integration_byo : b.arn],
   )))
 
-  attach_kms_policy = local.attach_iam_policy && var.kms_key != null && !var.kms_key_skip_iam_policy
+  attach_kms_policy = !var.skip_iam_policy_attachments && var.kms_key != null && !var.kms_key_skip_iam_policy
 }
 
 data "aws_s3_bucket" "user_provided" {
@@ -82,7 +81,7 @@ data "aws_s3_bucket" "integration_byo" {
 }
 
 data "aws_iam_policy_document" "s3_access" {
-  count = local.attach_iam_policy ? 1 : 0
+  count = var.skip_iam_policy_attachments ? 0 : 1
   statement {
     actions   = ["s3:GetBucketLocation"]
     resources = local.all_target_buckets
@@ -94,7 +93,7 @@ data "aws_iam_policy_document" "s3_access" {
 }
 
 resource "aws_iam_role_policy" "s3_access" {
-  count       = local.attach_iam_policy ? 1 : 0
+  count       = var.skip_iam_policy_attachments ? 0 : 1
   name_prefix = "atlas-log-integration-"
   role        = var.iam_role_name
   policy      = data.aws_iam_policy_document.s3_access[0].json
@@ -116,7 +115,7 @@ resource "aws_iam_role_policy" "kms_access" {
 }
 
 resource "time_sleep" "iam_propagation" {
-  count           = local.attach_iam_policy ? 1 : 0
+  count           = var.skip_iam_policy_attachments ? 0 : 1
   depends_on      = [aws_iam_role_policy.s3_access, aws_iam_role_policy.kms_access, aws_s3_bucket.atlas]
   create_duration = "30s"
 }

@@ -3,7 +3,6 @@ locals {
   region                   = var.create_s3_bucket.region != null ? lower(replace(var.create_s3_bucket.region, "_", "-")) : null
   project_id_suffix_length = 8 # last 8 chars of project ID for unique, readable naming
   create_bucket            = var.create_s3_bucket.enabled
-  attach_iam_policy        = var.attach_iam_policy
   project_id_suffix        = substr(var.project_id, max(0, length(var.project_id) - local.project_id_suffix_length), local.project_id_suffix_length)
   default_name_prefix      = "atlas-backup-${local.project_id_suffix}-"
   bucket_name_prefix       = coalesce(var.create_s3_bucket.name_prefix, local.default_name_prefix)
@@ -70,7 +69,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "atlas" {
 }
 
 data "aws_iam_policy_document" "s3_access" {
-  count = local.attach_iam_policy ? 1 : 0
+  count = var.skip_iam_policy_attachments ? 0 : 1
   statement {
     actions   = ["s3:GetBucketLocation"]
     resources = [local.bucket_arn]
@@ -82,7 +81,7 @@ data "aws_iam_policy_document" "s3_access" {
 }
 
 resource "aws_iam_role_policy" "s3_access" {
-  count       = local.attach_iam_policy ? 1 : 0
+  count       = var.skip_iam_policy_attachments ? 0 : 1
   name_prefix = "atlas-backup-export-"
   role        = var.iam_role_name
   policy      = data.aws_iam_policy_document.s3_access[0].json
@@ -94,7 +93,7 @@ moved {
 }
 
 resource "time_sleep" "iam_propagation" {
-  count           = local.attach_iam_policy ? 1 : 0
+  count           = var.skip_iam_policy_attachments ? 0 : 1
   depends_on      = [aws_iam_role_policy.s3_access, aws_s3_bucket.atlas]
   create_duration = "30s"
 }

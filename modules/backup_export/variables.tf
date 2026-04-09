@@ -14,10 +14,10 @@ variable "iam_role_name" {
   description = "IAM role name for attaching S3 policy"
 }
 
-variable "attach_iam_policy" {
+variable "skip_iam_policy_attachments" {
   type        = bool
-  default     = true
-  description = "Whether to create the S3 IAM role policy and time_sleep. Must be plan-time known."
+  default     = false
+  description = "Skip creating S3 IAM role policy and time_sleep. Must be plan-time known."
 }
 
 variable "bucket_name" {
