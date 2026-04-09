@@ -7,13 +7,6 @@ variables {
 
 run "skip_iam_policy_attachments_all_features" {
   command = plan
-  override_data {
-    target = module.encryption[0].data.aws_kms_key.user_provided[0]
-    values = {
-      arn    = "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
-      key_id = "12345678-1234-1234-1234-123456789012"
-    }
-  }
   variables {
     project_id = var.project_id
     cloud_provider_access = {
