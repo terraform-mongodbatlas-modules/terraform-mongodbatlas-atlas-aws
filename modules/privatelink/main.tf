@@ -46,6 +46,14 @@ resource "aws_security_group" "this" {
   tags        = var.tags
   region      = local.region
 
+  dynamic "timeouts" {
+    for_each = var.timeouts[*]
+    content {
+      create = timeouts.value.create
+      delete = timeouts.value.delete
+    }
+  }
+
   lifecycle {
     create_before_destroy = true
   }
@@ -84,6 +92,15 @@ resource "aws_vpc_endpoint" "this" {
   security_group_ids = local.effective_security_group_ids
   tags               = var.tags
   region             = local.region
+
+  dynamic "timeouts" {
+    for_each = var.timeouts[*]
+    content {
+      create = timeouts.value.create
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
+  }
 }
 
 resource "mongodbatlas_privatelink_endpoint_service" "this" {
@@ -99,7 +116,6 @@ resource "mongodbatlas_privatelink_endpoint_service" "this" {
       delete = timeouts.value.delete
     }
   }
-  delete_on_create_timeout = try(var.timeouts.delete_on_create_timeout, null)
 }
 
 data "mongodbatlas_privatelink_endpoint_service" "this" {

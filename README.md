@@ -534,38 +534,24 @@ Default: `[]`
 
 ### timeouts
 
-Timeout overrides for Atlas resources. All fields default to null (provider behavior).
+Timeout defaults applied to all wrapped resources (Atlas and AWS).
 Timeout strings use Go duration format (e.g., "30m", "1h").
-`delete_on_create_timeout`: when true, a create that times out also triggers a delete.
+
+Set `timeouts = null` to skip all module-managed timeout blocks and use
+provider defaults. This is useful after `terraform import` to avoid plan
+diffs from timeout blocks that did not exist in the original configuration.
+
+- `timeouts = {}` or omitted: 30m create/update/delete (module defaults)
+- `timeouts = null`: no timeout blocks emitted (provider defaults)
+- `timeouts = { create = "1h" }`: custom create, 30m update/delete
 
 Type:
 
 ```hcl
 object({
-  cloud_provider_access = optional(object({
-    create                   = optional(string)
-    delete_on_create_timeout = optional(bool)
-  }))
-  encryption_private_endpoint = optional(object({
-    create                   = optional(string)
-    delete                   = optional(string)
-    delete_on_create_timeout = optional(bool)
-  }))
-  privatelink_endpoint = optional(object({
-    create                   = optional(string)
-    delete                   = optional(string)
-    delete_on_create_timeout = optional(bool)
-  }))
-  privatelink_endpoint_service = optional(object({
-    create                   = optional(string)
-    delete                   = optional(string)
-    delete_on_create_timeout = optional(bool)
-  }))
-  privatelink_regional_mode = optional(object({
-    create = optional(string)
-    delete = optional(string)
-    update = optional(string)
-  }))
+  create = optional(string, "30m")
+  update = optional(string, "30m")
+  delete = optional(string, "30m")
 })
 ```
 

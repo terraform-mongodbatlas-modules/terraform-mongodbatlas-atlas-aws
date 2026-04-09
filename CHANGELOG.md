@@ -12,7 +12,7 @@ ENHANCEMENTS:
 
 * submodule/log_integration: Adds log integration submodule for exporting Atlas logs to S3 via mongodbatlas_log_integration ([#34](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/34))
 * variable/log_integration: Adds log_integration variable with S3 bucket management, per-integration BYO bucket overrides, KMS encryption, and dedicated IAM role support ([#34](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/34))
-* variable/timeouts: Adds configurable timeout overrides for Atlas resources (cloud_provider_access, encryption_private_endpoint, privatelink_endpoint, privatelink_endpoint_service, privatelink_regional_mode) ([#32](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/32))
+* variable/timeouts: Adds configurable timeout defaults (30m) for all Atlas and AWS resources. Set `timeouts = null` for zero-diff upgrade, see [v0.3.0 Upgrade Guide](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/main/docs/v0.3.0-upgrade-guide.md) ([#37](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/37))
 
 ## 0.2.0 (February 25, 2026)
 

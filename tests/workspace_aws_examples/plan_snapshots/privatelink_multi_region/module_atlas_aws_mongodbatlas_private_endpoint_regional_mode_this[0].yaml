@@ -1,2 +1,6 @@
 enabled: true
 project_id: <project_id>
+timeouts:
+  create: 30m
+  delete: 30m
+  update: 30m

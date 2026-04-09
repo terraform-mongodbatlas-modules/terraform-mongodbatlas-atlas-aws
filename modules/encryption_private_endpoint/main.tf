@@ -12,7 +12,6 @@ resource "mongodbatlas_encryption_at_rest_private_endpoint" "this" {
     create = var.timeouts.create
     delete = var.timeouts.delete
   } : null
-  delete_on_create_timeout = try(var.timeouts.delete_on_create_timeout, null)
 }
 
 data "mongodbatlas_encryption_at_rest_private_endpoint" "this" {

@@ -8,7 +8,6 @@ resource "mongodbatlas_cloud_provider_access_setup" "this" {
       create = timeouts.value.create
     }
   }
-  delete_on_create_timeout = try(var.timeouts.delete_on_create_timeout, null)
 }
 
 locals {
