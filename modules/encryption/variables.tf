@@ -10,7 +10,14 @@ variable "role_id" {
 
 variable "iam_role_name" {
   type        = string
+  default     = null
   description = "IAM role name for attaching KMS policy"
+}
+
+variable "attach_iam_policy" {
+  type        = bool
+  default     = true
+  description = "Whether to create the KMS IAM role policy. Must be plan-time known (not derived from resource attributes)."
 }
 
 variable "kms_key_arn" {

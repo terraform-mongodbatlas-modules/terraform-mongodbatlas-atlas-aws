@@ -2,7 +2,7 @@
 
 This page documents the least-privilege IAM permissions the `atlas-aws` module requires. The module operates in the following IAM scopes:
 
-- **CPA role**: IAM role Atlas assumes through [Cloud Provider Access](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/). The module attaches inline policies to this role automatically. Platform teams replicate these policies manually when using `skip_iam_policy_attachments = true` (planned, not yet implemented).
+- **CPA role**: IAM role Atlas assumes through [Cloud Provider Access](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/). The module attaches inline policies to this role automatically. Platform teams replicate these policies manually when using `skip_iam_policy_attachments = true`.
 - **Terraform caller**: IAM identity (user, role, or CI runner) that runs `terraform apply`. This identity creates and manages the AWS resources the module provisions.
 
 ## CPA Role Permissions
@@ -48,7 +48,7 @@ The module attaches this policy only when `kms_key` is set and `kms_key_skip_iam
 
 Source: `modules/log_integration/main.tf`, `data.aws_iam_policy_document.kms_access`
 
-Note: `kms_key_skip_iam_policy = true` skips this KMS policy. `skip_iam_policy_attachments = true` (planned) skips all policies including this one.
+Note: `kms_key_skip_iam_policy = true` skips this KMS policy. `skip_iam_policy_attachments = true` on `cloud_provider_access` skips all policies including this one.
 
 ### PrivateLink
 
@@ -143,11 +143,9 @@ Same S3 bucket management permissions as Backup Export above (create, delete, ve
 
 - `ec2:DescribeVpcEndpoints` (data source lookup on the BYO endpoint)
 
-## BYO Role with Read-Only AWS Access (planned)
+## BYO Role with Read-Only AWS Access
 
-> **Follow-up:** `skip_iam_policy_attachments` is not yet implemented. This section describes the planned behavior pending a design decision on how platform teams opt out of module-managed IAM policy attachments. Do not rely on this section until the feature ships.
-
-When `cloud_provider_access.create = false` and `skip_iam_policy_attachments = true`, the module would create zero `aws_iam_role` and zero `aws_iam_role_policy` resources. The Terraform caller would only need read-only AWS access for data source lookups.
+When `cloud_provider_access.create = false` and `skip_iam_policy_attachments = true`, the module creates zero `aws_iam_role` and zero `aws_iam_role_policy` resources. The Terraform caller only needs read-only AWS access for data source lookups.
 
 ### Minimal Terraform caller policy
 
@@ -191,14 +189,16 @@ Each statement below applies only when the corresponding feature is enabled. Dro
 
 ### Platform team responsibilities
 
-When `skip_iam_policy_attachments` ships, the platform team must pre-attach these policies to the CPA IAM role before the app team runs `terraform apply`:
+The platform team must pre-attach these policies to the CPA IAM role before the app team runs `terraform apply`:
 
 - **Encryption:** `kms:Encrypt`, `kms:Decrypt`, `kms:GenerateDataKey*`, `kms:DescribeKey` on the KMS key
 - **Backup export:** `s3:GetBucketLocation`, `s3:PutObject` on the backup bucket
 - **Log integration:** `s3:GetBucketLocation`, `s3:PutObject` on all target log buckets
 - **Log integration KMS** (when `kms_key` is set): `kms:GenerateDataKey`, `kms:Decrypt`, `kms:DescribeKey` on the KMS key
 
-These match the CPA role permissions in the first section of this document. The module normally attaches them automatically; `skip_iam_policy_attachments` would shift that responsibility to the platform team.
+These match the CPA role permissions in the first section of this document. The module normally attaches them automatically; `skip_iam_policy_attachments` shifts that responsibility to the platform team.
+
+Note: `skip_iam_policy_attachments` only affects the shared CPA role. Dedicated roles (`iam_role.create = true` on encryption, backup_export, or log_integration) always attach policies because the module owns them. When `skip_iam_policy_attachments = true`, `log_integration.kms_key_skip_iam_policy` is redundant (the broader flag subsumes it).
 
 ## Reference IAM Policy Examples
 

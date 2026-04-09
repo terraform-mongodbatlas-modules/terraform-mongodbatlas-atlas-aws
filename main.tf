@@ -36,9 +36,10 @@ module "encryption" {
   count  = var.encryption.enabled ? 1 : 0
   source = "./modules/encryption"
 
-  project_id    = var.project_id
-  role_id       = local.encryption_role_id
-  iam_role_name = local.encryption_iam_role_name
+  project_id        = var.project_id
+  role_id           = local.encryption_role_id
+  iam_role_name     = local.encryption_iam_role_name
+  attach_iam_policy = local.create_encryption_dedicated_role || !local.skip_iam_policy_attachments
 
   kms_key_arn                = var.encryption.kms_key_arn
   region                     = var.encryption.region
@@ -86,12 +87,13 @@ module "backup_export" {
   count  = var.backup_export.enabled ? 1 : 0
   source = "./modules/backup_export"
 
-  project_id       = var.project_id
-  atlas_role_id    = local.backup_export_role_id
-  iam_role_name    = local.backup_export_iam_role_name
-  bucket_name      = var.backup_export.bucket_name
-  create_s3_bucket = var.backup_export.create_s3_bucket
-  tags             = var.aws_tags
+  project_id        = var.project_id
+  atlas_role_id     = local.backup_export_role_id
+  iam_role_name     = local.backup_export_iam_role_name
+  attach_iam_policy = local.create_backup_export_dedicated_role || !local.skip_iam_policy_attachments
+  bucket_name       = var.backup_export.bucket_name
+  create_s3_bucket  = var.backup_export.create_s3_bucket
+  tags              = var.aws_tags
 
   depends_on = [module.cloud_provider_access, module.backup_export_cloud_provider_access]
 }
@@ -124,6 +126,7 @@ module "log_integration" {
   project_id              = var.project_id
   atlas_role_id           = local.log_integration_role_id
   iam_role_name           = local.log_integration_iam_role_name
+  attach_iam_policy       = local.create_log_integration_dedicated_role || !local.skip_iam_policy_attachments
   bucket_name             = var.log_integration.bucket_name
   create_s3_bucket        = var.log_integration.create_s3_bucket
   integrations            = var.log_integration.integrations

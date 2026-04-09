@@ -10,11 +10,12 @@ data "aws_kms_key" "user_provided" {
 }
 
 locals {
-  create_kms_key = var.create_kms_key.enabled
-  aws_region     = lower(replace(coalesce(var.region, data.aws_region.current.id), "_", "-"))
-  atlas_region   = upper(replace(local.aws_region, "-", "_"))
-  kms_key_arn    = local.create_kms_key ? aws_kms_key.atlas[0].arn : var.kms_key_arn
-  kms_key_id     = local.create_kms_key ? aws_kms_key.atlas[0].key_id : data.aws_kms_key.user_provided[0].key_id
+  create_kms_key    = var.create_kms_key.enabled
+  attach_iam_policy = var.attach_iam_policy
+  aws_region        = lower(replace(coalesce(var.region, data.aws_region.current.id), "_", "-"))
+  atlas_region      = upper(replace(local.aws_region, "-", "_"))
+  kms_key_arn       = local.create_kms_key ? aws_kms_key.atlas[0].arn : var.kms_key_arn
+  kms_key_id        = local.create_kms_key ? aws_kms_key.atlas[0].key_id : data.aws_kms_key.user_provided[0].key_id
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -43,6 +44,7 @@ resource "aws_kms_alias" "atlas" {
 # ─────────────────────────────────────────────────────────────────────────────
 
 data "aws_iam_policy_document" "kms_access" {
+  count = local.attach_iam_policy ? 1 : 0
   statement {
     effect = "Allow"
     actions = [
@@ -56,9 +58,15 @@ data "aws_iam_policy_document" "kms_access" {
 }
 
 resource "aws_iam_role_policy" "kms_access" {
+  count       = local.attach_iam_policy ? 1 : 0
   name_prefix = "atlas-kms-access-"
   role        = var.iam_role_name
-  policy      = data.aws_iam_policy_document.kms_access.json
+  policy      = data.aws_iam_policy_document.kms_access[0].json
+}
+
+moved {
+  from = aws_iam_role_policy.kms_access
+  to   = aws_iam_role_policy.kms_access[0]
 }
 
 # ─────────────────────────────────────────────────────────────────────────────

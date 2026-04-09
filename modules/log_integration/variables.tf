@@ -10,7 +10,14 @@ variable "atlas_role_id" {
 
 variable "iam_role_name" {
   type        = string
-  description = "IAM role name for attaching S3 policy"
+  default     = null
+  description = "IAM role name for attaching S3 and KMS policies"
+}
+
+variable "attach_iam_policy" {
+  type        = bool
+  default     = true
+  description = "Whether to create S3/KMS IAM role policies and time_sleep. Must be plan-time known."
 }
 
 variable "bucket_name" {

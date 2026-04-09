@@ -10,6 +10,7 @@ variable "cloud_provider_access" {
       role_id      = string
       iam_role_arn = string
     }))
+    skip_iam_policy_attachments   = optional(bool, false)
     iam_role_name                 = optional(string)
     iam_role_path                 = optional(string, "/")
     iam_role_permissions_boundary = optional(string)
@@ -20,6 +21,10 @@ variable "cloud_provider_access" {
 
     - `create = true` (default): Creates a shared IAM role and Atlas authorization
     - `create = false`: Use existing role via `existing.role_id` and `existing.iam_role_arn`
+    - `skip_iam_policy_attachments = true`: Skips all `aws_iam_role_policy` resources
+      in encryption, backup_export, and log_integration submodules. The platform team
+      must pre-attach IAM policies to the role. Requires `create = false`.
+      Subsumes `log_integration.kms_key_skip_iam_policy` when `true`.
     - `iam_role_name`: Custom name for the IAM role (default: atlas-{project_id_suffix}-{purpose})
     - `iam_role_path`: IAM role path (default: /)
     - `iam_role_permissions_boundary`: ARN of permissions boundary policy
@@ -28,6 +33,11 @@ variable "cloud_provider_access" {
   validation {
     condition     = var.cloud_provider_access.create || var.cloud_provider_access.existing != null
     error_message = "When cloud_provider_access.create = false, existing.role_id and existing.iam_role_arn are required."
+  }
+
+  validation {
+    condition     = !var.cloud_provider_access.skip_iam_policy_attachments || !var.cloud_provider_access.create
+    error_message = "skip_iam_policy_attachments = true requires create = false. The module cannot skip policies on a role it creates."
   }
 }
 
