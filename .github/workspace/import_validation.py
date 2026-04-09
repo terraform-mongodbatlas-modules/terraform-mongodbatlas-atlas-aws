@@ -87,6 +87,10 @@ def generate_import_blocks_tf(entries: list[tuple[str, str]]) -> str:
 @contextlib.contextmanager
 def backup_and_restore_state(ws_dir: Path) -> Generator[None]:
     tfstate = ws_dir / TFSTATE_FILE
+    if not tfstate.exists():
+        raise ValueError(
+            f"{TFSTATE_FILE} not found in {ws_dir.name}. Run --mode apply before --mode import"
+        )
     backup = ws_dir / f"{TFSTATE_FILE}.import-backup"
     imports_tf = ws_dir / IMPORTS_GENERATED_TF
     shutil.copy2(tfstate, backup)

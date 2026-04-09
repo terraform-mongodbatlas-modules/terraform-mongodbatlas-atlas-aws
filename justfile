@@ -209,6 +209,9 @@ check-outputs *args:
 
 destroy-examples *args:
     just ws-run -m destroy {{args}}
+
+import-validate *args:
+    just ws-run -m import {{args}}
 # === OK_EDIT: path-sync workspace ===
 # === DO_NOT_EDIT: path-sync provider-dev ===
 # PROVIDER DEV SETUP
