@@ -14,9 +14,9 @@ variable "atlas_role_id" {
   description = "Existing Atlas CPA role ID from IAM administrator"
 }
 
-variable "atlas_iam_role_arn" {
+variable "aws_iam_role_arn" {
   type        = string
-  description = "ARN of the existing IAM role"
+  description = "ARN of the existing IAM role assumed by Atlas for CPA"
 }
 
 variable "kms_key_arn" {

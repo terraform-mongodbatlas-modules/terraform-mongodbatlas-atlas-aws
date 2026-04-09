@@ -64,7 +64,7 @@ module "atlas_aws" {
     skip_iam_policy_attachments = true
     existing = {
       role_id      = var.atlas_role_id
-      iam_role_arn = var.atlas_iam_role_arn
+      iam_role_arn = var.aws_iam_role_arn
     }
   }
 

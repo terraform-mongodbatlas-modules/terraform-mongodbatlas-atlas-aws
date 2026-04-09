@@ -161,7 +161,7 @@ var_groups:
     - name: atlas_role_id
       expose_in_workspace: false
       module_value: local.byo_role_id
-    - name: atlas_iam_role_arn
+    - name: aws_iam_role_arn
       expose_in_workspace: false
       module_value: local.byo_iam_role_arn
     - name: kms_key_arn

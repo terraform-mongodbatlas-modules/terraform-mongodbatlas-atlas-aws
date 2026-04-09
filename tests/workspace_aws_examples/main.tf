@@ -78,55 +78,6 @@ module "vpc_multi_region_us_west_2" {
   name_prefix = "atlas-pl-multi-usw2-"
 }
 
-locals {
-  missing_project_ids = [for k, v in var.project_ids : k if v == null]
-  project_ids         = { for k, v in var.project_ids : k => v != null ? v : module.project[k].project_id }
-
-  # tflint-ignore: terraform_unused_declarations
-  project_id_encryption = local.project_ids.encryption
-  # tflint-ignore: terraform_unused_declarations
-  project_id_encryption_private_endpoint = local.project_ids.encryption_private_endpoint
-  # tflint-ignore: terraform_unused_declarations
-  project_id_backup_export = local.project_ids.backup_export
-  # tflint-ignore: terraform_unused_declarations
-  project_id_log_integration = local.project_ids.log_integration
-  # tflint-ignore: terraform_unused_declarations
-  project_id_privatelink = local.project_ids.privatelink
-  # tflint-ignore: terraform_unused_declarations
-  project_id_privatelink_byoe = local.project_ids.privatelink_byoe
-  # tflint-ignore: terraform_unused_declarations
-  project_id_privatelink_multi_region = local.project_ids.privatelink_multi_region
-
-  # Network resources for privatelink examples
-  # tflint-ignore: terraform_unused_declarations
-  vpc_id_privatelink = module.vpc_privatelink.vpc_id
-  # tflint-ignore: terraform_unused_declarations
-  subnet_ids_privatelink = module.vpc_privatelink.subnet_ids
-
-  # tflint-ignore: terraform_unused_declarations
-  vpc_id_privatelink_byoe = module.vpc_privatelink_byoe.vpc_id
-  # tflint-ignore: terraform_unused_declarations
-  subnet_ids_privatelink_byoe = module.vpc_privatelink_byoe.subnet_ids
-  # tflint-ignore: terraform_unused_declarations
-  security_group_ids_byoe = [module.vpc_privatelink_byoe.security_group_id]
-
-  # tflint-ignore: terraform_unused_declarations
-  subnet_ids_us_east_1 = module.vpc_multi_region_us_east_1.subnet_ids
-  # tflint-ignore: terraform_unused_declarations
-  subnet_ids_us_west_2 = module.vpc_multi_region_us_west_2.subnet_ids
-
-  # tflint-ignore: terraform_unused_declarations
-  project_id_byo_role = local.project_ids.byo_role
-  # tflint-ignore: terraform_unused_declarations
-  byo_role_id = module.byo_cpa.role_id
-  # tflint-ignore: terraform_unused_declarations
-  byo_iam_role_arn = module.byo_cpa.iam_role_arn
-  # tflint-ignore: terraform_unused_declarations
-  byo_kms_key_arn = aws_kms_key.byo.arn
-  # tflint-ignore: terraform_unused_declarations
-  byo_s3_bucket_name = aws_s3_bucket.byo.bucket
-}
-
 module "byo_cpa" {
   source     = "../../modules/cloud_provider_access"
   project_id = local.project_id_byo_role
@@ -190,6 +141,55 @@ resource "aws_iam_role_policy" "byo_s3" {
   name   = "atlas-byo-s3-access"
   role   = module.byo_cpa.iam_role_name
   policy = data.aws_iam_policy_document.byo_s3.json
+}
+
+locals {
+  missing_project_ids = [for k, v in var.project_ids : k if v == null]
+  project_ids         = { for k, v in var.project_ids : k => v != null ? v : module.project[k].project_id }
+
+  # tflint-ignore: terraform_unused_declarations
+  project_id_encryption = local.project_ids.encryption
+  # tflint-ignore: terraform_unused_declarations
+  project_id_encryption_private_endpoint = local.project_ids.encryption_private_endpoint
+  # tflint-ignore: terraform_unused_declarations
+  project_id_backup_export = local.project_ids.backup_export
+  # tflint-ignore: terraform_unused_declarations
+  project_id_log_integration = local.project_ids.log_integration
+  # tflint-ignore: terraform_unused_declarations
+  project_id_privatelink = local.project_ids.privatelink
+  # tflint-ignore: terraform_unused_declarations
+  project_id_privatelink_byoe = local.project_ids.privatelink_byoe
+  # tflint-ignore: terraform_unused_declarations
+  project_id_privatelink_multi_region = local.project_ids.privatelink_multi_region
+
+  # Network resources for privatelink examples
+  # tflint-ignore: terraform_unused_declarations
+  vpc_id_privatelink = module.vpc_privatelink.vpc_id
+  # tflint-ignore: terraform_unused_declarations
+  subnet_ids_privatelink = module.vpc_privatelink.subnet_ids
+
+  # tflint-ignore: terraform_unused_declarations
+  vpc_id_privatelink_byoe = module.vpc_privatelink_byoe.vpc_id
+  # tflint-ignore: terraform_unused_declarations
+  subnet_ids_privatelink_byoe = module.vpc_privatelink_byoe.subnet_ids
+  # tflint-ignore: terraform_unused_declarations
+  security_group_ids_byoe = [module.vpc_privatelink_byoe.security_group_id]
+
+  # tflint-ignore: terraform_unused_declarations
+  subnet_ids_us_east_1 = module.vpc_multi_region_us_east_1.subnet_ids
+  # tflint-ignore: terraform_unused_declarations
+  subnet_ids_us_west_2 = module.vpc_multi_region_us_west_2.subnet_ids
+
+  # tflint-ignore: terraform_unused_declarations
+  project_id_byo_role = local.project_ids.byo_role
+  # tflint-ignore: terraform_unused_declarations
+  byo_role_id = module.byo_cpa.role_id
+  # tflint-ignore: terraform_unused_declarations
+  byo_iam_role_arn = module.byo_cpa.iam_role_arn
+  # tflint-ignore: terraform_unused_declarations
+  byo_kms_key_arn = aws_kms_key.byo.arn
+  # tflint-ignore: terraform_unused_declarations
+  byo_s3_bucket_name = aws_s3_bucket.byo.bucket
 }
 
 # Example module calls are generated in modules.generated.tf
