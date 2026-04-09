@@ -45,6 +45,10 @@ run "valid_existing_config" {
     condition     = output.role_id == "role123"
     error_message = "Expected role_id from existing"
   }
+  assert {
+    condition     = output.resource_ids.iam_role_name == "atlas-role"
+    error_message = "Expected iam_role_name derived from simple ARN"
+  }
 }
 
 run "skip_cloud_provider_access_privatelink_only" {
@@ -1040,6 +1044,10 @@ run "skip_iam_policy_attachments_with_encryption" {
     condition     = output.role_id == "role123"
     error_message = "Expected role_id from existing"
   }
+  assert {
+    condition     = output.resource_ids.iam_role_name == null
+    error_message = "Expected null iam_role_name when skip_iam_policy_attachments = true"
+  }
 }
 
 run "skip_iam_policy_attachments_with_backup_export" {
@@ -1123,5 +1131,81 @@ run "enable_cloud_provider_access_log_integration" {
   assert {
     condition     = length(module.cloud_provider_access) == 1
     error_message = "Expected cloud_provider_access with log_integration"
+  }
+}
+
+run "skip_iam_with_dedicated_encryption_role" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    cloud_provider_access = {
+      create                      = false
+      skip_iam_policy_attachments = true
+      existing = {
+        role_id      = "role123"
+        iam_role_arn = "arn:aws:iam::123456789012:role/atlas-role"
+      }
+    }
+    encryption = {
+      enabled        = true
+      create_kms_key = { enabled = true }
+      iam_role       = { create = true }
+    }
+  }
+  assert {
+    condition     = length(module.encryption_cloud_provider_access) == 1
+    error_message = "Expected dedicated encryption IAM role"
+  }
+  assert {
+    condition     = length(module.encryption) == 1
+    error_message = "Expected encryption module"
+  }
+  assert {
+    condition     = output.resource_ids.iam_role_name == null
+    error_message = "Expected null shared iam_role_name when skip_iam_policy_attachments = true"
+  }
+}
+
+run "skip_iam_policy_attachments_all_features" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    cloud_provider_access = {
+      create                      = false
+      skip_iam_policy_attachments = true
+      existing = {
+        role_id      = "role123"
+        iam_role_arn = "arn:aws:iam::123456789012:role/atlas-role"
+      }
+    }
+    encryption = {
+      enabled     = true
+      kms_key_arn = "arn:aws:kms:us-east-1:123456789012:key/abc"
+    }
+    backup_export = {
+      enabled     = true
+      bucket_name = "my-backup-bucket"
+    }
+    log_integration = {
+      enabled      = true
+      bucket_name  = "my-log-bucket"
+      integrations = [{ log_types = ["MONGOD"], prefix_path = "test" }]
+    }
+  }
+  assert {
+    condition     = length(module.encryption) == 1
+    error_message = "Expected encryption module"
+  }
+  assert {
+    condition     = length(module.backup_export) == 1
+    error_message = "Expected backup_export module"
+  }
+  assert {
+    condition     = length(module.log_integration) == 1
+    error_message = "Expected log_integration module"
+  }
+  assert {
+    condition     = output.resource_ids.iam_role_name == null
+    error_message = "Expected null iam_role_name when skip_iam_policy_attachments = true"
   }
 }

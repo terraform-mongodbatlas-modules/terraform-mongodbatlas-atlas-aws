@@ -485,6 +485,11 @@ Cloud provider access configuration for Atlas-AWS integration.
   in encryption, backup_export, and log_integration submodules. IAM policies must
   be pre-attached to the role externally. Requires `create = false`.
   Subsumes `log_integration.kms_key_skip_iam_policy` when `true`.
+  Only affects the shared CPA role. Dedicated roles (`iam_role.create = true`
+  on encryption, backup_export, or log_integration) always attach policies.
+  Note: when combined with module-managed resources (`create_kms_key.enabled`
+  or `create_s3_bucket.enabled`), the module creates those resources without
+  attaching IAM policies. Use dedicated roles or BYO resources instead.
 - `iam_role_name`: Custom name for the IAM role (default: atlas-{project_id_suffix}-{purpose})
 - `iam_role_path`: IAM role path (default: /)
 - `iam_role_permissions_boundary`: ARN of permissions boundary policy

@@ -1,0 +1,7 @@
+```release-note:enhancement
+variable/cloud_provider_access: Adds `skip_iam_policy_attachments` flag (default false) to skip all `aws_iam_role_policy` resources when using a BYO role. Enables read-only AWS access when IAM policies are pre-attached to the role externally
+```
+
+```release-note:enhancement
+module: Derives `iam_role_name` from `existing.iam_role_arn` via regex when using BYO Cloud Provider Access, fixing null `iam_role_name` when `create = false` with shared role
+```
