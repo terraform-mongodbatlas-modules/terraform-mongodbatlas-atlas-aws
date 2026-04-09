@@ -22,8 +22,8 @@ variable "cloud_provider_access" {
     - `create = true` (default): Creates a shared IAM role and Atlas authorization
     - `create = false`: Use existing role via `existing.role_id` and `existing.iam_role_arn`
     - `skip_iam_policy_attachments = true`: Skips all `aws_iam_role_policy` resources
-      in encryption, backup_export, and log_integration submodules. The platform team
-      must pre-attach IAM policies to the role. Requires `create = false`.
+      in encryption, backup_export, and log_integration submodules. IAM policies must
+      be pre-attached to the role externally. Requires `create = false`.
       Subsumes `log_integration.kms_key_skip_iam_policy` when `true`.
     - `iam_role_name`: Custom name for the IAM role (default: atlas-{project_id_suffix}-{purpose})
     - `iam_role_path`: IAM role path (default: /)
