@@ -85,7 +85,7 @@ def main(
                 output_assertions.process_workspace(ws_dir, include_examples)
 
             if mode == RunMode.IMPORT:
-                import_validation.process_workspace(ws_dir, include_examples)
+                import_validation.process_workspace(ws_dir, include_examples, var_file)
 
             if mode == RunMode.DESTROY:
                 plan.run_terraform_destroy(ws_dir, var_file, auto_approve)

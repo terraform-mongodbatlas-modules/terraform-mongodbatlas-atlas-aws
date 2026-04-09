@@ -155,7 +155,9 @@ def _diff_attributes(change: dict[str, Any]) -> set[str]:
     return {k for k in all_keys if before.get(k) != after.get(k)}
 
 
-def process_workspace(ws_dir: Path, include_examples: str = "all") -> None:
+def process_workspace(
+    ws_dir: Path, include_examples: str = "all", var_files: list[Path] | None = None
+) -> None:
     ws_config_path = ws_dir / models.WORKSPACE_CONFIG_FILE
     if not ws_config_path.exists():
         typer.echo(f"Skipping {ws_dir.name}: no {models.WORKSPACE_CONFIG_FILE} found")
@@ -209,7 +211,7 @@ def process_workspace(ws_dir: Path, include_examples: str = "all") -> None:
         imports_tf = ws_dir / IMPORTS_GENERATED_TF
         imports_tf.write_text(generate_import_blocks_tf(import_entries))
 
-        plan.run_terraform_plan(ws_dir, var_files=[], skip_init=True)
+        plan.run_terraform_plan(ws_dir, var_files=var_files or [], skip_init=True)
         plan_json_path = ws_dir / plan.PLAN_JSON
         plan_data = json.loads(plan_json_path.read_text())
 
