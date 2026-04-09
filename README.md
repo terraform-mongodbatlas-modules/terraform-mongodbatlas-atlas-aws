@@ -178,6 +178,7 @@ Private Link | [AWS PrivateLink Endpoint](./examples/privatelink)
 Private Link | [AWS PrivateLink Multi-Region](./examples/privatelink_multi_region)
 Private Link | [AWS PrivateLink BYOE](./examples/privatelink_byoe)
 Backup Export | [S3 Bucket Export](./examples/backup_export)
+BYO Role | [Read-Only AWS (BYO CPA + KMS + S3)](./examples/byo_role)
 
 <!-- END_TABLES -->
 <!-- BEGIN_TF_DOCS -->
