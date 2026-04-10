@@ -29,6 +29,15 @@ resource "aws_s3_bucket" "atlas" {
   force_destroy = var.create_s3_bucket.force_destroy
   tags          = var.tags
   region        = local.region
+
+  dynamic "timeouts" {
+    for_each = var.timeouts[*]
+    content {
+      create = timeouts.value.create
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
+  }
 }
 
 resource "aws_s3_bucket_versioning" "atlas" {

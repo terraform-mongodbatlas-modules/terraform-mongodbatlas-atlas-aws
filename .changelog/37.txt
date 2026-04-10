@@ -1,0 +1,4 @@
+```release-note:breaking-change
+variable/timeouts: Adds configurable timeout defaults (30m) for all Atlas and AWS resources. Existing deployments will see plan diffs from new timeout blocks. Set `timeouts = null` for zero-diff upgrade, see [v0.3.0 Upgrade Guide](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/main/docs/v0.3.0-upgrade-guide.md)
+```
+

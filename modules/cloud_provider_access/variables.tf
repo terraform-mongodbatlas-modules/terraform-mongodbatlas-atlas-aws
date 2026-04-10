@@ -43,9 +43,11 @@ variable "tags" {
 
 variable "timeouts" {
   type = object({
-    create                   = optional(string)
-    delete_on_create_timeout = optional(bool)
+    create = optional(string, "30m")
+    update = optional(string, "30m")
+    delete = optional(string, "30m")
   })
   default     = null
-  description = "Timeout overrides for cloud_provider_access_setup. See root module timeouts variable."
+  nullable    = true
+  description = "Timeout overrides. null = provider defaults."
 }

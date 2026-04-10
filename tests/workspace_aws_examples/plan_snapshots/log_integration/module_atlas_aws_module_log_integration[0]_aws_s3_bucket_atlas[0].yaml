@@ -1,3 +1,7 @@
 bucket_prefix: mongodb-atlas-tf-
 force_destroy: <force_destroy>
 region: us-east-1
+timeouts:
+  create: 30m
+  delete: 30m
+  update: 30m
