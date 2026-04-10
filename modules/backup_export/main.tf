@@ -69,6 +69,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "atlas" {
 }
 
 data "aws_iam_policy_document" "s3_access" {
+  count = var.skip_iam_policy_attachments ? 0 : 1
   statement {
     actions   = ["s3:GetBucketLocation"]
     resources = [local.bucket_arn]
@@ -80,14 +81,26 @@ data "aws_iam_policy_document" "s3_access" {
 }
 
 resource "aws_iam_role_policy" "s3_access" {
+  count       = var.skip_iam_policy_attachments ? 0 : 1
   name_prefix = "atlas-backup-export-"
   role        = var.iam_role_name
-  policy      = data.aws_iam_policy_document.s3_access.json
+  policy      = data.aws_iam_policy_document.s3_access[0].json
+}
+
+moved {
+  from = aws_iam_role_policy.s3_access
+  to   = aws_iam_role_policy.s3_access[0]
 }
 
 resource "time_sleep" "iam_propagation" {
+  count           = var.skip_iam_policy_attachments ? 0 : 1
   depends_on      = [aws_iam_role_policy.s3_access, aws_s3_bucket.atlas]
   create_duration = "30s"
+}
+
+moved {
+  from = time_sleep.iam_propagation
+  to   = time_sleep.iam_propagation[0]
 }
 
 resource "mongodbatlas_cloud_backup_snapshot_export_bucket" "this" {

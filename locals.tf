@@ -10,15 +10,17 @@ locals {
 
   # Cloud provider access: module-managed vs existing
   create_cloud_provider_access = var.cloud_provider_access.create && !local.skip_cloud_provider_access
+  skip_iam_policy_attachments  = var.cloud_provider_access.skip_iam_policy_attachments
   role_id = local.create_cloud_provider_access ? (
     module.cloud_provider_access[0].role_id
   ) : try(var.cloud_provider_access.existing.role_id, null)
   iam_role_arn = local.create_cloud_provider_access ? (
     module.cloud_provider_access[0].iam_role_arn
   ) : try(var.cloud_provider_access.existing.iam_role_arn, null)
-  iam_role_name = local.create_cloud_provider_access ? (
+  iam_role_name_output = local.create_cloud_provider_access ? (
     module.cloud_provider_access[0].iam_role_name
-  ) : null
+  ) : try(regex("role/(?:.+/)?(?P<name>[^/]+)$", var.cloud_provider_access.existing.iam_role_arn)["name"], null)
+  iam_role_name = local.skip_iam_policy_attachments ? null : local.iam_role_name_output
 
   # Encryption IAM role: dedicated or shared
   create_encryption_dedicated_role = var.encryption.enabled && var.encryption.iam_role.create

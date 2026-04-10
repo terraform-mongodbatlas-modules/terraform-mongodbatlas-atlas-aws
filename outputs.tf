@@ -32,7 +32,7 @@ output "resource_ids" {
     # Cloud Provider Access
     role_id       = local.role_id
     iam_role_arn  = local.iam_role_arn
-    iam_role_name = local.iam_role_name
+    iam_role_name = local.iam_role_name_output
 
     # Encryption
     kms_key_arn = try(module.encryption[0].kms_key_arn, null)

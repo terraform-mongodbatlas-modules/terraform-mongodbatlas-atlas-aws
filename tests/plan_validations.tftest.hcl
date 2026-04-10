@@ -5,6 +5,50 @@ variables {
   project_id = "000000000000000000000000"
 }
 
+run "skip_iam_policy_attachments_all_features" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    cloud_provider_access = {
+      create                      = false
+      skip_iam_policy_attachments = true
+      existing = {
+        role_id      = "role123"
+        iam_role_arn = "arn:aws:iam::123456789012:role/atlas-role"
+      }
+    }
+    encryption = {
+      enabled     = true
+      kms_key_arn = "arn:aws:kms:us-east-1:358363220050:key/7fa78c27-a2c5-4926-8d11-a0d4a405cd6f"
+    }
+    backup_export = {
+      enabled     = true
+      bucket_name = "my-backup-bucket"
+    }
+    log_integration = {
+      enabled      = true
+      bucket_name  = "my-log-bucket"
+      integrations = [{ log_types = ["MONGOD"], prefix_path = "test" }]
+    }
+  }
+  assert {
+    condition     = length(module.encryption) == 1
+    error_message = "Expected encryption module"
+  }
+  assert {
+    condition     = length(module.backup_export) == 1
+    error_message = "Expected backup_export module"
+  }
+  assert {
+    condition     = length(module.log_integration) == 1
+    error_message = "Expected log_integration module"
+  }
+  assert {
+    condition     = output.resource_ids.iam_role_name == "atlas-role"
+    error_message = "Expected iam_role_name derived from ARN even when skip_iam_policy_attachments = true"
+  }
+}
+
 run "missing_existing_when_create_false" {
   command = plan
   variables {
@@ -44,6 +88,10 @@ run "valid_existing_config" {
   assert {
     condition     = output.role_id == "role123"
     error_message = "Expected role_id from existing"
+  }
+  assert {
+    condition     = output.resource_ids.iam_role_name == "atlas-role"
+    error_message = "Expected iam_role_name derived from simple ARN"
   }
 }
 
@@ -999,6 +1047,118 @@ run "log_integration_with_kms_key" {
   }
 }
 
+run "skip_iam_policy_attachments_requires_create_false" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    cloud_provider_access = {
+      create                      = true
+      skip_iam_policy_attachments = true
+    }
+  }
+  expect_failures = [var.cloud_provider_access]
+}
+
+run "skip_iam_policy_attachments_with_encryption" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    cloud_provider_access = {
+      create                      = false
+      skip_iam_policy_attachments = true
+      existing = {
+        role_id      = "role123"
+        iam_role_arn = "arn:aws:iam::123456789012:role/atlas-role"
+      }
+    }
+    encryption = {
+      enabled        = true
+      create_kms_key = { enabled = true }
+    }
+  }
+  assert {
+    condition     = length(module.cloud_provider_access) == 0
+    error_message = "Expected no cloud_provider_access module"
+  }
+  assert {
+    condition     = length(module.encryption) == 1
+    error_message = "Expected encryption module"
+  }
+  assert {
+    condition     = output.role_id == "role123"
+    error_message = "Expected role_id from existing"
+  }
+  assert {
+    condition     = output.resource_ids.iam_role_name == "atlas-role"
+    error_message = "Expected iam_role_name derived from ARN even when skip_iam_policy_attachments = true"
+  }
+}
+
+run "skip_iam_policy_attachments_with_backup_export" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    cloud_provider_access = {
+      create                      = false
+      skip_iam_policy_attachments = true
+      existing = {
+        role_id      = "role123"
+        iam_role_arn = "arn:aws:iam::123456789012:role/service-roles/atlas-role"
+      }
+    }
+    backup_export = {
+      enabled     = true
+      bucket_name = "my-backup-bucket"
+    }
+  }
+  assert {
+    condition     = length(module.backup_export) == 1
+    error_message = "Expected backup_export module"
+  }
+}
+
+run "skip_iam_policy_attachments_with_log_integration" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    cloud_provider_access = {
+      create                      = false
+      skip_iam_policy_attachments = true
+      existing = {
+        role_id      = "role123"
+        iam_role_arn = "arn:aws:iam::123456789012:role/atlas-role"
+      }
+    }
+    log_integration = {
+      enabled      = true
+      bucket_name  = "my-log-bucket"
+      integrations = [{ log_types = ["MONGOD"], prefix_path = "test" }]
+    }
+  }
+  assert {
+    condition     = length(module.log_integration) == 1
+    error_message = "Expected log_integration module"
+  }
+}
+
+run "byo_role_without_skip_derives_iam_role_name" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    cloud_provider_access = {
+      create = false
+      existing = {
+        role_id      = "role123"
+        iam_role_arn = "arn:aws:iam::123456789012:role/path/my-atlas-role"
+      }
+    }
+  }
+  assert {
+    condition     = output.resource_ids.iam_role_name == "my-atlas-role"
+    error_message = "Expected iam_role_name derived from ARN path"
+  }
+}
+
 run "enable_cloud_provider_access_log_integration" {
   command = plan
   variables {
@@ -1015,5 +1175,37 @@ run "enable_cloud_provider_access_log_integration" {
   assert {
     condition     = length(module.cloud_provider_access) == 1
     error_message = "Expected cloud_provider_access with log_integration"
+  }
+}
+
+run "skip_iam_with_dedicated_encryption_role" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    cloud_provider_access = {
+      create                      = false
+      skip_iam_policy_attachments = true
+      existing = {
+        role_id      = "role123"
+        iam_role_arn = "arn:aws:iam::123456789012:role/atlas-role"
+      }
+    }
+    encryption = {
+      enabled        = true
+      create_kms_key = { enabled = true }
+      iam_role       = { create = true }
+    }
+  }
+  assert {
+    condition     = length(module.encryption_cloud_provider_access) == 1
+    error_message = "Expected dedicated encryption IAM role"
+  }
+  assert {
+    condition     = length(module.encryption) == 1
+    error_message = "Expected encryption module"
+  }
+  assert {
+    condition     = output.resource_ids.iam_role_name == "atlas-role"
+    error_message = "Expected iam_role_name derived from ARN even when skip_iam_policy_attachments = true"
   }
 }

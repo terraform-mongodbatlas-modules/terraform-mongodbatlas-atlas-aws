@@ -10,7 +10,14 @@ variable "atlas_role_id" {
 
 variable "iam_role_name" {
   type        = string
+  default     = null
   description = "IAM role name for attaching S3 policy"
+}
+
+variable "skip_iam_policy_attachments" {
+  type        = bool
+  default     = false
+  description = "Skip creating S3 IAM role policy and time_sleep. Must be plan-time known."
 }
 
 variable "bucket_name" {
