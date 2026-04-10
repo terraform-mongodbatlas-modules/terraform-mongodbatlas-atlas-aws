@@ -145,7 +145,7 @@ Same S3 bucket management permissions as Backup Export above (create, delete, ve
 
 ## BYO Role with Read-Only AWS Access
 
-When `cloud_provider_access.create = false` and `skip_iam_policy_attachments = true`, the module creates zero `aws_iam_role` and zero `aws_iam_role_policy` resources. The Terraform caller only needs read-only AWS access for data source lookups.
+When `cloud_provider_access.create = false` and `skip_iam_policy_attachments = true`, the module creates zero `aws_iam_role` and zero `aws_iam_role_policy` resources. The Terraform caller needs only read-only AWS access for data source lookups.
 
 ### Minimal Terraform caller policy
 
@@ -198,7 +198,7 @@ The IAM administrator must pre-attach these policies to the CPA IAM role before 
 
 These match the CPA role permissions in the first section of this document. The module normally attaches them automatically; `skip_iam_policy_attachments` shifts that responsibility to the IAM administrator.
 
-Note: `skip_iam_policy_attachments` only affects the shared CPA role. Dedicated roles (`iam_role.create = true` on encryption, backup_export, or log_integration) always attach policies because the module owns them. When `skip_iam_policy_attachments = true`, `log_integration.kms_key_skip_iam_policy` is redundant (the broader flag subsumes it).
+Note: `skip_iam_policy_attachments` affects only the shared CPA role. Dedicated roles (`iam_role.create = true` on encryption, backup_export, or log_integration) always attach policies because the module owns them. When `skip_iam_policy_attachments = true`, `log_integration.kms_key_skip_iam_policy` is redundant (the broader flag subsumes it).
 
 ## Reference IAM Policy Examples
 

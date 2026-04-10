@@ -3,5 +3,5 @@ variable/cloud_provider_access: Adds `skip_iam_policy_attachments` flag (default
 ```
 
 ```release-note:enhancement
-module: Derives `iam_role_name` from `existing.iam_role_arn` via regex when using BYO Cloud Provider Access, fixing null `iam_role_name` when `create = false` with shared role
+module: Derives `iam_role_name` from `existing.iam_role_arn` through regex when using BYO Cloud Provider Access, fixing null `iam_role_name` when `create = false` with shared role
 ```
