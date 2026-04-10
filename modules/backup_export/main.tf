@@ -63,7 +63,22 @@ resource "aws_s3_bucket_public_access_block" "atlas" {
   restrict_public_buckets = var.create_s3_bucket.restrict_public_buckets
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "atlas" {
+  count  = local.create_bucket && var.create_s3_bucket.expiration_days > 0 ? 1 : 0
+  bucket = aws_s3_bucket.atlas[0].id
+
+  rule {
+    id     = "backup-expiration"
+    status = "Enabled"
+    filter {}
+    expiration {
+      days = var.create_s3_bucket.expiration_days
+    }
+  }
+}
+
 data "aws_iam_policy_document" "s3_access" {
+  count = var.skip_iam_policy_attachments ? 0 : 1
   statement {
     actions   = ["s3:GetBucketLocation"]
     resources = [local.bucket_arn]
@@ -75,14 +90,26 @@ data "aws_iam_policy_document" "s3_access" {
 }
 
 resource "aws_iam_role_policy" "s3_access" {
+  count       = var.skip_iam_policy_attachments ? 0 : 1
   name_prefix = "atlas-backup-export-"
   role        = var.iam_role_name
-  policy      = data.aws_iam_policy_document.s3_access.json
+  policy      = data.aws_iam_policy_document.s3_access[0].json
+}
+
+moved {
+  from = aws_iam_role_policy.s3_access
+  to   = aws_iam_role_policy.s3_access[0]
 }
 
 resource "time_sleep" "iam_propagation" {
+  count           = var.skip_iam_policy_attachments ? 0 : 1
   depends_on      = [aws_iam_role_policy.s3_access, aws_s3_bucket.atlas]
   create_duration = "30s"
+}
+
+moved {
+  from = time_sleep.iam_propagation
+  to   = time_sleep.iam_propagation[0]
 }
 
 resource "mongodbatlas_cloud_backup_snapshot_export_bucket" "this" {

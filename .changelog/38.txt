@@ -1,0 +1,19 @@
+```release-note:breaking-change
+variable/backup_export: Adds `expiration_days` to `create_s3_bucket` (default 365 days). Module-managed backup S3 buckets now create an `aws_s3_bucket_lifecycle_configuration` resource. Existing users see a non-empty plan adding the lifecycle rule. Set `expiration_days = 0` to opt out and preserve previous behavior
+```
+
+```release-note:breaking-change
+variable/backup_export,log_integration: Changes `versioning_enabled` default from `true` to `false`. With versioning enabled, `expiration.days` only adds a delete marker and noncurrent versions remain indefinitely. Atlas writes timestamp-based object keys with no overwrite risk, so versioning is unnecessary. Set `versioning_enabled = true` to preserve previous behavior
+```
+
+```release-note:enhancement
+output/backup_export: Adds `expiration_days` to `backup_export` output (365 default, 0 = disabled, null = BYO bucket)
+```
+
+```release-note:enhancement
+output/log_integration: Adds `expiration_days` to `log_integration` output (90 default, 0 = disabled, null = BYO bucket)
+```
+
+```release-note:enhancement
+module: Adds IAM least-privilege permissions reference at docs/iam-permissions.md documenting CPA role permissions, Terraform caller permissions, and BYO role requirements per feature
+```

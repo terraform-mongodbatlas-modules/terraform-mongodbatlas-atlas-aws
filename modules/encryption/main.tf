@@ -50,6 +50,7 @@ resource "aws_kms_alias" "atlas" {
 # ─────────────────────────────────────────────────────────────────────────────
 
 data "aws_iam_policy_document" "kms_access" {
+  count = var.skip_iam_policy_attachments ? 0 : 1
   statement {
     effect = "Allow"
     actions = [
@@ -63,9 +64,15 @@ data "aws_iam_policy_document" "kms_access" {
 }
 
 resource "aws_iam_role_policy" "kms_access" {
+  count       = var.skip_iam_policy_attachments ? 0 : 1
   name_prefix = "atlas-kms-access-"
   role        = var.iam_role_name
-  policy      = data.aws_iam_policy_document.kms_access.json
+  policy      = data.aws_iam_policy_document.kms_access[0].json
+}
+
+moved {
+  from = aws_iam_role_policy.kms_access
+  to   = aws_iam_role_policy.kms_access[0]
 }
 
 # ─────────────────────────────────────────────────────────────────────────────

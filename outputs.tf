@@ -32,7 +32,7 @@ output "resource_ids" {
     # Cloud Provider Access
     role_id       = local.role_id
     iam_role_arn  = local.iam_role_arn
-    iam_role_name = local.iam_role_name
+    iam_role_name = local.iam_role_name_output
 
     # Encryption
     kms_key_arn = try(module.encryption[0].kms_key_arn, null)
@@ -91,6 +91,7 @@ output "backup_export" {
     export_bucket_id = module.backup_export[0].export_bucket_id
     bucket_name      = module.backup_export[0].bucket_name
     bucket_arn       = module.backup_export[0].bucket_arn
+    expiration_days  = module.backup_export[0].expiration_days
   } : null
 }
 
@@ -100,5 +101,6 @@ output "log_integration" {
     bucket_name     = module.log_integration[0].bucket_name
     bucket_arn      = module.log_integration[0].bucket_arn
     integration_ids = module.log_integration[0].integration_ids
+    expiration_days = module.log_integration[0].expiration_days
   } : null
 }

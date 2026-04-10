@@ -10,6 +10,7 @@ variable "cloud_provider_access" {
       role_id      = string
       iam_role_arn = string
     }))
+    skip_iam_policy_attachments   = optional(bool, false)
     iam_role_name                 = optional(string)
     iam_role_path                 = optional(string, "/")
     iam_role_permissions_boundary = optional(string)
@@ -20,6 +21,15 @@ variable "cloud_provider_access" {
 
     - `create = true` (default): Creates a shared IAM role and Atlas authorization
     - `create = false`: Use existing role via `existing.role_id` and `existing.iam_role_arn`
+    - `skip_iam_policy_attachments = true`: Skips all `aws_iam_role_policy` resources
+      in encryption, backup_export, and log_integration submodules. IAM policies must
+      be pre-attached to the role externally. Requires `create = false`.
+      Subsumes `log_integration.kms_key_skip_iam_policy` when `true`.
+      Only affects the shared CPA role. Dedicated roles (`iam_role.create = true`
+      on encryption, backup_export, or log_integration) always attach policies.
+      Note: when combined with module-managed resources (`create_kms_key.enabled`
+      or `create_s3_bucket.enabled`), the module creates those resources without
+      attaching IAM policies. Use dedicated roles or BYO resources instead.
     - `iam_role_name`: Custom name for the IAM role (default: atlas-{project_id_suffix}-{purpose})
     - `iam_role_path`: IAM role path (default: /)
     - `iam_role_permissions_boundary`: ARN of permissions boundary policy
@@ -28,6 +38,11 @@ variable "cloud_provider_access" {
   validation {
     condition     = var.cloud_provider_access.create || var.cloud_provider_access.existing != null
     error_message = "When cloud_provider_access.create = false, existing.role_id and existing.iam_role_arn are required."
+  }
+
+  validation {
+    condition     = !var.cloud_provider_access.skip_iam_policy_attachments || !var.cloud_provider_access.create
+    error_message = "skip_iam_policy_attachments = true requires create = false. The module cannot skip policies on a role it creates."
   }
 }
 
@@ -180,12 +195,13 @@ variable "backup_export" {
       name                    = optional(string)
       name_prefix             = optional(string)
       force_destroy           = optional(bool, false)
-      versioning_enabled      = optional(bool, true)
+      versioning_enabled      = optional(bool, false)
       server_side_encryption  = optional(string, "aws:kms")
       block_public_acls       = optional(bool, true)
       block_public_policy     = optional(bool, true)
       ignore_public_acls      = optional(bool, true)
       restrict_public_buckets = optional(bool, true)
+      expiration_days         = optional(number, 365)
     }), { enabled = false })
     iam_role = optional(object({
       create               = optional(bool, false)
@@ -208,9 +224,12 @@ variable "backup_export" {
     - Default: `atlas-backup-{project_id_suffix}-` when neither specified
 
     **Security Defaults (when module-managed):**
-    - Versioning enabled for backup recovery
+    - Versioning disabled (Atlas writes timestamp-based keys, no overwrite risk)
     - SSE with aws:kms for encryption at rest
     - All public access blocked
+
+    **Lifecycle:**
+    - `expiration_days` - Auto-delete objects after N days (default 365, 0 to disable)
 
     When `iam_role.create = true`, creates a dedicated IAM role for backup export instead of using the shared role.
   EOT
@@ -234,6 +253,11 @@ variable "backup_export" {
     condition     = try(length(var.backup_export.create_s3_bucket.name_prefix), 0) <= 37
     error_message = "create_s3_bucket.name_prefix must be 37 characters or less. S3 bucket names are limited to 63 characters and Terraform adds a 26-character random suffix."
   }
+
+  validation {
+    condition     = var.backup_export.create_s3_bucket.expiration_days >= 0 && floor(var.backup_export.create_s3_bucket.expiration_days) == var.backup_export.create_s3_bucket.expiration_days
+    error_message = "expiration_days must be a non-negative whole number. Use 0 to disable the lifecycle rule."
+  }
 }
 
 variable "log_integration" {
@@ -251,7 +275,7 @@ variable "log_integration" {
       name                    = optional(string)
       name_prefix             = optional(string)
       force_destroy           = optional(bool, false)
-      versioning_enabled      = optional(bool, true)
+      versioning_enabled      = optional(bool, false)
       server_side_encryption  = optional(string, "aws:kms")
       block_public_acls       = optional(bool, true)
       block_public_policy     = optional(bool, true)
@@ -304,7 +328,7 @@ variable "log_integration" {
     - `bucket_name` (optional) - Per-integration bucket override.
 
     **S3 Lifecycle:**
-    Module-managed buckets default to `expiration_days = 90`. Set to `null` to disable.
+    Module-managed buckets default to `expiration_days = 90`. Set to `0` to disable.
   EOT
 
   validation {
@@ -330,6 +354,11 @@ variable "log_integration" {
   validation {
     condition     = try(length(var.log_integration.create_s3_bucket.name_prefix), 0) <= 37
     error_message = "create_s3_bucket.name_prefix must be 37 characters or less. S3 bucket names are limited to 63 characters and Terraform adds a 26-character random suffix."
+  }
+
+  validation {
+    condition     = var.log_integration.create_s3_bucket.expiration_days >= 0 && floor(var.log_integration.create_s3_bucket.expiration_days) == var.log_integration.create_s3_bucket.expiration_days
+    error_message = "expiration_days must be a non-negative whole number. Use 0 to disable the lifecycle rule."
   }
 }
 

@@ -10,7 +10,14 @@ variable "atlas_role_id" {
 
 variable "iam_role_name" {
   type        = string
+  default     = null
   description = "IAM role name for attaching S3 policy"
+}
+
+variable "skip_iam_policy_attachments" {
+  type        = bool
+  default     = false
+  description = "Skip creating S3 IAM role policy and time_sleep. Must be plan-time known."
 }
 
 variable "bucket_name" {
@@ -26,12 +33,13 @@ variable "create_s3_bucket" {
     name                    = optional(string)
     name_prefix             = optional(string)
     force_destroy           = optional(bool, false)
-    versioning_enabled      = optional(bool, true)
+    versioning_enabled      = optional(bool, false)
     server_side_encryption  = optional(string, "aws:kms")
     block_public_acls       = optional(bool, true)
     block_public_policy     = optional(bool, true)
     ignore_public_acls      = optional(bool, true)
     restrict_public_buckets = optional(bool, true)
+    expiration_days         = optional(number, 365)
   })
   default = {
     enabled = false
@@ -49,9 +57,12 @@ variable "create_s3_bucket" {
     - Default: `atlas-backup-{project_id_suffix}-` when neither specified
 
     **Security Defaults:**
-    - Versioning enabled for backup recovery
+    - Versioning disabled (Atlas writes timestamp-based keys, no overwrite risk)
     - SSE with aws:kms for encryption at rest
     - All public access blocked
+
+    **Lifecycle:**
+    - `expiration_days` - Auto-delete objects after N days (default 365, 0 to disable)
   EOT
 
   validation {
@@ -62,6 +73,11 @@ variable "create_s3_bucket" {
   validation {
     condition     = try(length(var.create_s3_bucket.name_prefix), 0) <= 37
     error_message = "name_prefix must be 37 characters or less. S3 bucket names are limited to 63 characters and Terraform adds a 26-character random suffix."
+  }
+
+  validation {
+    condition     = var.create_s3_bucket.expiration_days >= 0 && floor(var.create_s3_bucket.expiration_days) == var.create_s3_bucket.expiration_days
+    error_message = "expiration_days must be a non-negative whole number. Use 0 to disable the lifecycle rule."
   }
 }
 

@@ -3,7 +3,7 @@ WARNING: This file is auto-generated. Do not edit directly.
 Changes will be overwritten when documentation is regenerated.
 Run 'just gen-examples' to regenerate.
 -->
-# AWS PrivateLink Multi-Region
+# Read-Only AWS (BYO CPA + KMS + S3)
 
 <!-- BEGIN_GETTING_STARTED -->
 ## Prerequisites
@@ -59,18 +59,40 @@ module "atlas_aws" {
   source  = "terraform-mongodbatlas-modules/atlas-aws/mongodbatlas"
   project_id = var.project_id
 
-  privatelink_endpoints = [
-    { region = "us-east-1", subnet_ids = var.subnet_ids_us_east_1 },
-    { region = "us-west-2", subnet_ids = var.subnet_ids_us_west_2 },
-  ]
+  cloud_provider_access = {
+    create                      = false
+    skip_iam_policy_attachments = true
+    existing = {
+      role_id      = var.atlas_role_id
+      iam_role_arn = var.aws_iam_role_arn
+    }
+  }
+
+  encryption = {
+    enabled     = true
+    kms_key_arn = var.kms_key_arn
+  }
+
+  backup_export = {
+    enabled     = true
+    bucket_name = var.backup_bucket_name
+  }
+
+  log_integration = {
+    enabled     = true
+    bucket_name = var.log_bucket_name
+    integrations = [
+      { log_types = ["MONGOD"], prefix_path = "operational" },
+    ]
+  }
 }
 
-output "privatelink" {
-  value = module.atlas_aws.privatelink
+output "role_id" {
+  value = module.atlas_aws.role_id
 }
 
-output "regional_mode_enabled" {
-  value = module.atlas_aws.regional_mode_enabled
+output "resource_ids" {
+  value = module.atlas_aws.resource_ids
 }
 ```
 

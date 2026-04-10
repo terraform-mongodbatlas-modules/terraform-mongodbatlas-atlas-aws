@@ -15,7 +15,7 @@ Run 'just gen-readme' to regenerate. -->
 - [Providers](#providers)
 - [Resources](#resources)
 - [Required Variables](#required-variables)
-- [AWS Cloud Provider Access](#aws-cloud-provider-access)
+- [AWS Cloud Provider Access & IAM Policy](#aws-cloud-provider-access-iam-policy)
 - [Encryption at Rest](#encryption-at-rest)
 - [Private Link](#private-link)
 - [Backup Export](#backup-export)
@@ -46,10 +46,10 @@ Run 'just gen-readme' to regenerate. -->
 
 If you are familiar with Terraform and already have a project configured in MongoDB Atlas, go to [commands](#commands).
 
-To deploy MongoDB Atlas in AWS with Terraform, ensure you meet the following requirements:
+To deploy MongoDB Atlas in AWS with Terraform:
 
 1. Install [Terraform](https://developer.hashicorp.com/terraform/install) to be able to run `terraform` [commands](#commands).
-2. [Sign in](https://account.mongodb.com/account/login) or [create](https://account.mongodb.com/account/register) your MongoDB Atlas Account.
+2. [Sign in](https://account.mongodb.com/account/login) to or [create](https://account.mongodb.com/account/register) your MongoDB Atlas Account.
 3. Configure your [authentication](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs#authentication) method.
 
    **NOTE**: Service Accounts (SA) are the preferred authentication method. See [Grant Programmatic Access to an Organization](https://www.mongodb.com/docs/atlas/configure-api-access/#grant-programmatic-access-to-an-organization) in the MongoDB Atlas documentation for detailed instructions on configuring SA access to your project.
@@ -178,6 +178,7 @@ Private Link | [AWS PrivateLink Endpoint](./examples/privatelink)
 Private Link | [AWS PrivateLink Multi-Region](./examples/privatelink_multi_region)
 Private Link | [AWS PrivateLink BYOE](./examples/privatelink_byoe)
 Backup Export | [S3 Bucket Export](./examples/backup_export)
+BYO Role | [Read-Only AWS (BYO CPA + KMS + S3)](./examples/byo_role)
 
 <!-- END_TABLES -->
 <!-- BEGIN_TF_DOCS -->
@@ -224,9 +225,9 @@ MongoDB Atlas project ID
 Type: `string`
 
 
-## AWS Cloud Provider Access
+## AWS Cloud Provider Access & IAM Policy
 
-Configure the AWS IAM role used by MongoDB Atlas. See the [AWS cloud provider access documentation](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/) for details.
+Configure the AWS IAM role used by MongoDB Atlas. See the [AWS cloud provider access documentation](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/) for details. For least-privilege IAM permissions per feature, see [IAM Permissions Reference](./docs/iam-permissions.md).
 
 _No variables in this section yet._
 
@@ -343,9 +344,12 @@ Provide EITHER:
 - Default: `atlas-backup-{project_id_suffix}-` when neither specified
 
 **Security Defaults (when module-managed):**
-- Versioning enabled for backup recovery
+- Versioning disabled (Atlas writes timestamp-based keys, no overwrite risk)
 - SSE with aws:kms for encryption at rest
 - All public access blocked
+
+**Lifecycle:**
+- `expiration_days` - Auto-delete objects after N days (default 365, 0 to disable)
 
 When `iam_role.create = true`, creates a dedicated IAM role for backup export instead of using the shared role.
 
@@ -361,12 +365,13 @@ object({
     name                    = optional(string)
     name_prefix             = optional(string)
     force_destroy           = optional(bool, false)
-    versioning_enabled      = optional(bool, true)
+    versioning_enabled      = optional(bool, false)
     server_side_encryption  = optional(string, "aws:kms")
     block_public_acls       = optional(bool, true)
     block_public_policy     = optional(bool, true)
     ignore_public_acls      = optional(bool, true)
     restrict_public_buckets = optional(bool, true)
+    expiration_days         = optional(number, 365)
   }), { enabled = false })
   iam_role = optional(object({
     create               = optional(bool, false)
@@ -419,7 +424,7 @@ Each entry creates one `mongodbatlas_log_integration` resource.
 - `bucket_name` (optional) - Per-integration bucket override.
 
 **S3 Lifecycle:**
-Module-managed buckets default to `expiration_days = 90`. Set to `null` to disable.
+Module-managed buckets default to `expiration_days = 90`. Set to `0` to disable.
 
 Type:
 
@@ -438,7 +443,7 @@ object({
     name                    = optional(string)
     name_prefix             = optional(string)
     force_destroy           = optional(bool, false)
-    versioning_enabled      = optional(bool, true)
+    versioning_enabled      = optional(bool, false)
     server_side_encryption  = optional(string, "aws:kms")
     block_public_acls       = optional(bool, true)
     block_public_policy     = optional(bool, true)
@@ -477,6 +482,15 @@ Cloud provider access configuration for Atlas-AWS integration.
 
 - `create = true` (default): Creates a shared IAM role and Atlas authorization
 - `create = false`: Use existing role via `existing.role_id` and `existing.iam_role_arn`
+- `skip_iam_policy_attachments = true`: Skips all `aws_iam_role_policy` resources
+  in encryption, backup_export, and log_integration submodules. IAM policies must
+  be pre-attached to the role externally. Requires `create = false`.
+  Subsumes `log_integration.kms_key_skip_iam_policy` when `true`.
+  Only affects the shared CPA role. Dedicated roles (`iam_role.create = true`
+  on encryption, backup_export, or log_integration) always attach policies.
+  Note: when combined with module-managed resources (`create_kms_key.enabled`
+  or `create_s3_bucket.enabled`), the module creates those resources without
+  attaching IAM policies. Use dedicated roles or BYO resources instead.
 - `iam_role_name`: Custom name for the IAM role (default: atlas-{project_id_suffix}-{purpose})
 - `iam_role_path`: IAM role path (default: /)
 - `iam_role_permissions_boundary`: ARN of permissions boundary policy
@@ -490,6 +504,7 @@ object({
     role_id      = string
     iam_role_arn = string
   }))
+  skip_iam_policy_attachments   = optional(bool, false)
   iam_role_name                 = optional(string)
   iam_role_path                 = optional(string, "/")
   iam_role_permissions_boundary = optional(string)
