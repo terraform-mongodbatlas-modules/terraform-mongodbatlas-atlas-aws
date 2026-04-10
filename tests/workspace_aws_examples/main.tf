@@ -33,6 +33,7 @@ variable "project_ids" {
     privatelink                 = optional(string)
     privatelink_byoe            = optional(string)
     privatelink_multi_region    = optional(string)
+    byo_role                    = optional(string)
   })
   default = {}
 }
@@ -77,6 +78,71 @@ module "vpc_multi_region_us_west_2" {
   name_prefix = "atlas-pl-multi-usw2-"
 }
 
+module "byo_cpa" {
+  source     = "../../modules/cloud_provider_access"
+  project_id = local.project_id_byo_role
+}
+
+data "aws_caller_identity" "current" {}
+
+data "aws_iam_policy_document" "byo_kms" {
+  statement {
+    sid       = "AllowRootFullAccess"
+    effect    = "Allow"
+    actions   = ["kms:*"]
+    resources = ["*"]
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+  }
+  statement {
+    sid    = "AllowCPARoleKeyAccess"
+    effect = "Allow"
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey",
+      "kms:CreateGrant",
+      "kms:ListGrants",
+      "kms:RevokeGrant",
+    ]
+    resources = ["*"]
+    principals {
+      type        = "AWS"
+      identifiers = [module.byo_cpa.iam_role_arn]
+    }
+  }
+}
+
+resource "aws_kms_key" "byo" {
+  description             = "BYO KMS key for byo_role example"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+  policy                  = data.aws_iam_policy_document.byo_kms.json
+}
+
+resource "aws_s3_bucket" "byo" {
+  bucket_prefix = "atlas-byo-role-"
+  force_destroy = true
+}
+
+data "aws_iam_policy_document" "byo_s3" {
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:GetBucketLocation", "s3:PutObject"]
+    resources = [aws_s3_bucket.byo.arn, "${aws_s3_bucket.byo.arn}/*"]
+  }
+}
+
+resource "aws_iam_role_policy" "byo_s3" {
+  name   = "atlas-byo-s3-access"
+  role   = module.byo_cpa.iam_role_name
+  policy = data.aws_iam_policy_document.byo_s3.json
+}
+
 locals {
   missing_project_ids = [for k, v in var.project_ids : k if v == null]
   project_ids         = { for k, v in var.project_ids : k => v != null ? v : module.project[k].project_id }
@@ -113,6 +179,17 @@ locals {
   subnet_ids_us_east_1 = module.vpc_multi_region_us_east_1.subnet_ids
   # tflint-ignore: terraform_unused_declarations
   subnet_ids_us_west_2 = module.vpc_multi_region_us_west_2.subnet_ids
+
+  # tflint-ignore: terraform_unused_declarations
+  project_id_byo_role = local.project_ids.byo_role
+  # tflint-ignore: terraform_unused_declarations
+  byo_role_id = module.byo_cpa.role_id
+  # tflint-ignore: terraform_unused_declarations
+  byo_iam_role_arn = module.byo_cpa.iam_role_arn
+  # tflint-ignore: terraform_unused_declarations
+  byo_kms_key_arn = aws_kms_key.byo.arn
+  # tflint-ignore: terraform_unused_declarations
+  byo_s3_bucket_name = aws_s3_bucket.byo.bucket
 }
 
 # Example module calls are generated in modules.generated.tf

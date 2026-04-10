@@ -46,10 +46,10 @@ Run 'just gen-readme' to regenerate. -->
 
 If you are familiar with Terraform and already have a project configured in MongoDB Atlas, go to [commands](#commands).
 
-To deploy MongoDB Atlas in AWS with Terraform, ensure you meet the following requirements:
+To deploy MongoDB Atlas in AWS with Terraform:
 
 1. Install [Terraform](https://developer.hashicorp.com/terraform/install) to be able to run `terraform` [commands](#commands).
-2. [Sign in](https://account.mongodb.com/account/login) or [create](https://account.mongodb.com/account/register) your MongoDB Atlas Account.
+2. [Sign in](https://account.mongodb.com/account/login) to or [create](https://account.mongodb.com/account/register) your MongoDB Atlas Account.
 3. Configure your [authentication](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs#authentication) method.
 
    **NOTE**: Service Accounts (SA) are the preferred authentication method. See [Grant Programmatic Access to an Organization](https://www.mongodb.com/docs/atlas/configure-api-access/#grant-programmatic-access-to-an-organization) in the MongoDB Atlas documentation for detailed instructions on configuring SA access to your project.
@@ -178,6 +178,7 @@ Private Link | [AWS PrivateLink Endpoint](./examples/privatelink)
 Private Link | [AWS PrivateLink Multi-Region](./examples/privatelink_multi_region)
 Private Link | [AWS PrivateLink BYOE](./examples/privatelink_byoe)
 Backup Export | [S3 Bucket Export](./examples/backup_export)
+BYO Role | [Read-Only AWS (BYO CPA + KMS + S3)](./examples/byo_role)
 
 <!-- END_TABLES -->
 <!-- BEGIN_TF_DOCS -->
