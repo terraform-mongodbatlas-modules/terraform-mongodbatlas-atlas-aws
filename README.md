@@ -344,7 +344,7 @@ Provide EITHER:
 - Default: `atlas-backup-{project_id_suffix}-` when neither specified
 
 **Security Defaults (when module-managed):**
-- Versioning enabled for backup recovery
+- Versioning disabled (Atlas writes timestamp-based keys, no overwrite risk)
 - SSE with aws:kms for encryption at rest
 - All public access blocked
 
@@ -365,7 +365,7 @@ object({
     name                    = optional(string)
     name_prefix             = optional(string)
     force_destroy           = optional(bool, false)
-    versioning_enabled      = optional(bool, true)
+    versioning_enabled      = optional(bool, false)
     server_side_encryption  = optional(string, "aws:kms")
     block_public_acls       = optional(bool, true)
     block_public_policy     = optional(bool, true)
@@ -443,7 +443,7 @@ object({
     name                    = optional(string)
     name_prefix             = optional(string)
     force_destroy           = optional(bool, false)
-    versioning_enabled      = optional(bool, true)
+    versioning_enabled      = optional(bool, false)
     server_side_encryption  = optional(string, "aws:kms")
     block_public_acls       = optional(bool, true)
     block_public_policy     = optional(bool, true)
