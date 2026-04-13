@@ -1059,7 +1059,7 @@ run "skip_iam_policy_attachments_requires_create_false" {
   expect_failures = [var.cloud_provider_access]
 }
 
-run "skip_iam_policy_attachments_with_encryption" {
+run "skip_iam_with_create_kms_key_fails" {
   command = plan
   variables {
     project_id = var.project_id
@@ -1076,22 +1076,48 @@ run "skip_iam_policy_attachments_with_encryption" {
       create_kms_key = { enabled = true }
     }
   }
-  assert {
-    condition     = length(module.cloud_provider_access) == 0
-    error_message = "Expected no cloud_provider_access module"
+  expect_failures = [var.cloud_provider_access]
+}
+
+run "skip_iam_with_create_s3_bucket_backup_fails" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    cloud_provider_access = {
+      create                      = false
+      skip_iam_policy_attachments = true
+      existing = {
+        role_id      = "role123"
+        iam_role_arn = "arn:aws:iam::123456789012:role/atlas-role"
+      }
+    }
+    backup_export = {
+      enabled          = true
+      create_s3_bucket = { enabled = true }
+    }
   }
-  assert {
-    condition     = length(module.encryption) == 1
-    error_message = "Expected encryption module"
+  expect_failures = [var.cloud_provider_access]
+}
+
+run "skip_iam_with_create_s3_bucket_log_fails" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    cloud_provider_access = {
+      create                      = false
+      skip_iam_policy_attachments = true
+      existing = {
+        role_id      = "role123"
+        iam_role_arn = "arn:aws:iam::123456789012:role/atlas-role"
+      }
+    }
+    log_integration = {
+      enabled          = true
+      create_s3_bucket = { enabled = true }
+      integrations     = [{ log_types = ["MONGOD"], prefix_path = "test" }]
+    }
   }
-  assert {
-    condition     = output.role_id == "role123"
-    error_message = "Expected role_id from existing"
-  }
-  assert {
-    condition     = output.resource_ids.iam_role_name == "atlas-role"
-    error_message = "Expected iam_role_name derived from ARN even when skip_iam_policy_attachments = true"
-  }
+  expect_failures = [var.cloud_provider_access]
 }
 
 run "skip_iam_policy_attachments_with_backup_export" {

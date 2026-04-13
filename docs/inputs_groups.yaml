@@ -10,18 +10,24 @@ sections:
     title: "AWS Cloud Provider Access & IAM Policy"
     level: 2
     description: |
-      Configure the AWS IAM role used by MongoDB Atlas. See the [AWS cloud provider access documentation](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/) for details. For least-privilege IAM permissions per feature, see [IAM Permissions Reference](./docs/iam-permissions.md).
+      Atlas uses AWS IAM roles to access customer cloud resources (KMS keys, S3 buckets) without long-lived credentials. Cloud Provider Access (CPA) establishes trust between an Atlas project and an AWS IAM role. The module supports creating a shared role (`create = true`) or using an existing role (`create = false`).
+
+      See the [CPA documentation](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/) for details. For least-privilege IAM permissions per feature, see [IAM Permissions Reference](./docs/iam-permissions.md).
     match:
       names:
         - create_iam_role
         - iam_role_arn
         - external_id
+        - cloud_provider_access
 
   - id: encryption
     title: "Encryption at Rest"
     level: 2
     description: |
-      Configure encryption at rest using AWS KMS. See the [AWS encryption documentation](https://www.mongodb.com/docs/atlas/security-aws-kms/) for details.
+      Customer-managed encryption ensures only the customer's KMS key can decrypt data at rest, meeting compliance requirements (SOC 2, HIPAA, PCI DSS). The module supports BYO KMS key (`kms_key_arn`) or module-managed key (`create_kms_key.enabled = true`).
+
+      See the [encryption at rest documentation](https://www.mongodb.com/docs/atlas/security-aws-kms/) for details.
+
     match:
       names:
         - encryption
@@ -30,7 +36,9 @@ sections:
     title: "Private Link"
     level: 2
     description: |
-      Configure AWS PrivateLink endpoints for secure connectivity. See the [AWS PrivateLink documentation](https://www.mongodb.com/docs/atlas/security-private-endpoint/) for details.
+      PrivateLink keeps traffic between application VPCs and Atlas on the AWS backbone, avoiding the public internet. Required by security policies in regulated industries.
+
+      See the [PrivateLink documentation](https://www.mongodb.com/docs/atlas/security-private-endpoint/) for details.
     match:
       names:
         - privatelink_endpoints
@@ -41,7 +49,9 @@ sections:
     title: "Backup Export"
     level: 2
     description: |
-      Configure backup snapshot export to AWS S3.
+      Backup export copies Atlas Cloud Backup snapshots to an S3 bucket the customer controls, providing an independent recovery path outside Atlas and meeting data residency or retention requirements. The module supports BYO bucket (`bucket_name`) or module-managed bucket (`create_s3_bucket.enabled = true`).
+
+      See the [backup export documentation](https://www.mongodb.com/docs/atlas/backup/cloud-backup/export/) for details.
     match:
       names:
         - backup_export
@@ -50,7 +60,11 @@ sections:
     title: "Log Integration"
     level: 2
     description: |
-      Configure Atlas log export to AWS S3 buckets. Supports multiple integrations per project and optional per-integration bucket overrides in addition to a required default bucket. See the [export logs to AWS S3 documentation](https://www.mongodb.com/docs/atlas/export-logs-external-sinks/) for details.
+      Log integration exports Atlas operational and audit logs to S3 at 1-minute intervals, feeding existing SIEM/observability pipelines without polling the Atlas API. The module supports BYO bucket (`bucket_name`) or module-managed bucket (`create_s3_bucket.enabled = true`), with optional per-integration bucket overrides.
+
+      See the [log export documentation](https://www.mongodb.com/docs/atlas/export-logs-external-sinks/) for details.
+
+      Reordering entries in the `integrations` list can cause a brief delivery gap (~1 min) but no data loss.
     match:
       names:
         - log_integration

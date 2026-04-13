@@ -41,7 +41,7 @@ variable "org_id" {
 }
 
 resource "mongodbatlas_project" "this" {
-  name   = "cluster-module"
+  name   = "atlas-aws"
   org_id = var.org_id
 }
 ```
