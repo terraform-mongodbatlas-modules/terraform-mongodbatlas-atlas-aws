@@ -74,14 +74,16 @@ module "atlas_aws" {
 
   project_id = var.project_id
 
-  # BYOE: provide your own VPC endpoint ID
+  # Step 1: Deploy Atlas-side PrivateLink endpoint before AWS private endpoint
+  privatelink_byoe_regions = { (local.ep1) = var.aws_region }
+
+  # Step 3: BYOE: provide your own VPC endpoint ID (created in Step 2)
   privatelink_byoe = {
     (local.ep1) = { vpc_endpoint_id = aws_vpc_endpoint.custom.id }
   }
-  privatelink_byoe_regions = { (local.ep1) = var.aws_region }
 }
 
-# Step 2: User-managed AWS VPC Endpoint with custom configuration
+# Step 2: User-managed AWS VPC Endpoint with custom configuration (usually created in separate Terraform workspace)
 resource "aws_vpc_endpoint" "custom" {
   vpc_id             = var.vpc_id
   service_name       = module.atlas_aws.privatelink_service_info[local.ep1].atlas_endpoint_service_name
