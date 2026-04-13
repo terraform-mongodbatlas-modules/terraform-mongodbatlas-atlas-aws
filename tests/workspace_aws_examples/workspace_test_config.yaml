@@ -40,10 +40,6 @@ examples:
     var_groups: [backup_export]
     import_validation:
       enabled: true
-      known_changes:
-        - address: module.atlas_aws.module.backup_export[0].mongodbatlas_cloud_backup_snapshot_export_bucket.this
-          actions: [update]
-          changed_attributes: [cloud_provider, iam_role_id]
     plan_regressions:
       - address: module.atlas_aws.module.cloud_provider_access[0].mongodbatlas_cloud_provider_access_setup.this
       - address: module.atlas_aws.module.cloud_provider_access[0].mongodbatlas_cloud_provider_access_authorization.this
