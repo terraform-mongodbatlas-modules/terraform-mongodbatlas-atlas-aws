@@ -5,10 +5,14 @@ import pytest
 
 from workspace import models
 from workspace.import_validation import (
+    IMPORTS_GENERATED_TF,
     SKIP_SENTINEL,
+    TFSTATE_FILE,
+    _diff_attributes,
     assert_clean_plan,
     assert_import_plan,
     assert_no_destroys,
+    backup_and_restore_state,
     extract_import_id,
     extract_state_resources,
     generate_import_blocks_tf,
@@ -363,3 +367,81 @@ def test_extract_import_id_missing_attribute():
             {"other_field": "val"},
             {"mongodbatlas_encryption_at_rest": "{missing_attr}"},
         )
+
+
+def test_backup_and_restore_state_happy_path(tmp_path):
+    tfstate = tmp_path / TFSTATE_FILE
+    tfstate.write_text('{"version": 4}')
+    with backup_and_restore_state(tmp_path):
+        tfstate.write_text('{"version": 4, "modified": true}')
+    assert tfstate.read_text() == '{"version": 4}'
+    assert not (tmp_path / f"{TFSTATE_FILE}.import-backup").exists()
+    assert not (tmp_path / IMPORTS_GENERATED_TF).exists()
+
+
+def test_backup_and_restore_state_missing_tfstate(tmp_path):
+    with pytest.raises(ValueError, match="terraform.tfstate not found"):
+        with backup_and_restore_state(tmp_path):
+            pass
+
+
+def test_backup_and_restore_state_restores_on_exception(tmp_path):
+    tfstate = tmp_path / TFSTATE_FILE
+    original = '{"version": 4}'
+    tfstate.write_text(original)
+    imports_tf = tmp_path / IMPORTS_GENERATED_TF
+    with pytest.raises(RuntimeError, match="simulated"):
+        with backup_and_restore_state(tmp_path):
+            tfstate.write_text("corrupted")
+            imports_tf.write_text("import {}")
+            raise RuntimeError("simulated")
+    assert tfstate.read_text() == original
+    assert not (tmp_path / f"{TFSTATE_FILE}.import-backup").exists()
+    assert not imports_tf.exists()
+
+
+def test_diff_attributes_key_only_in_before():
+    change = {"before": {"removed": "val"}, "after": {}}
+    assert _diff_attributes(change) == {"removed"}
+
+
+def test_diff_attributes_key_only_in_after():
+    change = {"before": {}, "after": {"added": "val"}}
+    assert _diff_attributes(change) == {"added"}
+
+
+def test_diff_attributes_after_unknown_excluded():
+    change = {
+        "before": {"status": "ACTIVE", "name": "a"},
+        "after": {"status": None, "name": "b"},
+        "after_unknown": {"status": True},
+    }
+    result = _diff_attributes(change)
+    assert "status" not in result
+    assert "name" in result
+
+
+def test_diff_attributes_no_changes():
+    change = {"before": {"x": 1, "y": 2}, "after": {"x": 1, "y": 2}}
+    assert _diff_attributes(change) == set()
+
+
+def test_assert_clean_plan_known_change_actions_mismatch():
+    kc = models.ImportKnownChange(
+        address="mongodbatlas_encryption_at_rest.this",
+        actions=["no-op"],
+        changed_attributes=[],
+    )
+    plan_json = {
+        "resource_changes": [
+            _make_rc(
+                "module.ex_enc.mongodbatlas_encryption_at_rest.this",
+                ["update"],
+                before={"project_id": "old"},
+                after={"project_id": "new"},
+            ),
+        ]
+    }
+    failures = assert_clean_plan(plan_json, _make_example("enc", [kc]))
+    assert len(failures) == 1
+    assert "expected actions" in failures[0]

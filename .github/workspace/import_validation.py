@@ -212,13 +212,13 @@ def process_workspace(
 ) -> None:
     ws_config_path = ws_dir / models.WORKSPACE_CONFIG_FILE
     if not ws_config_path.exists():
-        typer.echo(f"Skipping {ws_dir.name}: no {models.WORKSPACE_CONFIG_FILE} found")
+        logger.info(f"Skipping {ws_dir.name}: no {models.WORKSPACE_CONFIG_FILE} found")
         return
     config = models.parse_ws_config(ws_config_path)
     examples = gen.parse_include_examples(include_examples, config)
     enabled = [ex for ex in examples if ex.import_validation.enabled]
     if not enabled:
-        typer.echo(f"  No examples with import_validation.enabled in {ws_dir.name}, skipping")
+        logger.info(f"No examples with import_validation.enabled in {ws_dir.name}, skipping")
         return
 
     state_json = plan.run_terraform_show_json(ws_dir)
@@ -251,12 +251,10 @@ def process_workspace(
             rm_addresses.append(full_addr)
 
     if not import_entries:
-        typer.echo("  No Atlas resources to import-validate, skipping")
+        logger.info("No Atlas resources to import-validate, skipping")
         return
 
-    typer.echo(
-        f"  Import-validating {len(import_entries)} resources across {len(enabled)} examples"
-    )
+    logger.info(f"Import-validating {len(import_entries)} resources across {len(enabled)} examples")
 
     with backup_and_restore_state(ws_dir):
         plan.run_terraform_state_rm(ws_dir, rm_addresses)
@@ -273,21 +271,21 @@ def process_workspace(
             if failures:
                 all_failures.extend(failures)
                 for f in failures:
-                    typer.echo(f"  FAIL: {ex.identifier}: {f}", err=True)
+                    logger.error(f"FAIL: {ex.identifier}: {f}")
             else:
-                typer.echo(f"  PASS: {ex.identifier}")
+                logger.info(f"PASS: {ex.identifier}")
 
         destroy_addrs = assert_no_destroys(plan_data)
         if destroy_addrs:
             for addr in destroy_addrs:
-                typer.echo(f"  DESTROY: {addr}", err=True)
+                logger.error(f"DESTROY: {addr}")
             all_failures.append(
                 f"Plan includes {len(destroy_addrs)} destroy action(s). "
                 "Refusing to apply. Ensure all examples are included or state is clean."
             )
 
         if all_failures:
-            typer.echo(f"Import validation FAILED ({len(all_failures)} failures)", err=True)
+            logger.error(f"Import validation FAILED ({len(all_failures)} failures)")
             raise typer.Exit(1)
 
         plan.run_terraform_apply_plan(ws_dir)
@@ -301,11 +299,11 @@ def process_workspace(
             if failures:
                 all_failures.extend(failures)
                 for f in failures:
-                    typer.echo(f"  FAIL (post-apply): {ex.identifier}: {f}", err=True)
+                    logger.error(f"FAIL (post-apply): {ex.identifier}: {f}")
             else:
-                typer.echo(f"  PASS (post-apply): {ex.identifier}")
+                logger.info(f"PASS (post-apply): {ex.identifier}")
 
     if all_failures:
-        typer.echo(f"Import validation FAILED ({len(all_failures)} failures)", err=True)
+        logger.error(f"Import validation FAILED ({len(all_failures)} failures)")
         raise typer.Exit(1)
-    typer.echo("Import validation passed")
+    logger.info("Import validation passed")
