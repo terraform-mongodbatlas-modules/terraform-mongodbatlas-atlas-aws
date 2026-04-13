@@ -156,6 +156,36 @@ def assert_import_plan(
     return failures
 
 
+def assert_clean_plan(plan_json: dict[str, Any], example: models.Example) -> list[str]:
+    failures: list[str] = []
+    prefix = f"module.ex_{example.identifier}."
+    for rc in plan_json.get("resource_changes", []):
+        addr = rc.get("address", "")
+        if not addr.startswith(prefix):
+            continue
+        rel_addr = addr.removeprefix(prefix)
+        change = rc.get("change", {})
+        actions = change.get("actions", [])
+
+        if actions == ["no-op"]:
+            continue
+
+        if known := example.import_validation.find_known_change(rel_addr):
+            if actions != known.actions:
+                failures.append(f"{rel_addr}: expected actions {known.actions}, got {actions}")
+            elif known.changed_attributes:
+                changed = _diff_attributes(change)
+                if changed != set(known.changed_attributes):
+                    failures.append(
+                        f"{rel_addr}: expected changed_attributes "
+                        f"{sorted(known.changed_attributes)}, got {sorted(changed)}"
+                    )
+            continue
+
+        failures.append(f"{rel_addr}: expected no-op after apply, got {actions}")
+    return failures
+
+
 def _diff_attributes(change: dict[str, Any]) -> set[str]:
     before = change.get("before", {}) or {}
     after = change.get("after", {}) or {}
@@ -232,6 +262,21 @@ def process_workspace(
                     typer.echo(f"  FAIL: {ex.identifier}: {f}", err=True)
             else:
                 typer.echo(f"  PASS: {ex.identifier}")
+
+        plan.run_terraform_apply_plan(ws_dir)
+        imports_tf.unlink(missing_ok=True)
+
+        plan.run_terraform_plan(ws_dir, var_files=var_files or [], skip_init=True)
+        plan_data = json.loads(plan_json_path.read_text())
+
+        for ex in enabled:
+            failures = assert_clean_plan(plan_data, ex)
+            if failures:
+                all_failures.extend(failures)
+                for f in failures:
+                    typer.echo(f"  FAIL (post-apply): {ex.identifier}: {f}", err=True)
+            else:
+                typer.echo(f"  PASS (post-apply): {ex.identifier}")
 
     if all_failures:
         typer.echo(f"Import validation FAILED ({len(all_failures)} failures)", err=True)

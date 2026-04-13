@@ -6,6 +6,7 @@ import pytest
 from workspace import models
 from workspace.import_validation import (
     SKIP_SENTINEL,
+    assert_clean_plan,
     assert_import_plan,
     extract_import_id,
     extract_state_resources,
@@ -233,6 +234,46 @@ def test_assert_import_plan_actions_mismatch():
     failures = assert_import_plan(plan_json, _make_example("enc", [kc]))
     assert len(failures) == 1
     assert "expected actions" in failures[0]
+
+
+def test_assert_clean_plan_all_noop():
+    plan_json = {
+        "resource_changes": [
+            _make_rc("module.ex_enc.mongodbatlas_encryption_at_rest.this", ["no-op"]),
+            _make_rc("module.ex_enc.aws_kms_key.this", ["no-op"]),
+        ]
+    }
+    assert assert_clean_plan(plan_json, _make_example("enc")) == []
+
+
+def test_assert_clean_plan_unexpected_change():
+    plan_json = {
+        "resource_changes": [
+            _make_rc("module.ex_enc.mongodbatlas_encryption_at_rest.this", ["update"]),
+        ]
+    }
+    failures = assert_clean_plan(plan_json, _make_example("enc"))
+    assert len(failures) == 1
+    assert "expected no-op after apply" in failures[0]
+
+
+def test_assert_clean_plan_known_change_allowed():
+    kc = models.ImportKnownChange(
+        address="mongodbatlas_encryption_at_rest.this",
+        actions=["update"],
+        changed_attributes=["project_id"],
+    )
+    plan_json = {
+        "resource_changes": [
+            _make_rc(
+                "module.ex_enc.mongodbatlas_encryption_at_rest.this",
+                ["update"],
+                before={"project_id": "old"},
+                after={"project_id": "new"},
+            ),
+        ]
+    }
+    assert assert_clean_plan(plan_json, _make_example("enc", [kc])) == []
 
 
 def test_extract_import_id_missing_attribute():

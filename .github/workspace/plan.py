@@ -56,6 +56,12 @@ def run_terraform_plan(ws_dir: Path, var_files: list[Path], skip_init: bool = Fa
     typer.echo(f"Plan saved to {PLAN_JSON}")
 
 
+def run_terraform_apply_plan(ws_dir: Path) -> None:
+    typer.echo("Applying saved plan...")
+    if run_cmd(["terraform", "apply", "-input=false", PLAN_BIN], ws_dir) != 0:
+        raise typer.Exit(1)
+
+
 def run_terraform_apply(ws_dir: Path, var_files: list[Path], auto_approve: bool = False) -> None:
     apply_cmd = ["terraform", "apply", "-input=false"]
     for vf in var_files:
