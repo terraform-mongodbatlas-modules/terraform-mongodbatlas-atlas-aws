@@ -176,3 +176,69 @@ def test_assert_import_plan_attribute_mismatch():
     failures = assert_import_plan(plan_json, _make_example("enc", [kc]))
     assert len(failures) == 1
     assert "expected changed_attributes" in failures[0]
+
+
+def test_assert_import_plan_wildcard_known_change():
+    kc = models.ImportKnownChange(
+        address="mongodbatlas_encryption_at_rest.this",
+        actions=["update"],
+        changed_attributes=[],
+    )
+    plan_json = {
+        "resource_changes": [
+            _make_rc(
+                "module.ex_enc.mongodbatlas_encryption_at_rest.this",
+                ["update"],
+                importing=True,
+                before={"project_id": "old", "name": "a"},
+                after={"project_id": "new", "name": "b"},
+            ),
+        ]
+    }
+    assert assert_import_plan(plan_json, _make_example("enc", [kc])) == []
+
+
+def test_assert_import_plan_non_importing_update():
+    plan_json = {
+        "resource_changes": [
+            _make_rc(
+                "module.ex_enc.mongodbatlas_encryption_at_rest.this",
+                ["update"],
+                importing=False,
+            ),
+        ]
+    }
+    failures = assert_import_plan(plan_json, _make_example("enc"))
+    assert len(failures) == 1
+    assert "non-import change" in failures[0]
+
+
+def test_assert_import_plan_actions_mismatch():
+    kc = models.ImportKnownChange(
+        address="mongodbatlas_encryption_at_rest.this",
+        actions=["no-op"],
+        changed_attributes=[],
+    )
+    plan_json = {
+        "resource_changes": [
+            _make_rc(
+                "module.ex_enc.mongodbatlas_encryption_at_rest.this",
+                ["update"],
+                importing=True,
+                before={"project_id": "old"},
+                after={"project_id": "new"},
+            ),
+        ]
+    }
+    failures = assert_import_plan(plan_json, _make_example("enc", [kc]))
+    assert len(failures) == 1
+    assert "expected actions" in failures[0]
+
+
+def test_extract_import_id_missing_attribute():
+    with pytest.raises(KeyError, match="mongodbatlas_encryption_at_rest.*missing_attr"):
+        extract_import_id(
+            "mongodbatlas_encryption_at_rest",
+            {"other_field": "val"},
+            {"mongodbatlas_encryption_at_rest": "{missing_attr}"},
+        )

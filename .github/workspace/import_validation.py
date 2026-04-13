@@ -69,7 +69,12 @@ def extract_import_id(
     template = mapping[resource_type]
     if template == SKIP_SENTINEL:
         return None
-    return template.format_map(attrs)
+    try:
+        return template.format_map(attrs)
+    except KeyError as e:
+        raise KeyError(
+            f"{resource_type}: template {template!r} references missing state attribute {e}"
+        ) from e
 
 
 def generate_import_blocks_tf(entries: list[tuple[str, str]]) -> str:
@@ -125,13 +130,17 @@ def assert_import_plan(
             failures.append(f"{rel_addr}: unexpected actions {actions}")
             continue
 
-        if importing and "update" in actions:
+        if importing:
             known = example.import_validation.find_known_change(rel_addr)
             if not known:
                 changed = _diff_attributes(change)
                 failures.append(
-                    f"{rel_addr}: import drift (changed: {sorted(changed)}) not in known_changes"
+                    f"{rel_addr}: import drift (actions: {actions}, "
+                    f"changed: {sorted(changed)}) not in known_changes"
                 )
+                continue
+            if actions != known.actions:
+                failures.append(f"{rel_addr}: expected actions {known.actions}, got {actions}")
                 continue
             if known.changed_attributes:
                 changed = _diff_attributes(change)
@@ -142,8 +151,7 @@ def assert_import_plan(
                     )
             continue
 
-        if not importing and actions != ["no-op"]:
-            failures.append(f"{rel_addr}: non-import change with actions {actions}")
+        failures.append(f"{rel_addr}: non-import change with actions {actions}")
 
     return failures
 
