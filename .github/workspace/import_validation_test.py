@@ -8,6 +8,7 @@ from workspace.import_validation import (
     SKIP_SENTINEL,
     assert_clean_plan,
     assert_import_plan,
+    assert_no_destroys,
     extract_import_id,
     extract_state_resources,
     generate_import_blocks_tf,
@@ -93,11 +94,12 @@ def _make_rc(
     importing: bool = False,
     before: dict | None = None,
     after: dict | None = None,
+    after_unknown: dict | None = None,
 ) -> dict:
-    rc: dict = {
-        "address": address,
-        "change": {"actions": actions, "before": before or {}, "after": after or {}},
-    }
+    change: dict = {"actions": actions, "before": before or {}, "after": after or {}}
+    if after_unknown:
+        change["after_unknown"] = after_unknown
+    rc: dict = {"address": address, "change": change}
     if importing:
         rc["importing"] = {"id": "some-id"}
     return rc
@@ -214,6 +216,39 @@ def test_assert_import_plan_non_importing_update():
     assert "non-import change" in failures[0]
 
 
+def test_assert_import_plan_data_source_read_auto_skipped():
+    plan_json = {
+        "resource_changes": [
+            _make_rc(
+                "module.ex_enc.module.encryption_private_endpoint.data.mongodbatlas_encryption_at_rest_private_endpoint.this",
+                ["read"],
+                importing=False,
+            ),
+        ]
+    }
+    assert assert_import_plan(plan_json, _make_example("enc")) == []
+
+
+def test_assert_import_plan_non_importing_known_change():
+    kc = models.ImportKnownChange(
+        address="module.encryption_private_endpoint.mongodbatlas_encryption_at_rest_private_endpoint.this",
+        actions=["update"],
+        changed_attributes=["status", "timeouts"],
+    )
+    plan_json = {
+        "resource_changes": [
+            _make_rc(
+                "module.ex_enc.module.encryption_private_endpoint.mongodbatlas_encryption_at_rest_private_endpoint.this",
+                ["update"],
+                importing=False,
+                before={"status": "ACTIVE"},
+                after={"status": "PENDING", "timeouts": {"create": "30m"}},
+            ),
+        ]
+    }
+    assert assert_import_plan(plan_json, _make_example("enc", [kc])) == []
+
+
 def test_assert_import_plan_actions_mismatch():
     kc = models.ImportKnownChange(
         address="mongodbatlas_encryption_at_rest.this",
@@ -234,6 +269,30 @@ def test_assert_import_plan_actions_mismatch():
     failures = assert_import_plan(plan_json, _make_example("enc", [kc]))
     assert len(failures) == 1
     assert "expected actions" in failures[0]
+
+
+def test_assert_no_destroys_clean():
+    plan_json = {
+        "resource_changes": [
+            _make_rc("module.ex_enc.mongodbatlas_encryption_at_rest.this", ["no-op"]),
+            _make_rc("module.ex_enc.aws_kms_key.this", ["update"]),
+        ]
+    }
+    assert assert_no_destroys(plan_json) == []
+
+
+def test_assert_no_destroys_with_deletes():
+    plan_json = {
+        "resource_changes": [
+            _make_rc("module.ex_enc.mongodbatlas_encryption_at_rest.this", ["no-op"]),
+            _make_rc("module.ex_other.aws_kms_key.atlas", ["delete"]),
+            _make_rc("module.ex_other.aws_iam_role.this", ["create", "delete"]),
+        ]
+    }
+    result = assert_no_destroys(plan_json)
+    assert len(result) == 2
+    assert "module.ex_other.aws_kms_key.atlas" in result
+    assert "module.ex_other.aws_iam_role.this" in result
 
 
 def test_assert_clean_plan_all_noop():
@@ -274,6 +333,27 @@ def test_assert_clean_plan_known_change_allowed():
         ]
     }
     assert assert_clean_plan(plan_json, _make_example("enc", [kc])) == []
+
+
+def test_assert_import_plan_after_unknown_excluded():
+    kc = models.ImportKnownChange(
+        address="mongodbatlas_encryption_at_rest_private_endpoint.this",
+        actions=["update"],
+        changed_attributes=["timeouts"],
+    )
+    plan_json = {
+        "resource_changes": [
+            _make_rc(
+                "module.ex_enc.mongodbatlas_encryption_at_rest_private_endpoint.this",
+                ["update"],
+                importing=True,
+                before={"status": "ACTIVE", "id": "abc"},
+                after={"status": None, "id": None, "timeouts": {"create": "30m"}},
+                after_unknown={"status": True, "id": True},
+            ),
+        ]
+    }
+    assert assert_import_plan(plan_json, _make_example("enc", [kc])) == []
 
 
 def test_extract_import_id_missing_attribute():

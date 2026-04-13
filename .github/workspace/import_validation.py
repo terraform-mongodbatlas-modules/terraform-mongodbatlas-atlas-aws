@@ -123,26 +123,17 @@ def assert_import_plan(
         actions = change.get("actions", [])
         importing = "importing" in rc
 
-        if actions == ["no-op"]:
+        if actions == ["no-op"] or actions == ["read"]:
             continue
 
         if "create" in actions or "delete" in actions:
             failures.append(f"{rel_addr}: unexpected actions {actions}")
             continue
 
-        if importing:
-            known = example.import_validation.find_known_change(rel_addr)
-            if not known:
-                changed = _diff_attributes(change)
-                failures.append(
-                    f"{rel_addr}: import drift (actions: {actions}, "
-                    f"changed: {sorted(changed)}) not in known_changes"
-                )
-                continue
+        if known := example.import_validation.find_known_change(rel_addr):
             if actions != known.actions:
                 failures.append(f"{rel_addr}: expected actions {known.actions}, got {actions}")
-                continue
-            if known.changed_attributes:
+            elif known.changed_attributes:
                 changed = _diff_attributes(change)
                 if changed != set(known.changed_attributes):
                     expected = sorted(known.changed_attributes)
@@ -151,9 +142,25 @@ def assert_import_plan(
                     )
             continue
 
+        if importing:
+            changed = _diff_attributes(change)
+            failures.append(
+                f"{rel_addr}: import drift (actions: {actions}, "
+                f"changed: {sorted(changed)}) not in known_changes"
+            )
+            continue
+
         failures.append(f"{rel_addr}: non-import change with actions {actions}")
 
     return failures
+
+
+def assert_no_destroys(plan_json: dict[str, Any]) -> list[str]:
+    return [
+        rc.get("address", "?")
+        for rc in plan_json.get("resource_changes", [])
+        if "delete" in rc.get("change", {}).get("actions", [])
+    ]
 
 
 def assert_clean_plan(plan_json: dict[str, Any], example: models.Example) -> list[str]:
@@ -167,7 +174,7 @@ def assert_clean_plan(plan_json: dict[str, Any], example: models.Example) -> lis
         change = rc.get("change", {})
         actions = change.get("actions", [])
 
-        if actions == ["no-op"]:
+        if actions == ["no-op"] or actions == ["read"]:
             continue
 
         if known := example.import_validation.find_known_change(rel_addr):
@@ -187,10 +194,17 @@ def assert_clean_plan(plan_json: dict[str, Any], example: models.Example) -> lis
 
 
 def _diff_attributes(change: dict[str, Any]) -> set[str]:
+    """Return attribute names that differ between before and after.
+
+    Attributes marked as after_unknown (shown as 'known after apply' in
+    terraform plan) are excluded because their concrete value is not
+    available at plan time.
+    """
     before = change.get("before", {}) or {}
     after = change.get("after", {}) or {}
+    after_unknown = change.get("after_unknown", {}) or {}
     all_keys = set(before) | set(after)
-    return {k for k in all_keys if before.get(k) != after.get(k)}
+    return {k for k in all_keys if before.get(k) != after.get(k) and not after_unknown.get(k)}
 
 
 def process_workspace(
@@ -262,6 +276,19 @@ def process_workspace(
                     typer.echo(f"  FAIL: {ex.identifier}: {f}", err=True)
             else:
                 typer.echo(f"  PASS: {ex.identifier}")
+
+        destroy_addrs = assert_no_destroys(plan_data)
+        if destroy_addrs:
+            for addr in destroy_addrs:
+                typer.echo(f"  DESTROY: {addr}", err=True)
+            all_failures.append(
+                f"Plan includes {len(destroy_addrs)} destroy action(s). "
+                "Refusing to apply. Ensure all examples are included or state is clean."
+            )
+
+        if all_failures:
+            typer.echo(f"Import validation FAILED ({len(all_failures)} failures)", err=True)
+            raise typer.Exit(1)
 
         plan.run_terraform_apply_plan(ws_dir)
         imports_tf.unlink(missing_ok=True)
