@@ -27,7 +27,9 @@ variable "cloud_provider_access" {
       Subsumes `log_integration.kms_key_skip_iam_policy` when `true`.
       Only affects the shared CPA role. Dedicated roles (`iam_role.create = true`
       on encryption, backup_export, or log_integration) always attach policies.
-      Requires all features to use BYO resources. The module validates this constraint.
+      Features using the shared CPA role must use BYO resources; features using
+      dedicated IAM roles may still use module-managed resources. The module
+      validates this constraint.
     - `iam_role_name`: Custom name for the IAM role (default: atlas-{project_id_suffix}-{purpose})
     - `iam_role_path`: IAM role path (default: /)
     - `iam_role_permissions_boundary`: ARN of permissions boundary policy
@@ -44,17 +46,17 @@ variable "cloud_provider_access" {
   }
 
   validation {
-    condition     = !var.cloud_provider_access.skip_iam_policy_attachments || !try(var.encryption.create_kms_key.enabled, false) || try(var.encryption.iam_role.create, false)
+    condition     = !var.cloud_provider_access.skip_iam_policy_attachments || !try(var.encryption.enabled, false) || !try(var.encryption.create_kms_key.enabled, false) || try(var.encryption.iam_role.create, false)
     error_message = "skip_iam_policy_attachments = true requires BYO KMS key (kms_key_arn) or a dedicated encryption IAM role (encryption.iam_role.create = true)."
   }
 
   validation {
-    condition     = !var.cloud_provider_access.skip_iam_policy_attachments || !try(var.backup_export.create_s3_bucket.enabled, false) || try(var.backup_export.iam_role.create, false)
+    condition     = !var.cloud_provider_access.skip_iam_policy_attachments || !try(var.backup_export.enabled, false) || !try(var.backup_export.create_s3_bucket.enabled, false) || try(var.backup_export.iam_role.create, false)
     error_message = "skip_iam_policy_attachments = true requires BYO S3 bucket (bucket_name) or a dedicated backup IAM role (backup_export.iam_role.create = true)."
   }
 
   validation {
-    condition     = !var.cloud_provider_access.skip_iam_policy_attachments || !try(var.log_integration.create_s3_bucket.enabled, false) || try(var.log_integration.iam_role.create, false)
+    condition     = !var.cloud_provider_access.skip_iam_policy_attachments || !try(var.log_integration.enabled, false) || !try(var.log_integration.create_s3_bucket.enabled, false) || try(var.log_integration.iam_role.create, false)
     error_message = "skip_iam_policy_attachments = true requires BYO S3 bucket (bucket_name) or a dedicated log IAM role (log_integration.iam_role.create = true)."
   }
 }

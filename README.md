@@ -244,7 +244,9 @@ Cloud provider access configuration for Atlas-AWS integration.
   Subsumes `log_integration.kms_key_skip_iam_policy` when `true`.
   Only affects the shared CPA role. Dedicated roles (`iam_role.create = true`
   on encryption, backup_export, or log_integration) always attach policies.
-  Requires all features to use BYO resources. The module validates this constraint.
+  Features using the shared CPA role must use BYO resources; features using
+  dedicated IAM roles may still use module-managed resources. The module
+  validates this constraint.
 - `iam_role_name`: Custom name for the IAM role (default: atlas-{project_id_suffix}-{purpose})
 - `iam_role_path`: IAM role path (default: /)
 - `iam_role_permissions_boundary`: ARN of permissions boundary policy
