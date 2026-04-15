@@ -77,7 +77,7 @@ variable "org_id" {
 }
 
 resource "mongodbatlas_project" "this" {
-  name   = "cluster-module"
+  name   = "atlas-aws"
   org_id = var.org_id
 }
 ```
@@ -178,7 +178,8 @@ Private Link | [AWS PrivateLink Endpoint](./examples/privatelink)
 Private Link | [AWS PrivateLink Multi-Region](./examples/privatelink_multi_region)
 Private Link | [AWS PrivateLink BYOE](./examples/privatelink_byoe)
 Backup Export | [S3 Bucket Export](./examples/backup_export)
-BYO Role | [Read-Only AWS (BYO CPA + KMS + S3)](./examples/byo_role)
+BYO Role | [AWS Read Only](./examples/aws_read_only)
+Log Integration | [S3 Log Export](./examples/log_integration)
 
 <!-- END_TABLES -->
 <!-- BEGIN_TF_DOCS -->
@@ -227,13 +228,55 @@ Type: `string`
 
 ## AWS Cloud Provider Access & IAM Policy
 
-Configure the AWS IAM role used by MongoDB Atlas. See the [AWS cloud provider access documentation](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/) for details. For least-privilege IAM permissions per feature, see [IAM Permissions Reference](./docs/iam-permissions.md).
+Atlas uses AWS IAM roles to access customer cloud resources (KMS keys, S3 buckets) without long-lived credentials. Cloud Provider Access (CPA) establishes trust between an Atlas project and an AWS IAM role. The module supports creating a shared role (`create = true`) or using an existing role (`create = false`).
 
-_No variables in this section yet._
+See the [CPA documentation](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/) for details.
+
+For least-privilege IAM permissions per feature, see [IAM Permissions Reference](./docs/iam-permissions.md).
+
+### cloud_provider_access
+
+Cloud provider access configuration for Atlas-AWS integration.
+
+- `create = true` (default): Creates a shared IAM role and Atlas authorization
+- `create = false`: Use existing role via `existing.role_id` and `existing.iam_role_arn`
+- `skip_iam_policy_attachments = true`: Skips all `aws_iam_role_policy` resources
+  in encryption, backup_export, and log_integration submodules. IAM policies must
+  be pre-attached to the role externally. Requires `create = false`.
+  Subsumes `log_integration.kms_key_skip_iam_policy` when `true`.
+  Only affects the shared CPA role. Dedicated roles (`iam_role.create = true`
+  on encryption, backup_export, or log_integration) always attach policies.
+  Features using the shared CPA role must use BYO resources; features using
+  dedicated IAM roles may still use module-managed resources. The module
+  validates this constraint.
+- `iam_role_name`: Custom name for the IAM role (default: atlas-{project_id_suffix}-{purpose})
+- `iam_role_path`: IAM role path (default: /)
+- `iam_role_permissions_boundary`: ARN of permissions boundary policy
+
+Type:
+
+```hcl
+object({
+  create = optional(bool, true)
+  existing = optional(object({
+    role_id      = string
+    iam_role_arn = string
+  }))
+  skip_iam_policy_attachments   = optional(bool, false)
+  iam_role_name                 = optional(string)
+  iam_role_path                 = optional(string, "/")
+  iam_role_permissions_boundary = optional(string)
+})
+```
+
+Default: `{}`
+
 
 ## Encryption at Rest
 
-Configure encryption at rest using AWS KMS. See the [AWS encryption documentation](https://www.mongodb.com/docs/atlas/security-aws-kms/) for details.
+Customer-managed encryption ensures only the customer's KMS key can decrypt data at rest, meeting compliance requirements (SOC 2, HIPAA, PCI DSS). The module supports BYO KMS key (`kms_key_arn`) or module-managed key (`create_kms_key.enabled = true`).
+
+See the [encryption at rest documentation](https://www.mongodb.com/docs/atlas/security-aws-kms/) for details.
 
 ### encryption
 
@@ -283,7 +326,9 @@ Default: `{}`
 
 ## Private Link
 
-Configure AWS PrivateLink endpoints for secure connectivity. See the [AWS PrivateLink documentation](https://www.mongodb.com/docs/atlas/security-private-endpoint/) for details.
+PrivateLink keeps traffic between application VPCs and Atlas on the AWS backbone, avoiding the public internet. Required by security policies in regulated industries.
+
+See the [PrivateLink documentation](https://www.mongodb.com/docs/atlas/security-private-endpoint/) for details.
 
 ### privatelink_endpoints
 
@@ -328,7 +373,9 @@ Default: `{}`
 
 ## Backup Export
 
-Configure backup snapshot export to AWS S3.
+Backup export copies Atlas Cloud Backup snapshots to an S3 bucket the customer controls, providing an independent recovery path outside Atlas and meeting data residency or retention requirements. The module supports BYO bucket (`bucket_name`) or module-managed bucket (`create_s3_bucket.enabled = true`).
+
+See the [backup export documentation](https://www.mongodb.com/docs/atlas/backup/cloud-backup/export/) for details.
 
 ### backup_export
 
@@ -387,7 +434,11 @@ Default: `{}`
 
 ## Log Integration
 
-Configure Atlas log export to AWS S3 buckets. Supports multiple integrations per project and optional per-integration bucket overrides in addition to a required default bucket. See the [export logs to AWS S3 documentation](https://www.mongodb.com/docs/atlas/export-logs-external-sinks/) for details.
+Log integration exports Atlas operational and audit logs to S3 at 1-minute intervals, feeding existing SIEM/observability pipelines without polling the Atlas API. The module supports BYO bucket (`bucket_name`) or module-managed bucket (`create_s3_bucket.enabled = true`), with optional per-integration bucket overrides.
+
+See the [log export documentation](https://www.mongodb.com/docs/atlas/export-logs-external-sinks/) for details.
+
+Reordering entries in the `integrations` list can cause a brief delivery gap (~1 min) but no data loss.
 
 ### log_integration
 
@@ -473,43 +524,6 @@ Default: `{}`
 Tags to apply to all AWS resources created by this module.
 
 Type: `map(string)`
-
-Default: `{}`
-
-### cloud_provider_access
-
-Cloud provider access configuration for Atlas-AWS integration.
-
-- `create = true` (default): Creates a shared IAM role and Atlas authorization
-- `create = false`: Use existing role via `existing.role_id` and `existing.iam_role_arn`
-- `skip_iam_policy_attachments = true`: Skips all `aws_iam_role_policy` resources
-  in encryption, backup_export, and log_integration submodules. IAM policies must
-  be pre-attached to the role externally. Requires `create = false`.
-  Subsumes `log_integration.kms_key_skip_iam_policy` when `true`.
-  Only affects the shared CPA role. Dedicated roles (`iam_role.create = true`
-  on encryption, backup_export, or log_integration) always attach policies.
-  Note: when combined with module-managed resources (`create_kms_key.enabled`
-  or `create_s3_bucket.enabled`), the module creates those resources without
-  attaching IAM policies. Use dedicated roles or BYO resources instead.
-- `iam_role_name`: Custom name for the IAM role (default: atlas-{project_id_suffix}-{purpose})
-- `iam_role_path`: IAM role path (default: /)
-- `iam_role_permissions_boundary`: ARN of permissions boundary policy
-
-Type:
-
-```hcl
-object({
-  create = optional(bool, true)
-  existing = optional(object({
-    role_id      = string
-    iam_role_arn = string
-  }))
-  skip_iam_policy_attachments   = optional(bool, false)
-  iam_role_name                 = optional(string)
-  iam_role_path                 = optional(string, "/")
-  iam_role_permissions_boundary = optional(string)
-})
-```
 
 Default: `{}`
 

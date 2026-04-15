@@ -3,7 +3,7 @@ WARNING: This file is auto-generated. Do not edit directly.
 Changes will be overwritten when documentation is regenerated.
 Run 'just gen-examples' to regenerate.
 -->
-# Read-Only AWS (BYO CPA + KMS + S3)
+# AWS Read Only
 
 <!-- BEGIN_GETTING_STARTED -->
 ## Prerequisites
@@ -41,7 +41,7 @@ variable "org_id" {
 }
 
 resource "mongodbatlas_project" "this" {
-  name   = "cluster-module"
+  name   = "atlas-aws"
   org_id = var.org_id
 }
 ```

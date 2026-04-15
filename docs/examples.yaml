@@ -41,6 +41,9 @@ tables:
     - folder_name: backup_export
       feature: Backup Export
       name: S3 Bucket Export
-    - folder_name: byo_role
+    - folder_name: aws_read_only
       feature: BYO Role
-      name: Read-Only AWS (BYO CPA + KMS + S3)
+      name: AWS Read Only
+    - folder_name: log_integration
+      feature: Log Integration
+      name: S3 Log Export
