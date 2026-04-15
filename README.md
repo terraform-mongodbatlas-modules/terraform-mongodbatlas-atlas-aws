@@ -15,7 +15,7 @@ Run 'just gen-readme' to regenerate. -->
 - [Providers](#providers)
 - [Resources](#resources)
 - [Required Variables](#required-variables)
-- [AWS Cloud Provider Access & IAM Policy](#aws-cloud-provider-access-iam-policy)
+- [AWS Cloud Provider Access & IAM Policy](#aws-cloud-provider-access--iam-policy)
 - [Encryption at Rest](#encryption-at-rest)
 - [Private Link](#private-link)
 - [Backup Export](#backup-export)
