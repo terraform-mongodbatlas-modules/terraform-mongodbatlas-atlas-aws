@@ -230,7 +230,9 @@ Type: `string`
 
 Atlas uses AWS IAM roles to access customer cloud resources (KMS keys, S3 buckets) without long-lived credentials. Cloud Provider Access (CPA) establishes trust between an Atlas project and an AWS IAM role. The module supports creating a shared role (`create = true`) or using an existing role (`create = false`).
 
-See the [CPA documentation](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/) for details. For least-privilege IAM permissions per feature, see [IAM Permissions Reference](./docs/iam-permissions.md).
+See the [CPA documentation](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/) for details.
+
+For least-privilege IAM permissions per feature, see [IAM Permissions Reference](./docs/iam-permissions.md).
 
 ### cloud_provider_access
 
