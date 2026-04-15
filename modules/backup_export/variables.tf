@@ -76,6 +76,16 @@ variable "create_s3_bucket" {
   }
 
   validation {
+    condition     = try(var.create_s3_bucket.name, null) == null || !strcontains(var.create_s3_bucket.name, ".")
+    error_message = "name must not contain dot (.) characters. Dots in S3 bucket names are incompatible with virtual-hosted-style addressing required by Data Exfil Prevention."
+  }
+
+  validation {
+    condition     = try(var.create_s3_bucket.name_prefix, null) == null || !strcontains(var.create_s3_bucket.name_prefix, ".")
+    error_message = "name_prefix must not contain dot (.) characters. Dots in S3 bucket names are incompatible with virtual-hosted-style addressing required by Data Exfil Prevention."
+  }
+
+  validation {
     condition     = var.create_s3_bucket.expiration_days >= 0 && floor(var.create_s3_bucket.expiration_days) == var.create_s3_bucket.expiration_days
     error_message = "expiration_days must be a non-negative whole number. Use 0 to disable the lifecycle rule."
   }

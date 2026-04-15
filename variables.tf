@@ -19,18 +19,29 @@ variable "cloud_provider_access" {
   description = <<-EOT
     Cloud provider access configuration for Atlas-AWS integration.
 
-    - `create = true` (default): Creates a shared IAM role and Atlas authorization
-    - `create = false`: Use existing role via `existing.role_id` and `existing.iam_role_arn`
-    - `skip_iam_policy_attachments = true`: Skips all `aws_iam_role_policy` resources
-      in encryption, backup_export, and log_integration submodules. IAM policies must
-      be pre-attached to the role externally. Requires `create = false`.
-      Subsumes `log_integration.kms_key_skip_iam_policy` when `true`.
-      Only affects the shared CPA role. Dedicated roles (`iam_role.create = true`
+    **CPA operates in three modes:**
+
+    1. `create = true` (default): Full module management. The module creates the
+       AWS IAM role, the Atlas CPA setup and authorization, and attaches all IAM
+       policies (s3:PutObject for backup/logs, KMS permissions for encryption).
+    2. `create = false` + `existing`: BYO role. The module skips IAM role and
+       Atlas CPA creation, uses the pre-existing `role_id` and `iam_role_arn`.
+       The module still attaches IAM policies to the existing role.
+    3. `create = false` + `skip_iam_policy_attachments = true` + `existing`:
+       Read-only AWS mode. The module only creates Atlas-side resources. No IAM
+       role creation, no IAM policy attachments. The IAM administrator must
+       pre-attach all required policies externally.
+
+    **Scope of `skip_iam_policy_attachments`:**
+    - Applies only to the shared CPA role. Dedicated roles (`iam_role.create = true`
       on encryption, backup_export, or log_integration) always attach policies.
-      Features using the shared CPA role must use BYO resources; features using
-      dedicated IAM roles may still use module-managed resources. The module
-      validates this constraint.
-    - `iam_role_name`: Custom name for the IAM role (default: atlas-{project_id_suffix}-{purpose})
+    - Features using the shared CPA role must use BYO resources; features using
+      dedicated IAM roles may still use module-managed resources.
+    - Subsumes `log_integration.kms_key_skip_iam_policy` when `true`.
+    - The module validates these constraints.
+
+    **IAM role options (mode 1 only):**
+    - `iam_role_name`: Custom name (default: atlas-{project_id_suffix}-{purpose})
     - `iam_role_path`: IAM role path (default: /)
     - `iam_role_permissions_boundary`: ARN of permissions boundary policy
   EOT
@@ -270,6 +281,16 @@ variable "backup_export" {
   }
 
   validation {
+    condition     = try(var.backup_export.create_s3_bucket.name, null) == null || !strcontains(var.backup_export.create_s3_bucket.name, ".")
+    error_message = "create_s3_bucket.name must not contain dot (.) characters. Dots in S3 bucket names are incompatible with virtual-hosted-style addressing required by Data Exfil Prevention."
+  }
+
+  validation {
+    condition     = try(var.backup_export.create_s3_bucket.name_prefix, null) == null || !strcontains(var.backup_export.create_s3_bucket.name_prefix, ".")
+    error_message = "create_s3_bucket.name_prefix must not contain dot (.) characters. Dots in S3 bucket names are incompatible with virtual-hosted-style addressing required by Data Exfil Prevention."
+  }
+
+  validation {
     condition     = var.backup_export.create_s3_bucket.expiration_days >= 0 && floor(var.backup_export.create_s3_bucket.expiration_days) == var.backup_export.create_s3_bucket.expiration_days
     error_message = "expiration_days must be a non-negative whole number. Use 0 to disable the lifecycle rule."
   }
@@ -369,6 +390,16 @@ variable "log_integration" {
   validation {
     condition     = try(length(var.log_integration.create_s3_bucket.name_prefix), 0) <= 37
     error_message = "create_s3_bucket.name_prefix must be 37 characters or less. S3 bucket names are limited to 63 characters and Terraform adds a 26-character random suffix."
+  }
+
+  validation {
+    condition     = try(var.log_integration.create_s3_bucket.name, null) == null || !strcontains(var.log_integration.create_s3_bucket.name, ".")
+    error_message = "create_s3_bucket.name must not contain dot (.) characters. Dots in S3 bucket names are incompatible with virtual-hosted-style addressing required by Data Exfil Prevention."
+  }
+
+  validation {
+    condition     = try(var.log_integration.create_s3_bucket.name_prefix, null) == null || !strcontains(var.log_integration.create_s3_bucket.name_prefix, ".")
+    error_message = "create_s3_bucket.name_prefix must not contain dot (.) characters. Dots in S3 bucket names are incompatible with virtual-hosted-style addressing required by Data Exfil Prevention."
   }
 
   validation {
