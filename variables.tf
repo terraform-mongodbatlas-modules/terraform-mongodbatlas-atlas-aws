@@ -164,20 +164,22 @@ variable "privatelink_endpoints" {
     error_message = "All regions in privatelink_endpoints must be unique. Use privatelink_endpoints_single_region for multiple endpoints in the same region."
   }
 
+  # Ternary guards null service_region; Terraform < 1.12 does not short-circuit || in validations.
   validation {
     condition = alltrue([
       for ep in var.privatelink_endpoints :
-      ep.service_region == null || lower(replace(ep.service_region, "_", "-")) != lower(replace(ep.region, "_", "-"))
+      ep.service_region != null ? lower(replace(ep.service_region, "_", "-")) != lower(replace(ep.region, "_", "-")) : true
     ])
     error_message = "service_region must differ from region (cross-region only)."
   }
 
   validation {
     condition = alltrue([
-      for ep in var.privatelink_endpoints : ep.service_region == null || contains(
+      for ep in var.privatelink_endpoints :
+      ep.service_region != null ? contains(
         [for other in var.privatelink_endpoints : lower(replace(other.region, "_", "-")) if other.service_region == null],
         lower(replace(ep.service_region, "_", "-"))
-      )
+      ) : true
     ])
     error_message = "service_region must match a region from another primary entry (without service_region)."
   }
