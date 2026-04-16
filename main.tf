@@ -175,6 +175,18 @@ resource "mongodbatlas_privatelink_endpoint" "this" {
   }
 }
 
+data "aws_subnet" "privatelink" {
+  for_each = { for k, v in local.privatelink_module_managed : k => v.subnet_ids[0] }
+  id       = each.value
+  region   = local._privatelink_aws_region[each.key]
+}
+
+data "aws_vpc" "privatelink" {
+  for_each = data.aws_subnet.privatelink
+  id       = each.value.vpc_id
+  region   = local._privatelink_aws_region[each.key]
+}
+
 module "privatelink" {
   source   = "./modules/privatelink"
   for_each = local.privatelink_module_calls
@@ -190,6 +202,8 @@ module "privatelink" {
     subnet_ids = each.value.subnet_ids
   }
   byo_vpc_endpoint_id = try(var.privatelink_byoe[each.key].vpc_endpoint_id, null)
+  vpc_id              = try(data.aws_subnet.privatelink[each.key].vpc_id, null)
+  vpc_cidr_block      = try(data.aws_vpc.privatelink[each.key].cidr_block, null)
 
   security_group = {
     ids                 = try(each.value.security_group.ids, null)
