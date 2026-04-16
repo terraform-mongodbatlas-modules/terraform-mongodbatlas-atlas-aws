@@ -1,0 +1,7 @@
+description: MongoDB Atlas PrivateLink
+name_prefix: atlas-privatelink-
+region: us-west-2
+revoke_rules_on_delete: false
+timeouts:
+  create: 30m
+  delete: 30m
