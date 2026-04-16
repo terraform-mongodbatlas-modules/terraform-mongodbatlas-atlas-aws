@@ -90,7 +90,7 @@ locals {
     for k in keys(local.privatelink_primary_map) :
     k => [
       for ep in var.privatelink_endpoints :
-      lower(replace(ep.region, "_", "-"))
+      upper(replace(ep.region, "-", "_"))
       if ep.service_region != null && lower(replace(ep.service_region, "_", "-")) == k
     ]
   }

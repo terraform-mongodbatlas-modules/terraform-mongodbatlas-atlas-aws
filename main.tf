@@ -163,7 +163,7 @@ resource "mongodbatlas_privatelink_endpoint" "this" {
   for_each                 = local.privatelink_atlas_endpoints
   project_id               = var.project_id
   provider_name            = "AWS"
-  region                   = local._privatelink_aws_region[each.key]
+  region                   = local._privatelink_aws_region[each.key] # uses Atlas region format (US_EAST_1)
   supported_remote_regions = try(local._privatelink_supported_remote_regions[each.key], [])
 
   dynamic "timeouts" {
