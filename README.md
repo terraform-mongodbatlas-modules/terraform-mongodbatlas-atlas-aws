@@ -346,12 +346,22 @@ See the [PrivateLink documentation](https://www.mongodb.com/docs/atlas/security-
 Multi-region PrivateLink endpoints. Region accepts us-east-1 or US_EAST_1 format. All regions must be UNIQUE.
 See [Port ranges used for private endpoints](https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints) for port range details.
 
+**Cross-region PrivateLink:**
+Set `service_region` to create a VPC endpoint in `region` that connects to the
+Atlas endpoint service in `service_region` via AWS cross-region PrivateLink.
+`service_region` must match a `region` from another primary entry (without `service_region`).
+Entries without `service_region` create the Atlas-side `mongodbatlas_privatelink_endpoint`.
+Entries with `service_region` only create the AWS-side VPC endpoint and Atlas service linkage.
+`mongodbatlas_private_endpoint_regional_mode` is only enabled when there are multiple
+distinct Atlas service regions (not counting cross-region VPC endpoints).
+
 Type:
 
 ```hcl
 list(object({
-  region     = string
-  subnet_ids = list(string)
+  region         = string
+  subnet_ids     = list(string)
+  service_region = optional(string)
   security_group = optional(object({
     ids                 = optional(list(string))
     create              = optional(bool, true)

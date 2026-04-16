@@ -33,6 +33,7 @@ variable "project_ids" {
     privatelink                 = optional(string)
     privatelink_byoe            = optional(string)
     privatelink_multi_region    = optional(string)
+    privatelink_cross_region    = optional(string)
     byo_role                    = optional(string)
   })
   default = {}
@@ -76,6 +77,24 @@ module "vpc_multi_region_us_west_2" {
   vpc_cidr    = "10.13.0.0/16"
   subnet_cidr = "10.13.1.0/24"
   name_prefix = "atlas-pl-multi-usw2-"
+}
+
+# VPC for privatelink_cross_region us-east-1 (primary endpoint)
+module "vpc_cross_region_us_east_1" {
+  source      = "../vpc_generator"
+  region      = "us-east-1"
+  vpc_cidr    = "10.14.0.0/16"
+  subnet_cidr = "10.14.1.0/24"
+  name_prefix = "atlas-pl-xr-use1-"
+}
+
+# VPC for privatelink_cross_region us-west-2 (cross-region VPC endpoint)
+module "vpc_cross_region_us_west_2" {
+  source      = "../vpc_generator"
+  region      = "us-west-2"
+  vpc_cidr    = "10.15.0.0/16"
+  subnet_cidr = "10.15.1.0/24"
+  name_prefix = "atlas-pl-xr-usw2-"
 }
 
 module "byo_cpa" {
@@ -161,6 +180,8 @@ locals {
   project_id_privatelink_byoe = local.project_ids.privatelink_byoe
   # tflint-ignore: terraform_unused_declarations
   project_id_privatelink_multi_region = local.project_ids.privatelink_multi_region
+  # tflint-ignore: terraform_unused_declarations
+  project_id_privatelink_cross_region = local.project_ids.privatelink_cross_region
 
   # Network resources for privatelink examples
   # tflint-ignore: terraform_unused_declarations
@@ -179,6 +200,11 @@ locals {
   subnet_ids_us_east_1 = module.vpc_multi_region_us_east_1.subnet_ids
   # tflint-ignore: terraform_unused_declarations
   subnet_ids_us_west_2 = module.vpc_multi_region_us_west_2.subnet_ids
+
+  # tflint-ignore: terraform_unused_declarations
+  subnet_ids_cross_region_us_east_1 = module.vpc_cross_region_us_east_1.subnet_ids
+  # tflint-ignore: terraform_unused_declarations
+  subnet_ids_cross_region_us_west_2 = module.vpc_cross_region_us_west_2.subnet_ids
 
   # tflint-ignore: terraform_unused_declarations
   project_id_byo_role = local.project_ids.byo_role
