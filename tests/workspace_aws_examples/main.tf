@@ -26,15 +26,16 @@ variable "org_id" {
 
 variable "project_ids" {
   type = object({
-    encryption                  = optional(string)
-    encryption_private_endpoint = optional(string)
-    backup_export               = optional(string)
-    log_integration             = optional(string)
-    privatelink                 = optional(string)
-    privatelink_byoe            = optional(string)
-    privatelink_multi_region    = optional(string)
-    privatelink_cross_region    = optional(string)
-    byo_role                    = optional(string)
+    encryption                    = optional(string)
+    encryption_private_endpoint   = optional(string)
+    backup_export                 = optional(string)
+    log_integration               = optional(string)
+    privatelink                   = optional(string)
+    privatelink_byoe              = optional(string)
+    privatelink_multi_region      = optional(string)
+    privatelink_cross_region      = optional(string)
+    privatelink_byoe_cross_region = optional(string)
+    byo_role                      = optional(string)
   })
   default = {}
 }
@@ -95,6 +96,15 @@ module "vpc_cross_region_us_west_2" {
   vpc_cidr    = "10.15.0.0/16"
   subnet_cidr = "10.15.1.0/24"
   name_prefix = "atlas-pl-xr-usw2-"
+}
+
+# VPC for privatelink_byoe_cross_region us-west-2 (BYOE cross-region VPC endpoint)
+module "vpc_byoe_cross_region_us_west_2" {
+  source      = "../vpc_generator"
+  region      = "us-west-2"
+  vpc_cidr    = "10.16.0.0/16"
+  subnet_cidr = "10.16.1.0/24"
+  name_prefix = "atlas-pl-byoe-xr-usw2-"
 }
 
 module "byo_cpa" {
@@ -205,6 +215,15 @@ locals {
   subnet_ids_cross_region_us_east_1 = module.vpc_cross_region_us_east_1.subnet_ids
   # tflint-ignore: terraform_unused_declarations
   subnet_ids_cross_region_us_west_2 = module.vpc_cross_region_us_west_2.subnet_ids
+
+  # tflint-ignore: terraform_unused_declarations
+  project_id_privatelink_byoe_cross_region = local.project_ids.privatelink_byoe_cross_region
+  # tflint-ignore: terraform_unused_declarations
+  vpc_id_byoe_cross_region = module.vpc_byoe_cross_region_us_west_2.vpc_id
+  # tflint-ignore: terraform_unused_declarations
+  subnet_ids_byoe_cross_region = module.vpc_byoe_cross_region_us_west_2.subnet_ids
+  # tflint-ignore: terraform_unused_declarations
+  security_group_ids_byoe_cross_region = [module.vpc_byoe_cross_region_us_west_2.security_group_id]
 
   # tflint-ignore: terraform_unused_declarations
   project_id_byo_role = local.project_ids.byo_role
