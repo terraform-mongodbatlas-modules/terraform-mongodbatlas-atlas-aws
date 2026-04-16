@@ -1,7 +1,7 @@
-```release-note:enhancement
-variable/backup_export: Adds validation to disallow dot (.) characters in create_s3_bucket.name and create_s3_bucket.name_prefix for Data Exfil Prevention compatibility
+```release-note:breaking-change
+variable/backup_export: Adds validation to disallow dot (.) characters in create_s3_bucket.name and create_s3_bucket.name_prefix for Data Exfil Prevention compatibility. Users with dotted module-managed bucket names must rename before upgrading
 ```
 
-```release-note:enhancement
-variable/log_integration: Adds validation to disallow dot (.) characters in create_s3_bucket.name and create_s3_bucket.name_prefix for Data Exfil Prevention compatibility
+```release-note:breaking-change
+variable/log_integration: Adds validation to disallow dot (.) characters in create_s3_bucket.name and create_s3_bucket.name_prefix for Data Exfil Prevention compatibility. Users with dotted module-managed bucket names must rename before upgrading
 ```
