@@ -20,5 +20,5 @@ terraform {
 
 provider "mongodbatlas" {}
 provider "aws" {
-  region = var.aws_region
+  region = var.app_region
 }

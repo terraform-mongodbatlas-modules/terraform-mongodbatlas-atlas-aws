@@ -3,7 +3,7 @@ WARNING: This file is auto-generated. Do not edit directly.
 Changes will be overwritten when documentation is regenerated.
 Run 'just gen-examples' to regenerate.
 -->
-# Privatelink Byoe Cross Region
+# AWS PrivateLink BYOE Cross-Region
 
 <!-- BEGIN_GETTING_STARTED -->
 ## Prerequisites
@@ -68,14 +68,14 @@ module "atlas_aws" {
   privatelink_byoe_regions = {
     (local.atlas_service) = {
       region                   = var.atlas_service_region
-      supported_remote_regions = [var.remote_region]
+      supported_remote_regions = [var.app_region]
     }
   }
 
   privatelink_byoe = {
     (local.cross_region) = {
       vpc_endpoint_id    = aws_vpc_endpoint.remote.id
-      region             = var.remote_region
+      region             = var.app_region
       service_region_key = local.atlas_service
     }
   }

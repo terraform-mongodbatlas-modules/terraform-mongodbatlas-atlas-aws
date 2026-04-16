@@ -237,6 +237,14 @@ variable "privatelink_byoe_regions" {
     )) == 0
     error_message = "Regions in privatelink_byoe_regions must not overlap with regions in privatelink_endpoints."
   }
+
+  validation {
+    condition = length(setintersection(
+      keys(var.privatelink_byoe_regions),
+      toset([for ep in var.privatelink_endpoints : lower(replace(ep.region, "_", "-"))])
+    )) == 0
+    error_message = "Keys in privatelink_byoe_regions must not match normalized region keys from privatelink_endpoints (would overwrite during merge)."
+  }
 }
 
 variable "privatelink_byoe" {

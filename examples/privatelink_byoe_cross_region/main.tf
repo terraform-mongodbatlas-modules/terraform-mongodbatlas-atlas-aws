@@ -11,14 +11,14 @@ module "atlas_aws" {
   privatelink_byoe_regions = {
     (local.atlas_service) = {
       region                   = var.atlas_service_region
-      supported_remote_regions = [var.remote_region]
+      supported_remote_regions = [var.app_region]
     }
   }
 
   privatelink_byoe = {
     (local.cross_region) = {
       vpc_endpoint_id    = aws_vpc_endpoint.remote.id
-      region             = var.remote_region
+      region             = var.app_region
       service_region_key = local.atlas_service
     }
   }

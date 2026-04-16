@@ -537,6 +537,20 @@ run "privatelink_byoe_key_overlap_validation" {
   expect_failures = [var.privatelink_byoe_regions]
 }
 
+run "privatelink_byoe_key_collides_with_module_managed_key" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    privatelink_endpoints = [
+      { region = "us-east-1", subnet_ids = ["subnet-abc"] }
+    ]
+    privatelink_byoe_regions = {
+      "us-east-1" = { region = "eu-west-1" }
+    }
+  }
+  expect_failures = [var.privatelink_byoe_regions]
+}
+
 run "privatelink_byoe_missing_region" {
   command = plan
   variables {
