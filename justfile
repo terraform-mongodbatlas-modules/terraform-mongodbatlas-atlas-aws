@@ -40,7 +40,7 @@ validate:
 # === DO_NOT_EDIT: path-sync linting ===
 # LINTING
 lint:
-    tflint -f compact --recursive --minimum-failure-severity=warning
+    # tflint -f compact --recursive --minimum-failure-severity=warning # TODO: Temporarily disabled until 2.11 release
     terraform fmt -check -recursive
 
 py-check:

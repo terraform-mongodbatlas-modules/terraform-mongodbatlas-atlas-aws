@@ -25,9 +25,10 @@ jobs:
           just: 'true'
           terraform: 'true'
           docs: 'true'
+          uv: 'true' # needed for setup-provider-dev
       - uses: ./.github/actions/setup-provider-dev # TODO: Remove after 2.11 release
         with:
-          provider-ref: ${{ inputs.provider_ref }}
+          provider-ref: ${{ inputs.provider_ref }}  
       - name: Run all validation checks
         run: just pre-commit
 
@@ -40,6 +41,7 @@ jobs:
         with:
           just: 'true'
           terraform: 'true'
+          uv: 'true' # needed for setup-provider-dev
       - uses: ./.github/actions/setup-provider-dev # TODO: Remove after 2.11 release
         with:
           provider-ref: ${{ inputs.provider_ref }}
