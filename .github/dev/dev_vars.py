@@ -18,6 +18,7 @@ project_ids = {
   privatelink                 = "PROJECT_ID"
   privatelink_byoe            = "PROJECT_ID"
   privatelink_multi_region    = "PROJECT_ID"
+  privatelink_cross_region    = "PROJECT_ID"
   byo_role                    = "PROJECT_ID"
 }
 """
