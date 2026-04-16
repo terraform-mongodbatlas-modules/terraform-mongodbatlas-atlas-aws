@@ -531,7 +531,21 @@ run "privatelink_byoe_key_overlap_validation" {
       { region = "us-east-1", subnet_ids = ["subnet-abc"] }
     ]
     privatelink_byoe_regions = {
-      "us-east-1" = "us-east-1"
+      primary = { region = "us-east-1" }
+    }
+  }
+  expect_failures = [var.privatelink_byoe_regions]
+}
+
+run "privatelink_byoe_key_collides_with_module_managed_key" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    privatelink_endpoints = [
+      { region = "us-east-1", subnet_ids = ["subnet-abc"] }
+    ]
+    privatelink_byoe_regions = {
+      "us-east-1" = { region = "eu-west-1" }
     }
   }
   expect_failures = [var.privatelink_byoe_regions]
@@ -542,7 +556,7 @@ run "privatelink_byoe_missing_region" {
   variables {
     project_id = var.project_id
     privatelink_byoe_regions = {
-      primary = "us-east-1"
+      primary = { region = "us-east-1" }
     }
     privatelink_byoe = {
       secondary = { vpc_endpoint_id = "vpce-abc" }
@@ -663,11 +677,9 @@ run "privatelink_byoe_phase1_atlas_endpoint_created" {
   command = plan
   variables {
     project_id = var.project_id
-    # Phase 1: Only declare BYOE regions, no endpoint IDs yet
     privatelink_byoe_regions = {
-      primary = "us-east-1"
+      primary = { region = "us-east-1" }
     }
-    # privatelink_byoe is NOT provided - waiting for endpoint_service_name
   }
   assert {
     condition     = length(mongodbatlas_privatelink_endpoint.this) == 1
@@ -687,9 +699,8 @@ run "privatelink_byoe_phase2_with_endpoint" {
   command = plan
   variables {
     project_id = var.project_id
-    # Phase 2: Provide both regions and endpoint IDs
     privatelink_byoe_regions = {
-      primary = "us-east-1"
+      primary = { region = "us-east-1" }
     }
     privatelink_byoe = {
       primary = { vpc_endpoint_id = "vpce-0123456789abcdef0" }
@@ -714,8 +725,8 @@ run "privatelink_byoe_multi_region_phase2" {
   variables {
     project_id = var.project_id
     privatelink_byoe_regions = {
-      primary   = "us-east-1"
-      secondary = "eu-west-1"
+      primary   = { region = "us-east-1" }
+      secondary = { region = "eu-west-1" }
     }
     privatelink_byoe = {
       primary   = { vpc_endpoint_id = "vpce-0123456789abcdef0" }
@@ -818,7 +829,7 @@ run "privatelink_byoe_key_overlap_normalized" {
       { region = "US_EAST_1", subnet_ids = ["subnet-abc"] }
     ]
     privatelink_byoe_regions = {
-      "us-east-1" = "us-east-1"
+      primary = { region = "us-east-1" }
     }
   }
   expect_failures = [var.privatelink_byoe_regions]

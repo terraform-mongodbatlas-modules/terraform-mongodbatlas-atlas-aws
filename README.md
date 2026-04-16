@@ -177,6 +177,8 @@ Encryption at Rest | [AWS KMS Integration with Private Endpoint](./examples/encr
 Private Link | [AWS PrivateLink Endpoint](./examples/privatelink)
 Private Link | [AWS PrivateLink Multi-Region](./examples/privatelink_multi_region)
 Private Link | [AWS PrivateLink BYOE](./examples/privatelink_byoe)
+Private Link | [AWS PrivateLink Cross-Region](./examples/privatelink_cross_region)
+Private Link | [AWS PrivateLink BYOE Cross-Region](./examples/privatelink_byoe_cross_region)
 Backup Export | [S3 Bucket Export](./examples/backup_export)
 BYO Role | [AWS Read Only](./examples/aws_read_only)
 Log Integration | [S3 Log Export](./examples/log_integration)
@@ -381,15 +383,38 @@ list(object({
 
 Default: `[]`
 
-### privatelink_byoe
+### privatelink_byoe_regions
 
-BYOE Phase 2: Key must exist in `privatelink_byoe_regions`.
+BYOE Phase 1: Create Atlas PrivateLink endpoint services.
+Key is a user-defined identifier, `region` is the Atlas service region (us-east-1 or US_EAST_1).
+Set `supported_remote_regions` to AWS regions that can connect cross-region.
+The module normalizes to Atlas format internally.
 
 Type:
 
 ```hcl
 map(object({
-  vpc_endpoint_id = string
+  region                   = string
+  supported_remote_regions = optional(set(string), [])
+}))
+```
+
+Default: `{}`
+
+### privatelink_byoe
+
+BYOE Phase 2: Link user-managed VPC endpoints to Atlas PrivateLink services.
+Same-region: key must exist in `privatelink_byoe_regions`.
+Cross-region: set `service_region_key` to reference a `privatelink_byoe_regions` entry
+and `region` to the AWS region where the VPC endpoint lives.
+
+Type:
+
+```hcl
+map(object({
+  vpc_endpoint_id    = string
+  region             = optional(string)
+  service_region_key = optional(string)
 }))
 ```
 
@@ -547,14 +572,6 @@ Default: `{}`
 ### aws_tags
 
 Tags to apply to all AWS resources created by this module.
-
-Type: `map(string)`
-
-Default: `{}`
-
-### privatelink_byoe_regions
-
-BYOE Phase 1: Key is user identifier, value is region (us-east-1 or US_EAST_1).
 
 Type: `map(string)`
 

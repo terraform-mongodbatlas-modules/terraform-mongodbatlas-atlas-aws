@@ -44,7 +44,7 @@ sections:
     match:
       names:
         - privatelink_endpoints
-        - privatelink_byoe_locations
+        - privatelink_byoe_regions
         - privatelink_byoe
 
   - id: backup
