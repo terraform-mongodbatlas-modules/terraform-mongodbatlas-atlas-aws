@@ -238,18 +238,29 @@ For least-privilege IAM permissions per feature, see [IAM Permissions Reference]
 
 Cloud provider access configuration for Atlas-AWS integration.
 
-- `create = true` (default): Creates a shared IAM role and Atlas authorization
-- `create = false`: Use existing role via `existing.role_id` and `existing.iam_role_arn`
-- `skip_iam_policy_attachments = true`: Skips all `aws_iam_role_policy` resources
-  in encryption, backup_export, and log_integration submodules. IAM policies must
-  be pre-attached to the role externally. Requires `create = false`.
-  Subsumes `log_integration.kms_key_skip_iam_policy` when `true`.
-  Only affects the shared CPA role. Dedicated roles (`iam_role.create = true`
+**CPA operates in three modes:**
+
+1. `create = true` (default): Full module management. The module creates the
+   AWS IAM role, the Atlas CPA setup and authorization, and attaches all IAM
+   policies (s3:PutObject for backup/logs, KMS permissions for encryption).
+2. `create = false` + `existing`: BYO role. The module skips IAM role and
+   Atlas CPA creation, uses the pre-existing `role_id` and `iam_role_arn`.
+   The module still attaches IAM policies to the existing role.
+3. `create = false` + `skip_iam_policy_attachments = true` + `existing`:
+   Read-only AWS mode. The module only creates Atlas-side resources. No IAM
+   role creation, no IAM policy attachments. The IAM administrator must
+   pre-attach all required policies externally.
+
+**Scope of `skip_iam_policy_attachments`:**
+- Applies only to the shared CPA role. Dedicated roles (`iam_role.create = true`
   on encryption, backup_export, or log_integration) always attach policies.
-  Features using the shared CPA role must use BYO resources; features using
-  dedicated IAM roles may still use module-managed resources. The module
-  validates this constraint.
-- `iam_role_name`: Custom name for the IAM role (default: atlas-{project_id_suffix}-{purpose})
+- Features using the shared CPA role must use BYO resources; features using
+  dedicated IAM roles may still use module-managed resources.
+- Subsumes `log_integration.kms_key_skip_iam_policy` when `true`.
+- The module validates these constraints.
+
+**IAM role options (mode 1 only):**
+- `iam_role_name`: Custom name (default: atlas-{project_id_suffix}-{purpose})
 - `iam_role_path`: IAM role path (default: /)
 - `iam_role_permissions_boundary`: ARN of permissions boundary policy
 

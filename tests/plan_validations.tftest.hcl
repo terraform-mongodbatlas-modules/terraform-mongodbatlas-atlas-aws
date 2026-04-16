@@ -469,6 +469,30 @@ run "backup_export_name_and_prefix_conflict" {
   expect_failures = [var.backup_export]
 }
 
+run "backup_export_name_contains_dot" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    backup_export = {
+      enabled          = true
+      create_s3_bucket = { enabled = true, name = "my.dotted.bucket" }
+    }
+  }
+  expect_failures = [var.backup_export]
+}
+
+run "backup_export_name_prefix_contains_dot" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    backup_export = {
+      enabled          = true
+      create_s3_bucket = { enabled = true, name_prefix = "my.prefix." }
+    }
+  }
+  expect_failures = [var.backup_export]
+}
+
 run "backup_export_negative_expiration_days" {
   command = plan
   variables {
@@ -866,6 +890,32 @@ run "log_integration_name_and_prefix_conflict" {
     log_integration = {
       enabled          = true
       create_s3_bucket = { enabled = true, name = "my-bucket", name_prefix = "my-prefix-" }
+      integrations     = [{ log_types = ["MONGOD"], prefix_path = "test" }]
+    }
+  }
+  expect_failures = [var.log_integration]
+}
+
+run "log_integration_name_contains_dot" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    log_integration = {
+      enabled          = true
+      create_s3_bucket = { enabled = true, name = "log.bucket.name" }
+      integrations     = [{ log_types = ["MONGOD"], prefix_path = "test" }]
+    }
+  }
+  expect_failures = [var.log_integration]
+}
+
+run "log_integration_name_prefix_contains_dot" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    log_integration = {
+      enabled          = true
+      create_s3_bucket = { enabled = true, name_prefix = "log.prefix." }
       integrations     = [{ log_types = ["MONGOD"], prefix_path = "test" }]
     }
   }
