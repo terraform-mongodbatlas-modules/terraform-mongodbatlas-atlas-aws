@@ -52,6 +52,29 @@ run "privatelink_cross_region_valid" {
   }
 }
 
+run "privatelink_cross_region_atlas_format" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    privatelink_endpoints = [
+      { region = "US_EAST_1", subnet_ids = ["subnet-abc"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } },
+      { region = "US_WEST_2", subnet_ids = ["subnet-def"], service_region = "US_EAST_1", security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } }
+    ]
+  }
+  assert {
+    condition     = output.regional_mode_enabled == false
+    error_message = "Expected regional mode disabled for cross-region (Atlas format)"
+  }
+  assert {
+    condition     = length(mongodbatlas_privatelink_endpoint.this) == 1
+    error_message = "Expected 1 Atlas endpoint (primary only)"
+  }
+  assert {
+    condition     = length(module.privatelink) == 2
+    error_message = "Expected 2 privatelink modules (primary + cross-region)"
+  }
+}
+
 run "privatelink_multi_region_with_cross_region" {
   command = plan
   variables {

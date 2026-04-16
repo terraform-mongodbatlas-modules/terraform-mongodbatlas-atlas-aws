@@ -575,6 +575,29 @@ run "privatelink_single_region_must_match" {
   expect_failures = [var.privatelink_endpoints_single_region]
 }
 
+run "privatelink_valid_single_region_pattern" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    privatelink_endpoints_single_region = [
+      { region = "us-east-1", subnet_ids = ["subnet-abc"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } },
+      { region = "us-east-1", subnet_ids = ["subnet-def"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } }
+    ]
+  }
+  assert {
+    condition     = output.regional_mode_enabled == false
+    error_message = "Expected regional mode disabled for single-region pattern"
+  }
+  assert {
+    condition     = length(mongodbatlas_privatelink_endpoint.this) == 2
+    error_message = "Expected 2 Atlas endpoints (one per single-region entry)"
+  }
+  assert {
+    condition     = length(module.privatelink) == 2
+    error_message = "Expected 2 privatelink modules"
+  }
+}
+
 run "privatelink_cannot_mix_patterns" {
   command = plan
   variables {

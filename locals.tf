@@ -74,9 +74,10 @@ locals {
   privatelink_endpoints_single_region_map = { for idx, ep in var.privatelink_endpoints_single_region : tostring(idx) => ep }
   # Combined module-managed endpoints
   privatelink_module_managed = merge(local.privatelink_primary_map, local.privatelink_endpoints_single_region_map, local.privatelink_cross_region_map)
-  # Atlas-side endpoints: primary + BYOE (not cross-region)
+  # Atlas-side endpoints: primary + single-region + BYOE (not cross-region)
   privatelink_atlas_endpoints = merge(
     local.privatelink_primary_map,
+    local.privatelink_endpoints_single_region_map,
     { for k, region in var.privatelink_byoe_regions : k => { region = region, subnet_ids = [], security_group = { create = false }, tags = {} } }
   )
   privatelink_module_calls = merge(
