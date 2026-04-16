@@ -58,23 +58,50 @@ locals {
   encryption_require_private_networking = length(local.encryption_private_endpoint_regions) > 0
 
   # PrivateLink: convert lists to maps for for_each
-  # Multi-region: use region as key (guaranteed unique by validation)
-  privatelink_endpoints_map = { for ep in var.privatelink_endpoints : lower(replace(ep.region, "_", "-")) => ep }
+  # Primary entries: create Atlas endpoint (service_region == null)
+  privatelink_primary_map = {
+    for ep in var.privatelink_endpoints :
+    lower(replace(ep.region, "_", "-")) => ep
+    if ep.service_region == null
+  }
+  # Cross-region entries: reuse Atlas endpoint from service_region
+  privatelink_cross_region_map = {
+    for ep in var.privatelink_endpoints :
+    lower(replace(ep.region, "_", "-")) => ep
+    if ep.service_region != null
+  }
   # Single-region: use index as key (regions are same)
   privatelink_endpoints_single_region_map = { for idx, ep in var.privatelink_endpoints_single_region : tostring(idx) => ep }
   # Combined module-managed endpoints
-  privatelink_module_managed = merge(local.privatelink_endpoints_map, local.privatelink_endpoints_single_region_map)
-  # Include BYOE regions (minimal config for Atlas-side endpoint)
-  privatelink_endpoints = merge(
-    local.privatelink_module_managed,
+  privatelink_module_managed = merge(local.privatelink_primary_map, local.privatelink_endpoints_single_region_map, local.privatelink_cross_region_map)
+  # Atlas-side endpoints: primary + BYOE (not cross-region)
+  privatelink_atlas_endpoints = merge(
+    local.privatelink_primary_map,
     { for k, region in var.privatelink_byoe_regions : k => { region = region, subnet_ids = [], security_group = { create = false }, tags = {} } }
   )
   privatelink_module_calls = merge(
     local.privatelink_module_managed,
     { for k, region in var.privatelink_byoe_regions : k => { region = region, subnet_ids = [], security_group = { create = false }, tags = {} } if contains(keys(var.privatelink_byoe), k) }
   )
-  # Normalized AWS region per endpoint key: "US_EAST_1" → "us-east-1"
-  _privatelink_aws_region = { for k, v in local.privatelink_endpoints : k => lower(replace(v.region, "_", "-")) }
-  privatelink_all_regions = toset(values(local._privatelink_aws_region))
-  enable_regional_mode    = length(local.privatelink_all_regions) > 1
+  # Normalized AWS region per endpoint key (all entries, not just Atlas endpoints)
+  _privatelink_aws_region = { for k, v in merge(local.privatelink_atlas_endpoints, local.privatelink_cross_region_map) : k => lower(replace(v.region, "_", "-")) }
+  # Supported remote regions per primary Atlas endpoint
+  _privatelink_supported_remote_regions = {
+    for k in keys(local.privatelink_primary_map) :
+    k => [
+      for ep in var.privatelink_endpoints :
+      lower(replace(ep.region, "_", "-"))
+      if ep.service_region != null && lower(replace(ep.service_region, "_", "-")) == k
+    ]
+  }
+  # Lookup from module-call key to Atlas endpoint key
+  _privatelink_atlas_endpoint_key = {
+    for k, v in local.privatelink_module_calls : k => (
+      try(v.service_region, null) != null ? lower(replace(v.service_region, "_", "-")) : k
+    )
+  }
+  # Regional mode: count only Atlas service regions (primary + BYOE), not cross-region VPC endpoints
+  _privatelink_atlas_service_regions = { for k, v in local.privatelink_atlas_endpoints : k => lower(replace(v.region, "_", "-")) }
+  privatelink_all_regions            = toset(values(local._privatelink_atlas_service_regions))
+  enable_regional_mode               = length(local.privatelink_all_regions) > 1
 }

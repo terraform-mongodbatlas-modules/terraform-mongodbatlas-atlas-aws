@@ -53,6 +53,8 @@ output "privatelink" {
   value = {
     for key, pl in module.privatelink : key => {
       region                      = local.privatelink_module_calls[key].region
+      service_region              = try(local.privatelink_module_calls[key].service_region, null)
+      atlas_service_region_key    = local._privatelink_atlas_endpoint_key[key]
       atlas_private_link_id       = pl.atlas_private_link_id
       atlas_endpoint_service_name = pl.atlas_endpoint_service_name
       vpc_endpoint_id             = pl.vpc_endpoint_id
@@ -71,6 +73,7 @@ output "privatelink_service_info" {
       atlas_private_link_id       = ep.private_link_id
       atlas_endpoint_service_name = ep.endpoint_service_name
       status                      = ep.status
+      supported_remote_regions    = try(ep.supported_remote_regions, [])
     }
   }
 }

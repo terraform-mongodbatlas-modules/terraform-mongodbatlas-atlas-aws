@@ -18,6 +18,12 @@ variable "endpoint_service_name" {
   description = "Atlas endpoint service name (from root module)"
 }
 
+variable "service_region" {
+  type        = string
+  default     = null
+  description = "Atlas endpoint service region for cross-region PrivateLink. When set, the VPC endpoint connects cross-region."
+}
+
 variable "vpc_endpoint" {
   type = object({
     create     = bool

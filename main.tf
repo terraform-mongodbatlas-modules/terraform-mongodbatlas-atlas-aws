@@ -160,10 +160,11 @@ resource "mongodbatlas_private_endpoint_regional_mode" "this" {
 }
 
 resource "mongodbatlas_privatelink_endpoint" "this" {
-  for_each      = local.privatelink_endpoints
-  project_id    = var.project_id
-  provider_name = "AWS"
-  region        = local._privatelink_aws_region[each.key]
+  for_each                 = local.privatelink_atlas_endpoints
+  project_id               = var.project_id
+  provider_name            = "AWS"
+  region                   = local._privatelink_aws_region[each.key]
+  supported_remote_regions = try(local._privatelink_supported_remote_regions[each.key], [])
 
   dynamic "timeouts" {
     for_each = var.timeouts[*]
@@ -180,8 +181,9 @@ module "privatelink" {
 
   project_id            = var.project_id
   region                = local._privatelink_aws_region[each.key]
-  private_link_id       = mongodbatlas_privatelink_endpoint.this[each.key].private_link_id
-  endpoint_service_name = mongodbatlas_privatelink_endpoint.this[each.key].endpoint_service_name
+  private_link_id       = mongodbatlas_privatelink_endpoint.this[local._privatelink_atlas_endpoint_key[each.key]].private_link_id
+  endpoint_service_name = mongodbatlas_privatelink_endpoint.this[local._privatelink_atlas_endpoint_key[each.key]].endpoint_service_name
+  service_region        = try(each.value.service_region, null)
 
   vpc_endpoint = {
     create     = contains(keys(local.privatelink_module_managed), each.key)

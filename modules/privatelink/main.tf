@@ -92,6 +92,7 @@ resource "aws_vpc_endpoint" "this" {
   security_group_ids = local.effective_security_group_ids
   tags               = var.tags
   region             = local.region
+  service_region     = var.service_region != null ? lower(replace(var.service_region, "_", "-")) : null
 
   dynamic "timeouts" {
     for_each = var.timeouts[*]

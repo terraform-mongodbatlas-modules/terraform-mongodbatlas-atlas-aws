@@ -130,8 +130,9 @@ variable "encryption" {
 
 variable "privatelink_endpoints" {
   type = list(object({
-    region     = string
-    subnet_ids = list(string)
+    region         = string
+    subnet_ids     = list(string)
+    service_region = optional(string)
     security_group = optional(object({
       ids                 = optional(list(string))
       create              = optional(bool, true)
@@ -147,11 +148,38 @@ variable "privatelink_endpoints" {
   description = <<-EOT
     Multi-region PrivateLink endpoints. Region accepts us-east-1 or US_EAST_1 format. All regions must be UNIQUE.
     See [Port ranges used for private endpoints](https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints) for port range details.
+
+    **Cross-region PrivateLink:**
+    Set `service_region` to create a VPC endpoint in `region` that connects to the
+    Atlas endpoint service in `service_region` via AWS cross-region PrivateLink.
+    `service_region` must match a `region` from another primary entry (without `service_region`).
+    Entries without `service_region` create the Atlas-side `mongodbatlas_privatelink_endpoint`.
+    Entries with `service_region` only create the AWS-side VPC endpoint and Atlas service linkage.
+    `mongodbatlas_private_endpoint_regional_mode` is only enabled when there are multiple
+    distinct Atlas service regions (not counting cross-region VPC endpoints).
   EOT
 
   validation {
     condition     = length(var.privatelink_endpoints) == length(distinct([for ep in var.privatelink_endpoints : lower(replace(ep.region, "_", "-"))]))
     error_message = "All regions in privatelink_endpoints must be unique. Use privatelink_endpoints_single_region for multiple endpoints in the same region."
+  }
+
+  validation {
+    condition = alltrue([
+      for ep in var.privatelink_endpoints :
+      ep.service_region == null || lower(replace(ep.service_region, "_", "-")) != lower(replace(ep.region, "_", "-"))
+    ])
+    error_message = "service_region must differ from region (cross-region only)."
+  }
+
+  validation {
+    condition = alltrue([
+      for ep in var.privatelink_endpoints : ep.service_region == null || contains(
+        [for other in var.privatelink_endpoints : lower(replace(other.region, "_", "-")) if other.service_region == null],
+        lower(replace(ep.service_region, "_", "-"))
+      )
+    ])
+    error_message = "service_region must match a region from another primary entry (without service_region)."
   }
 }
 
