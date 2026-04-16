@@ -139,7 +139,7 @@ Same S3 bucket management permissions as Backup Export above (create, delete, ve
   - `ec2:DescribeVpcs` (VPC CIDR for default security group rules)
 - **Tagging:** `ec2:CreateTags`, `ec2:DeleteTags`
 
-**BYOE** (`privatelink_byoe`):
+**BYOE** (`privatelink_byo_service`):
 
 - `ec2:DescribeVpcEndpoints` (data source lookup on the BYO endpoint)
 
@@ -185,7 +185,7 @@ Each statement below applies only when the corresponding feature is enabled. Dro
 
 - **`KmsReadOnly`**: Needed when `encryption.enabled = true` with a BYO KMS key.
 - **`S3ReadOnly`**: Needed when `backup_export` or `log_integration` uses a BYO bucket. Include per-integration BYO bucket ARNs for log integration.
-- **`VpcEndpointReadOnly`**: Needed when using `privatelink_byoe`. `ec2:Describe*` actions do not support resource-level restrictions, so the resource must be `*`.
+- **`VpcEndpointReadOnly`**: Needed when using `privatelink_byo_service`. `ec2:Describe*` actions do not support resource-level restrictions, so the resource must be `*`.
 
 ### IAM administrator responsibilities
 

@@ -523,46 +523,46 @@ run "backup_export_fractional_expiration_days" {
   expect_failures = [var.backup_export]
 }
 
-run "privatelink_byoe_key_overlap_validation" {
+run "privatelink_byo_endpoint_key_overlap_validation" {
   command = plan
   variables {
     project_id = var.project_id
     privatelink_endpoints = [
       { region = "us-east-1", subnet_ids = ["subnet-abc"] }
     ]
-    privatelink_byoe_regions = {
+    privatelink_byo_endpoint = {
       primary = { region = "us-east-1" }
     }
   }
-  expect_failures = [var.privatelink_byoe_regions]
+  expect_failures = [var.privatelink_byo_endpoint]
 }
 
-run "privatelink_byoe_key_collides_with_module_managed_key" {
+run "privatelink_byo_endpoint_key_collides_with_module_managed_key" {
   command = plan
   variables {
     project_id = var.project_id
     privatelink_endpoints = [
       { region = "us-east-1", subnet_ids = ["subnet-abc"] }
     ]
-    privatelink_byoe_regions = {
+    privatelink_byo_endpoint = {
       "us-east-1" = { region = "eu-west-1" }
     }
   }
-  expect_failures = [var.privatelink_byoe_regions]
+  expect_failures = [var.privatelink_byo_endpoint]
 }
 
-run "privatelink_byoe_missing_region" {
+run "privatelink_byo_service_missing_key" {
   command = plan
   variables {
     project_id = var.project_id
-    privatelink_byoe_regions = {
+    privatelink_byo_endpoint = {
       primary = { region = "us-east-1" }
     }
-    privatelink_byoe = {
+    privatelink_byo_service = {
       secondary = { vpc_endpoint_id = "vpce-abc" }
     }
   }
-  expect_failures = [var.privatelink_byoe]
+  expect_failures = [var.privatelink_byo_service]
 }
 
 run "privatelink_duplicate_regions_validation" {
@@ -673,11 +673,11 @@ run "custom_iam_role_name" {
 # BYOE (Bring Your Own Endpoint) Pattern Tests
 # ─────────────────────────────────────────────────────────────────────────────
 
-run "privatelink_byoe_phase1_atlas_endpoint_created" {
+run "privatelink_byo_service_phase1_atlas_endpoint_created" {
   command = plan
   variables {
     project_id = var.project_id
-    privatelink_byoe_regions = {
+    privatelink_byo_endpoint = {
       primary = { region = "us-east-1" }
     }
   }
@@ -695,14 +695,14 @@ run "privatelink_byoe_phase1_atlas_endpoint_created" {
   }
 }
 
-run "privatelink_byoe_phase2_with_endpoint" {
+run "privatelink_byo_service_phase2_with_endpoint" {
   command = plan
   variables {
     project_id = var.project_id
-    privatelink_byoe_regions = {
+    privatelink_byo_endpoint = {
       primary = { region = "us-east-1" }
     }
-    privatelink_byoe = {
+    privatelink_byo_service = {
       primary = { vpc_endpoint_id = "vpce-0123456789abcdef0" }
     }
   }
@@ -720,15 +720,15 @@ run "privatelink_byoe_phase2_with_endpoint" {
   }
 }
 
-run "privatelink_byoe_multi_region_phase2" {
+run "privatelink_byo_service_multi_region_phase2" {
   command = plan
   variables {
     project_id = var.project_id
-    privatelink_byoe_regions = {
+    privatelink_byo_endpoint = {
       primary   = { region = "us-east-1" }
       secondary = { region = "eu-west-1" }
     }
-    privatelink_byoe = {
+    privatelink_byo_service = {
       primary   = { vpc_endpoint_id = "vpce-0123456789abcdef0" }
       secondary = { vpc_endpoint_id = "vpce-fedcba9876543210f" }
     }
@@ -821,18 +821,18 @@ run "privatelink_duplicate_regions_mixed_format" {
   expect_failures = [var.privatelink_endpoints]
 }
 
-run "privatelink_byoe_key_overlap_normalized" {
+run "privatelink_byo_endpoint_key_overlap_normalized" {
   command = plan
   variables {
     project_id = var.project_id
     privatelink_endpoints = [
       { region = "US_EAST_1", subnet_ids = ["subnet-abc"] }
     ]
-    privatelink_byoe_regions = {
+    privatelink_byo_endpoint = {
       primary = { region = "us-east-1" }
     }
   }
-  expect_failures = [var.privatelink_byoe_regions]
+  expect_failures = [var.privatelink_byo_endpoint]
 }
 
 run "region_format_mixed_styles_privatelink" {

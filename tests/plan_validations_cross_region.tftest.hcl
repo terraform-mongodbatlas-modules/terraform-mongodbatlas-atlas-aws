@@ -107,62 +107,62 @@ run "byoe_cross_region_missing_service_region_key" {
   command = plan
   variables {
     project_id               = var.project_id
-    privatelink_byoe_regions = { east = { region = "us-east-1" } }
-    privatelink_byoe = {
+    privatelink_byo_endpoint = { east = { region = "us-east-1" } }
+    privatelink_byo_service = {
       cross_west = { vpc_endpoint_id = "vpce-abc", region = "us-west-2" }
     }
   }
-  expect_failures = [var.privatelink_byoe]
+  expect_failures = [var.privatelink_byo_service]
 }
 
 run "byoe_cross_region_invalid_service_region_key" {
   command = plan
   variables {
     project_id               = var.project_id
-    privatelink_byoe_regions = { east = { region = "us-east-1" } }
-    privatelink_byoe = {
+    privatelink_byo_endpoint = { east = { region = "us-east-1" } }
+    privatelink_byo_service = {
       cross_west = { vpc_endpoint_id = "vpce-abc", region = "us-west-2", service_region_key = "nonexistent" }
     }
   }
-  expect_failures = [var.privatelink_byoe]
+  expect_failures = [var.privatelink_byo_service]
 }
 
 run "byoe_cross_region_missing_region" {
   command = plan
   variables {
     project_id = var.project_id
-    privatelink_byoe_regions = {
+    privatelink_byo_endpoint = {
       east = { region = "us-east-1", supported_remote_regions = ["us-west-2"] }
     }
-    privatelink_byoe = {
+    privatelink_byo_service = {
       cross_west = { vpc_endpoint_id = "vpce-abc", service_region_key = "east" }
     }
   }
-  expect_failures = [var.privatelink_byoe]
+  expect_failures = [var.privatelink_byo_service]
 }
 
 run "byoe_cross_region_region_not_in_supported" {
   command = plan
   variables {
     project_id = var.project_id
-    privatelink_byoe_regions = {
+    privatelink_byo_endpoint = {
       east = { region = "us-east-1", supported_remote_regions = ["eu-west-1"] }
     }
-    privatelink_byoe = {
+    privatelink_byo_service = {
       cross_west = { vpc_endpoint_id = "vpce-abc", region = "us-west-2", service_region_key = "east" }
     }
   }
-  expect_failures = [var.privatelink_byoe]
+  expect_failures = [var.privatelink_byo_service]
 }
 
 run "byoe_cross_region_valid" {
   command = plan
   variables {
     project_id = var.project_id
-    privatelink_byoe_regions = {
+    privatelink_byo_endpoint = {
       east = { region = "us-east-1", supported_remote_regions = ["us-west-2"] }
     }
-    privatelink_byoe = {
+    privatelink_byo_service = {
       east       = { vpc_endpoint_id = "vpce-east" }
       cross_west = { vpc_endpoint_id = "vpce-west", region = "us-west-2", service_region_key = "east" }
     }
@@ -185,10 +185,10 @@ run "byoe_cross_region_does_not_trigger_regional_mode" {
   command = plan
   variables {
     project_id = var.project_id
-    privatelink_byoe_regions = {
+    privatelink_byo_endpoint = {
       east = { region = "us-east-1", supported_remote_regions = ["us-west-2", "eu-west-1"] }
     }
-    privatelink_byoe = {
+    privatelink_byo_service = {
       east       = { vpc_endpoint_id = "vpce-east" }
       cross_west = { vpc_endpoint_id = "vpce-west", region = "us-west-2", service_region_key = "east" }
       cross_eu   = { vpc_endpoint_id = "vpce-eu", region = "eu-west-1", service_region_key = "east" }

@@ -1,0 +1,7 @@
+```release-note:breaking-change
+variable/privatelink_byo_endpoint: Renames `privatelink_byoe_regions` to `privatelink_byo_endpoint` for alignment with TD naming conventions
+```
+
+```release-note:breaking-change
+variable/privatelink_byo_service: Renames `privatelink_byoe` to `privatelink_byo_service` for alignment with TD naming conventions
+```
