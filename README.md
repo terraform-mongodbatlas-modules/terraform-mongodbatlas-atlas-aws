@@ -383,13 +383,18 @@ Default: `[]`
 
 ### privatelink_byoe
 
-BYOE Phase 2: Key must exist in `privatelink_byoe_regions`.
+BYOE Phase 2: Link user-managed VPC endpoints to Atlas PrivateLink services.
+Same-region: key must exist in `privatelink_byoe_regions`.
+Cross-region: set `service_region_key` to reference a `privatelink_byoe_regions` entry
+and `region` to the AWS region where the VPC endpoint lives.
 
 Type:
 
 ```hcl
 map(object({
-  vpc_endpoint_id = string
+  vpc_endpoint_id    = string
+  region             = optional(string)
+  service_region_key = optional(string)
 }))
 ```
 
@@ -554,9 +559,19 @@ Default: `{}`
 
 ### privatelink_byoe_regions
 
-BYOE Phase 1: Key is user identifier, value is region (us-east-1 or US_EAST_1).
+BYOE Phase 1: Create Atlas PrivateLink endpoint services.
+Key is a user-defined identifier, `region` is the Atlas service region (us-east-1 or US_EAST_1).
+Set `supported_remote_regions` to AWS regions that can connect cross-region.
+The module normalizes to Atlas format internally.
 
-Type: `map(string)`
+Type:
+
+```hcl
+map(object({
+  region                   = string
+  supported_remote_regions = optional(set(string), [])
+}))
+```
 
 Default: `{}`
 
