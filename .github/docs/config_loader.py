@@ -53,6 +53,7 @@ class ExampleRow(BaseModel):
     folder: int | None = None
     folder_name: str = ""
     title_suffix: str = ""
+    description: str = ""
 
     def model_post_init(self, _context) -> None:
         if self.folder is None and self.folder_name == "":

@@ -229,7 +229,7 @@ var_groups:
     - name: atlas_service_region
       expose_in_workspace: false
       module_value: '"us-east-1"'
-    - name: app_region
+    - name: aws_region
       expose_in_workspace: false
       module_value: '"us-west-2"'
     - name: vpc_id
