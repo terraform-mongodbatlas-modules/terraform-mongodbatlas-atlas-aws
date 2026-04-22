@@ -34,7 +34,7 @@ examples:
       - address: module.atlas_aws.module.backup_export[0].aws_iam_role_policy.s3_access[0]
       - address: module.atlas_aws.module.backup_export[0].time_sleep.iam_propagation[0]
       - address: module.atlas_aws.module.backup_export[0].mongodbatlas_cloud_backup_snapshot_export_bucket.this
-      - address:  module.atlas_aws.module.backup_export[0].aws_s3_bucket_server_side_encryption_configuration.atlas[0]
+      - address: module.atlas_aws.module.backup_export[0].aws_s3_bucket_server_side_encryption_configuration.atlas[0]
 
   - name: log_integration
     var_groups: [log_integration]
