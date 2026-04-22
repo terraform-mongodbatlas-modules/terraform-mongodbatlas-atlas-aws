@@ -120,7 +120,7 @@ locals {
     },
     {
       for k, v in var.privatelink_byoe_regions :
-      k => [for r in coalesce(v.supported_remote_regions, []) : upper(replace(r, "-", "_"))]
+      k => [for r in v.supported_remote_regions : upper(replace(r, "-", "_"))]
     }
   )
   # Lookup from module-call key to Atlas endpoint key
