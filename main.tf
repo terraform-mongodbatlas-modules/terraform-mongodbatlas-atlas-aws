@@ -163,7 +163,7 @@ resource "mongodbatlas_privatelink_endpoint" "this" {
   for_each                 = local.privatelink_atlas_endpoints
   project_id               = var.project_id
   provider_name            = "AWS"
-  region                   = local._privatelink_aws_region[each.key]
+  region                   = lower(replace(each.value.region, "_", "-"))
   supported_remote_regions = try(local._privatelink_supported_remote_regions[each.key], [])
 
   dynamic "timeouts" {
@@ -209,7 +209,7 @@ module "privatelink" {
     create     = contains(keys(local.privatelink_module_managed), each.key)
     subnet_ids = each.value.subnet_ids
   }
-  byo_vpc_endpoint_id = try(var.privatelink_byoe[each.key].vpc_endpoint_id, null)
+  byo_vpc_endpoint_id = try(var.privatelink_byo_service[each.key].vpc_endpoint_id, null)
   vpc_id              = try(data.aws_subnet.privatelink[each.key].vpc_id, null)
   vpc_cidr_block      = try(data.aws_vpc.privatelink[each.key].cidr_block, null)
 

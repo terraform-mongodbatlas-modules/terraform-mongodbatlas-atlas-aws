@@ -46,10 +46,10 @@ run "no_root_vpc_data_sources_for_byoe" {
   command = plan
   variables {
     project_id = var.project_id
-    privatelink_byoe_regions = {
-      primary = "us-east-1"
+    privatelink_byo_endpoint = {
+      primary = { region = "us-east-1" }
     }
-    privatelink_byoe = {
+    privatelink_byo_service = {
       primary = { vpc_endpoint_id = "vpce-0123456789abcdef0" }
     }
   }
@@ -70,10 +70,10 @@ run "mixed_module_managed_and_byoe" {
     privatelink_endpoints = [
       { region = "us-east-1", subnet_ids = ["subnet-abc"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } }
     ]
-    privatelink_byoe_regions = {
-      secondary = "eu-west-1"
+    privatelink_byo_endpoint = {
+      secondary = { region = "eu-west-1" }
     }
-    privatelink_byoe = {
+    privatelink_byo_service = {
       secondary = { vpc_endpoint_id = "vpce-fedcba9876543210f" }
     }
   }

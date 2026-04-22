@@ -44,8 +44,8 @@ sections:
     match:
       names:
         - privatelink_endpoints
-        - privatelink_byoe_locations
-        - privatelink_byoe
+        - privatelink_byo_endpoint
+        - privatelink_byo_service
 
   - id: backup
     title: "Backup Export"
