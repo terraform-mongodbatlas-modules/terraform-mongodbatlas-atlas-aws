@@ -272,7 +272,8 @@ variable "privatelink_byo_service" {
   validation {
     condition = alltrue([
       for k, v in var.privatelink_byo_service :
-      v.service_region_key == null || contains(keys(var.privatelink_byo_endpoint), coalesce(v.service_region_key, ""))
+      contains(keys(var.privatelink_byo_endpoint), v.service_region_key)
+      if v.service_region_key != null
     ])
     error_message = "service_region_key must reference a key in privatelink_byo_endpoint."
   }
@@ -280,7 +281,8 @@ variable "privatelink_byo_service" {
   validation {
     condition = alltrue([
       for k, v in var.privatelink_byo_service :
-      v.service_region_key == null || v.region != null
+      v.region != null
+      if v.service_region_key != null
     ])
     error_message = "region is required when service_region_key is set (cross-region BYOE)."
   }
@@ -288,10 +290,11 @@ variable "privatelink_byo_service" {
   validation {
     condition = alltrue([
       for k, v in var.privatelink_byo_service :
-      v.service_region_key == null || v.region == null || contains(
-        [for r in try(var.privatelink_byo_endpoint[coalesce(v.service_region_key, "")].supported_remote_regions, []) : lower(replace(r, "_", "-"))],
-        lower(replace(coalesce(v.region, ""), "_", "-"))
+      contains(
+        [for r in try(var.privatelink_byo_endpoint[v.service_region_key].supported_remote_regions, []) : lower(replace(r, "_", "-"))],
+        lower(replace(v.region, "_", "-"))
       )
+      if v.service_region_key != null && v.region != null
     ])
     error_message = "region must be listed in the referenced privatelink_byo_endpoint entry's supported_remote_regions."
   }
