@@ -175,6 +175,14 @@ resource "mongodbatlas_privatelink_endpoint" "this" {
   }
 }
 
+# VPC/subnet lookups live here (not in the submodule) because the privatelink
+# module call has `depends_on = [mongodbatlas_private_endpoint_regional_mode.this]`.
+# When that dependency has pending changes Terraform defers every data source
+# read inside the module, turning vpc_id and cidr_block into "known after apply".
+# Those feed ForceNew attributes on aws_security_group, aws_security_group_rule,
+# and aws_vpc_endpoint, causing unnecessary destroy/recreate cycles.
+# Reading at root scope avoids deferral; results are passed as var.vpc_id and
+# var.vpc_cidr_block. See: https://github.com/hashicorp/terraform/issues/26383
 data "aws_subnet" "privatelink" {
   for_each = { for k, v in local.privatelink_module_managed : k => v.subnet_ids[0] }
   id       = each.value

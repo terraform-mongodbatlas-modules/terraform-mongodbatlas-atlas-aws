@@ -2,6 +2,12 @@ locals {
   region              = lower(replace(var.region, "_", "-"))
   create_vpc_endpoint = var.vpc_endpoint.create
 
+  # Prefer vpc_id/vpc_cidr_block from the root module to avoid re-reading inside
+  # the submodule. The module call carries `depends_on`, so Terraform defers ALL
+  # data source reads here when any dependency has pending changes, producing
+  # "known after apply" that cascades into ForceNew on SG and VPC endpoint.
+  # The data sources below are kept for standalone submodule users who don't
+  # pass these variables. See: https://github.com/hashicorp/terraform/issues/26383
   vpc_id = var.vpc_id != null ? var.vpc_id : (
     local.create_vpc_endpoint ? data.aws_subnet.selected[0].vpc_id : try(data.aws_vpc_endpoint.byo[0].vpc_id, null)
   )
