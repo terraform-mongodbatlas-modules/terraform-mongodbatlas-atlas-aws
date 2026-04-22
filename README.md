@@ -27,7 +27,7 @@ Run 'just gen-readme' to regenerate. -->
 
 MongoDB formally supports this module. Support includes bug fixes, security patches, and backward-compatible enhancements. The v1 release carries a 2-year stability commitment: no required breaking changes for at least two years from the initial GA release.
 
-The following examples show common configurations you can copy and adapt. Start with the [encryption](./examples/encryption) example for a minimal setup, then explore other examples for PrivateLink, backup export, and log integration.
+The following examples show common configurations you can copy and adapt. Start with the [encryption](./examples/encryption) example for a minimal setup, then explore other examples for PrivateLink, backup export, and log integration. Examples can be combined in a single module call; see the [aws_read_only](./examples/aws_read_only) example for multiple features in one configuration.
 
 <!-- BEGIN_TABLES -->
 <!-- @generated
