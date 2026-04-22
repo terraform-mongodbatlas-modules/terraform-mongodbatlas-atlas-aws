@@ -5,3 +5,7 @@ variable/privatelink_byo_endpoint: Changes type from `map(string)` to `map(objec
 ```release-note:enhancement
 variable/privatelink_byo_service: Adds optional `region` and `service_region_key` fields for cross-region BYOE. A VPC endpoint in one AWS region can reference an Atlas endpoint service in another via `service_region_key`
 ```
+
+```release-note:note
+provider/mongodbatlas: Requires minimum version 2.11.0 for `service_region` field for cross-region PrivateLink support
+```
