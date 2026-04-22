@@ -1,0 +1,7 @@
+region: us-west-2
+service_region: us-east-1
+timeouts:
+  create: 30m
+  delete: 30m
+  update: 30m
+vpc_endpoint_type: Interface

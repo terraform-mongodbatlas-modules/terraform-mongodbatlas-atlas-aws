@@ -177,6 +177,8 @@ Encryption at Rest | [AWS KMS Integration with Private Endpoint](./examples/encr
 Private Link | [AWS PrivateLink Endpoint](./examples/privatelink)
 Private Link | [AWS PrivateLink Multi-Region](./examples/privatelink_multi_region)
 Private Link | [AWS PrivateLink BYOE](./examples/privatelink_byoe)
+Private Link | [AWS PrivateLink Cross-Region](./examples/privatelink_cross_region)
+Private Link | [AWS PrivateLink BYOE Cross-Region](./examples/privatelink_byoe_cross_region)
 Backup Export | [S3 Bucket Export](./examples/backup_export)
 BYO Role | [AWS Read Only](./examples/aws_read_only)
 Log Integration | [S3 Log Export](./examples/log_integration)
@@ -196,13 +198,15 @@ The following requirements are needed by this module:
 
 - <a name="requirement_aws"></a> [aws](https://registry.terraform.io/providers/hashicorp/aws/latest/docs) (>= 6.0)
 
-- <a name="requirement_mongodbatlas"></a> [mongodbatlas](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs) (~> 2.8)
+- <a name="requirement_mongodbatlas"></a> [mongodbatlas](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs) (~> 2.11)
 
 ## Providers
 
 The following providers are used by this module:
 
-- <a name="provider_mongodbatlas"></a> [mongodbatlas](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs) (~> 2.8)
+- <a name="provider_aws"></a> [aws](https://registry.terraform.io/providers/hashicorp/aws/latest/docs) (>= 6.0)
+
+- <a name="provider_mongodbatlas"></a> [mongodbatlas](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs) (~> 2.11)
 
 ## Resources
 
@@ -210,6 +214,8 @@ The following resources are used by this module:
 
 - [mongodbatlas_private_endpoint_regional_mode.this](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs/resources/private_endpoint_regional_mode) (resource)
 - [mongodbatlas_privatelink_endpoint.this](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs/resources/privatelink_endpoint) (resource)
+- [aws_subnet.privatelink](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) (data source)
+- [aws_vpc.privatelink](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) (data source)
 
 <!-- BEGIN_TF_INPUTS_RAW -->
 <!-- @generated
@@ -346,12 +352,22 @@ See the [PrivateLink documentation](https://www.mongodb.com/docs/atlas/security-
 Multi-region PrivateLink endpoints. Region accepts us-east-1 or US_EAST_1 format. All regions must be UNIQUE.
 See [Port ranges used for private endpoints](https://www.mongodb.com/docs/atlas/security-private-endpoint/#port-ranges-used-for-private-endpoints) for port range details.
 
+**Cross-region PrivateLink:**
+Set `service_region` to create a VPC endpoint in `region` that connects to the
+Atlas endpoint service in `service_region` via AWS cross-region PrivateLink.
+`service_region` must match a `region` from another primary entry (without `service_region`).
+Entries without `service_region` create the Atlas-side `mongodbatlas_privatelink_endpoint`.
+Entries with `service_region` only create the AWS-side VPC endpoint and Atlas service linkage.
+`mongodbatlas_private_endpoint_regional_mode` is only enabled when there are multiple
+distinct Atlas service regions (not counting cross-region VPC endpoints).
+
 Type:
 
 ```hcl
 list(object({
-  region     = string
-  subnet_ids = list(string)
+  region         = string
+  subnet_ids     = list(string)
+  service_region = optional(string)
   security_group = optional(object({
     ids                 = optional(list(string))
     create              = optional(bool, true)
@@ -367,15 +383,38 @@ list(object({
 
 Default: `[]`
 
-### privatelink_byoe
+### privatelink_byo_endpoint
 
-BYOE Phase 2: Key must exist in `privatelink_byoe_regions`.
+BYOE Phase 1: Create Atlas PrivateLink endpoint services.
+Key is a user-defined identifier, `region` is the Atlas service region (us-east-1 or US_EAST_1).
+Set `supported_remote_regions` to AWS regions that can connect cross-region.
+The module normalizes to Atlas format internally.
 
 Type:
 
 ```hcl
 map(object({
-  vpc_endpoint_id = string
+  region                   = string
+  supported_remote_regions = optional(set(string), [])
+}))
+```
+
+Default: `{}`
+
+### privatelink_byo_service
+
+BYOE Phase 2: Link user-managed VPC endpoints to Atlas PrivateLink services.
+Same-region: key must exist in `privatelink_byo_endpoint`.
+Cross-region: set `service_region_key` to reference a `privatelink_byo_endpoint` entry
+and `region` to the AWS region where the VPC endpoint lives.
+
+Type:
+
+```hcl
+map(object({
+  vpc_endpoint_id    = string
+  region             = optional(string)
+  service_region_key = optional(string)
 }))
 ```
 
@@ -533,14 +572,6 @@ Default: `{}`
 ### aws_tags
 
 Tags to apply to all AWS resources created by this module.
-
-Type: `map(string)`
-
-Default: `{}`
-
-### privatelink_byoe_regions
-
-BYOE Phase 1: Key is user identifier, value is region (us-east-1 or US_EAST_1).
 
 Type: `map(string)`
 

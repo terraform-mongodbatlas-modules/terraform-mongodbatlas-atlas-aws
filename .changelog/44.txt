@@ -1,0 +1,3 @@
+```release-note:enhancement
+variable/privatelink_endpoints: Adds optional `service_region` field for cross-region PrivateLink. A VPC endpoint in one AWS region can connect to an Atlas endpoint in another via AWS cross-region PrivateLink. Cross-region entries reuse the primary Atlas endpoint and only create the AWS-side VPC endpoint and Atlas endpoint service
+```

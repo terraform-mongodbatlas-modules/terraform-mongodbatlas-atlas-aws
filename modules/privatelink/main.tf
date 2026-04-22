@@ -1,9 +1,16 @@
 locals {
-  # Normalize to AWS format (handles us-east-1 or US_EAST_1 input)
   region              = lower(replace(var.region, "_", "-"))
   create_vpc_endpoint = var.vpc_endpoint.create
-  vpc_id_from_subnet  = local.create_vpc_endpoint ? data.aws_subnet.selected[0].vpc_id : null
-  vpc_id              = local.create_vpc_endpoint ? local.vpc_id_from_subnet : try(data.aws_vpc_endpoint.byo[0].vpc_id, null)
+
+  # Prefer vpc_id/vpc_cidr_block from the root module to avoid re-reading inside
+  # the submodule. The module call carries `depends_on`, so Terraform defers ALL
+  # data source reads here when any dependency has pending changes, producing
+  # "known after apply" that cascades into ForceNew on SG and VPC endpoint.
+  # The data sources below are kept for standalone submodule users who don't
+  # pass these variables. See: https://github.com/hashicorp/terraform/issues/26383
+  vpc_id = var.vpc_id != null ? var.vpc_id : (
+    local.create_vpc_endpoint ? data.aws_subnet.selected[0].vpc_id : try(data.aws_vpc_endpoint.byo[0].vpc_id, null)
+  )
 
   sg_ids_provided  = var.security_group.ids != null
   should_create_sg = !local.sg_ids_provided && var.security_group.create && local.create_vpc_endpoint
@@ -13,9 +20,10 @@ locals {
   )
 
   create_cidr_rule = local.should_create_sg && (var.security_group.inbound_cidr_blocks == null || length(var.security_group.inbound_cidr_blocks) > 0)
-  # Guard with should_create_sg to avoid accessing data.aws_vpc.this when it doesn't exist (BYOE mode)
   effective_cidr_blocks = local.should_create_sg ? (
-    var.security_group.inbound_cidr_blocks == null ? [data.aws_vpc.this[0].cidr_block] : var.security_group.inbound_cidr_blocks
+    var.security_group.inbound_cidr_blocks == null
+    ? [var.vpc_cidr_block != null ? var.vpc_cidr_block : data.aws_vpc.this[0].cidr_block]
+    : var.security_group.inbound_cidr_blocks
   ) : []
   create_sg_rules = local.should_create_sg && length(var.security_group.inbound_source_sgs) > 0
 }
@@ -92,6 +100,7 @@ resource "aws_vpc_endpoint" "this" {
   security_group_ids = local.effective_security_group_ids
   tags               = var.tags
   region             = local.region
+  service_region     = var.service_region != null ? lower(replace(var.service_region, "_", "-")) : null
 
   dynamic "timeouts" {
     for_each = var.timeouts[*]

@@ -160,10 +160,11 @@ resource "mongodbatlas_private_endpoint_regional_mode" "this" {
 }
 
 resource "mongodbatlas_privatelink_endpoint" "this" {
-  for_each      = local.privatelink_endpoints
-  project_id    = var.project_id
-  provider_name = "AWS"
-  region        = local._privatelink_aws_region[each.key]
+  for_each                 = local.privatelink_atlas_endpoints
+  project_id               = var.project_id
+  provider_name            = "AWS"
+  region                   = lower(replace(each.value.region, "_", "-"))
+  supported_remote_regions = try(local._privatelink_supported_remote_regions[each.key], [])
 
   dynamic "timeouts" {
     for_each = var.timeouts[*]
@@ -174,20 +175,43 @@ resource "mongodbatlas_privatelink_endpoint" "this" {
   }
 }
 
+# VPC/subnet lookups live here (not in the submodule) because the privatelink
+# module call has `depends_on = [mongodbatlas_private_endpoint_regional_mode.this]`.
+# When that dependency has pending changes Terraform defers every data source
+# read inside the module, turning vpc_id and cidr_block into "known after apply".
+# Those feed ForceNew attributes on aws_security_group, aws_security_group_rule,
+# and aws_vpc_endpoint, causing unnecessary destroy/recreate cycles.
+# Reading at root scope avoids deferral; results are passed as var.vpc_id and
+# var.vpc_cidr_block. See: https://github.com/hashicorp/terraform/issues/26383
+data "aws_subnet" "privatelink" {
+  for_each = { for k, v in local.privatelink_module_managed : k => v.subnet_ids[0] }
+  id       = each.value
+  region   = local._privatelink_aws_region[each.key]
+}
+
+data "aws_vpc" "privatelink" {
+  for_each = data.aws_subnet.privatelink
+  id       = each.value.vpc_id
+  region   = local._privatelink_aws_region[each.key]
+}
+
 module "privatelink" {
   source   = "./modules/privatelink"
   for_each = local.privatelink_module_calls
 
   project_id            = var.project_id
   region                = local._privatelink_aws_region[each.key]
-  private_link_id       = mongodbatlas_privatelink_endpoint.this[each.key].private_link_id
-  endpoint_service_name = mongodbatlas_privatelink_endpoint.this[each.key].endpoint_service_name
+  private_link_id       = mongodbatlas_privatelink_endpoint.this[local._privatelink_atlas_endpoint_key[each.key]].private_link_id
+  endpoint_service_name = mongodbatlas_privatelink_endpoint.this[local._privatelink_atlas_endpoint_key[each.key]].endpoint_service_name
+  service_region        = try(each.value.service_region, null)
 
   vpc_endpoint = {
     create     = contains(keys(local.privatelink_module_managed), each.key)
     subnet_ids = each.value.subnet_ids
   }
-  byo_vpc_endpoint_id = try(var.privatelink_byoe[each.key].vpc_endpoint_id, null)
+  byo_vpc_endpoint_id = try(var.privatelink_byo_service[each.key].vpc_endpoint_id, null)
+  vpc_id              = try(data.aws_subnet.privatelink[each.key].vpc_id, null)
+  vpc_cidr_block      = try(data.aws_vpc.privatelink[each.key].cidr_block, null)
 
   security_group = {
     ids                 = try(each.value.security_group.ids, null)

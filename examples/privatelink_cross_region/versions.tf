@@ -4,7 +4,7 @@ terraform {
   required_providers {
     mongodbatlas = {
       source  = "mongodb/mongodbatlas"
-      version = "~> 2.8"
+      version = "~> 2.8" # TODO: update to 2.11 after release
     }
     aws = {
       source  = "hashicorp/aws"
@@ -16,4 +16,9 @@ terraform {
     module_name    = "atlas-aws"
     module_version = "local"
   }
+}
+
+provider "mongodbatlas" {}
+provider "aws" {
+  region = var.aws_region
 }

@@ -18,6 +18,12 @@ variable "endpoint_service_name" {
   description = "Atlas endpoint service name (from root module)"
 }
 
+variable "service_region" {
+  type        = string
+  default     = null
+  description = "Atlas endpoint service region for cross-region PrivateLink. When set, the VPC endpoint connects cross-region."
+}
+
 variable "vpc_endpoint" {
   type = object({
     create     = bool
@@ -55,6 +61,20 @@ variable "security_group" {
   })
   default     = {}
   description = "Security group configuration. When ids is null and create is true, creates a security group."
+}
+
+variable "vpc_id" {
+  type        = string
+  default     = null
+  nullable    = true
+  description = "VPC ID override. Skips the subnet-to-VPC data source lookup when provided."
+}
+
+variable "vpc_cidr_block" {
+  type        = string
+  default     = null
+  nullable    = true
+  description = "VPC CIDR block override for security group ingress. Skips the VPC CIDR data source lookup when provided."
 }
 
 variable "tags" {
