@@ -217,7 +217,7 @@ variable "privatelink_endpoints_single_region" {
   }
 }
 
-variable "privatelink_byoe_regions" {
+variable "privatelink_byo_endpoint" {
   type = map(object({
     region                   = string
     supported_remote_regions = optional(set(string), [])
@@ -232,22 +232,22 @@ variable "privatelink_byoe_regions" {
 
   validation {
     condition = length(setintersection(
-      [for k, v in var.privatelink_byoe_regions : lower(replace(v.region, "_", "-"))],
+      [for k, v in var.privatelink_byo_endpoint : lower(replace(v.region, "_", "-"))],
       [for ep in var.privatelink_endpoints : lower(replace(ep.region, "_", "-"))]
     )) == 0
-    error_message = "Regions in privatelink_byoe_regions must not overlap with regions in privatelink_endpoints."
+    error_message = "Regions in privatelink_byo_endpoint must not overlap with regions in privatelink_endpoints."
   }
 
   validation {
     condition = length(setintersection(
-      keys(var.privatelink_byoe_regions),
+      keys(var.privatelink_byo_endpoint),
       toset([for ep in var.privatelink_endpoints : lower(replace(ep.region, "_", "-"))])
     )) == 0
-    error_message = "Keys in privatelink_byoe_regions must not match normalized region keys from privatelink_endpoints (would overwrite during merge)."
+    error_message = "Keys in privatelink_byo_endpoint must not match normalized region keys from privatelink_endpoints (would overwrite during merge)."
   }
 }
 
-variable "privatelink_byoe" {
+variable "privatelink_byo_service" {
   type = map(object({
     vpc_endpoint_id    = string
     region             = optional(string)
@@ -256,44 +256,47 @@ variable "privatelink_byoe" {
   default     = {}
   description = <<-EOT
     BYOE Phase 2: Link user-managed VPC endpoints to Atlas PrivateLink services.
-    Same-region: key must exist in `privatelink_byoe_regions`.
-    Cross-region: set `service_region_key` to reference a `privatelink_byoe_regions` entry
+    Same-region: key must exist in `privatelink_byo_endpoint`.
+    Cross-region: set `service_region_key` to reference a `privatelink_byo_endpoint` entry
     and `region` to the AWS region where the VPC endpoint lives.
   EOT
 
   validation {
     condition = alltrue([
-      for k, v in var.privatelink_byoe :
-      contains(keys(var.privatelink_byoe_regions), k) || v.service_region_key != null
+      for k, v in var.privatelink_byo_service :
+      contains(keys(var.privatelink_byo_endpoint), k) || v.service_region_key != null
     ])
-    error_message = "Keys must exist in privatelink_byoe_regions (same-region) or specify service_region_key (cross-region)."
+    error_message = "Keys must exist in privatelink_byo_endpoint (same-region) or specify service_region_key (cross-region)."
   }
 
   validation {
     condition = alltrue([
-      for k, v in var.privatelink_byoe :
-      v.service_region_key == null || contains(keys(var.privatelink_byoe_regions), v.service_region_key)
+      for k, v in var.privatelink_byo_service :
+      contains(keys(var.privatelink_byo_endpoint), v.service_region_key)
+      if v.service_region_key != null
     ])
-    error_message = "service_region_key must reference a key in privatelink_byoe_regions."
+    error_message = "service_region_key must reference a key in privatelink_byo_endpoint."
   }
 
   validation {
     condition = alltrue([
-      for k, v in var.privatelink_byoe :
-      v.service_region_key == null || v.region != null
+      for k, v in var.privatelink_byo_service :
+      v.region != null
+      if v.service_region_key != null
     ])
     error_message = "region is required when service_region_key is set (cross-region BYOE)."
   }
 
   validation {
     condition = alltrue([
-      for k, v in var.privatelink_byoe :
-      v.service_region_key == null || v.region == null || contains(
-        [for r in try(var.privatelink_byoe_regions[v.service_region_key].supported_remote_regions, []) : lower(replace(r, "_", "-"))],
+      for k, v in var.privatelink_byo_service :
+      contains(
+        [for r in try(var.privatelink_byo_endpoint[v.service_region_key].supported_remote_regions, []) : lower(replace(r, "_", "-"))],
         lower(replace(v.region, "_", "-"))
       )
+      if v.service_region_key != null && v.region != null
     ])
-    error_message = "region must be listed in the referenced privatelink_byoe_regions entry's supported_remote_regions."
+    error_message = "region must be listed in the referenced privatelink_byo_endpoint entry's supported_remote_regions."
   }
 }
 

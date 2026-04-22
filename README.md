@@ -198,7 +198,7 @@ The following requirements are needed by this module:
 
 - <a name="requirement_aws"></a> [aws](https://registry.terraform.io/providers/hashicorp/aws/latest/docs) (>= 6.0)
 
-- <a name="requirement_mongodbatlas"></a> [mongodbatlas](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs) (~> 2.8)
+- <a name="requirement_mongodbatlas"></a> [mongodbatlas](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs) (~> 2.11)
 
 ## Providers
 
@@ -206,7 +206,7 @@ The following providers are used by this module:
 
 - <a name="provider_aws"></a> [aws](https://registry.terraform.io/providers/hashicorp/aws/latest/docs) (>= 6.0)
 
-- <a name="provider_mongodbatlas"></a> [mongodbatlas](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs) (~> 2.8)
+- <a name="provider_mongodbatlas"></a> [mongodbatlas](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs) (~> 2.11)
 
 ## Resources
 
@@ -383,7 +383,7 @@ list(object({
 
 Default: `[]`
 
-### privatelink_byoe_regions
+### privatelink_byo_endpoint
 
 BYOE Phase 1: Create Atlas PrivateLink endpoint services.
 Key is a user-defined identifier, `region` is the Atlas service region (us-east-1 or US_EAST_1).
@@ -401,11 +401,11 @@ map(object({
 
 Default: `{}`
 
-### privatelink_byoe
+### privatelink_byo_service
 
 BYOE Phase 2: Link user-managed VPC endpoints to Atlas PrivateLink services.
-Same-region: key must exist in `privatelink_byoe_regions`.
-Cross-region: set `service_region_key` to reference a `privatelink_byoe_regions` entry
+Same-region: key must exist in `privatelink_byo_endpoint`.
+Cross-region: set `service_region_key` to reference a `privatelink_byo_endpoint` entry
 and `region` to the AWS region where the VPC endpoint lives.
 
 Type:
