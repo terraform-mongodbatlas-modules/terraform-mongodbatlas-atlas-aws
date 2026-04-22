@@ -103,6 +103,13 @@ examples:
       - address: module.atlas_aws.module.privatelink["us-west-2"].aws_vpc_endpoint.this[0]
       - address: module.atlas_aws.module.privatelink["us-west-2"].mongodbatlas_privatelink_endpoint_service.this
 
+  - name: privatelink_byoe_cross_region
+    var_groups: [privatelink_byoe_cross_region]
+    plan_regressions:
+      - address: module.atlas_aws.mongodbatlas_privatelink_endpoint.this["east"]
+      - address: module.atlas_aws.module.privatelink["cross_west"].mongodbatlas_privatelink_endpoint_service.this
+      - address: aws_vpc_endpoint.remote
+
 var_groups:
   encryption:
     - name: project_id
@@ -214,3 +221,23 @@ var_groups:
     - name: subnet_ids_us_west_2
       expose_in_workspace: false
       module_value: local.subnet_ids_cross_region_us_west_2
+
+  privatelink_byoe_cross_region:
+    - name: project_id
+      expose_in_workspace: false
+      module_value: local.project_id_privatelink_byoe_cross_region
+    - name: atlas_service_region
+      expose_in_workspace: false
+      module_value: '"us-east-1"'
+    - name: app_region
+      expose_in_workspace: false
+      module_value: '"us-west-2"'
+    - name: vpc_id
+      expose_in_workspace: false
+      module_value: local.vpc_id_byoe_cross_region
+    - name: subnet_ids
+      expose_in_workspace: false
+      module_value: local.subnet_ids_byoe_cross_region
+    - name: security_group_ids
+      expose_in_workspace: false
+      module_value: local.security_group_ids_byoe_cross_region

@@ -63,6 +63,20 @@ variable "security_group" {
   description = "Security group configuration. When ids is null and create is true, creates a security group."
 }
 
+variable "vpc_id" {
+  type        = string
+  default     = null
+  nullable    = true
+  description = "VPC ID override. Skips the subnet-to-VPC data source lookup when provided."
+}
+
+variable "vpc_cidr_block" {
+  type        = string
+  default     = null
+  nullable    = true
+  description = "VPC CIDR block override for security group ingress. Skips the VPC CIDR data source lookup when provided."
+}
+
 variable "tags" {
   type        = map(string)
   default     = {}

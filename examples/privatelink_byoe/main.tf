@@ -18,10 +18,10 @@ module "atlas_aws" {
   project_id = var.project_id
 
   # Step 1: Deploy Atlas-side PrivateLink endpoint before AWS private endpoint
-  privatelink_byoe_regions = { (local.ep1) = var.aws_region }
+  privatelink_byo_endpoint = { (local.ep1) = { region = var.aws_region } }
 
   # Step 3: BYOE: provide your own VPC endpoint ID (created in Step 2)
-  privatelink_byoe = {
+  privatelink_byo_service = {
     (local.ep1) = { vpc_endpoint_id = aws_vpc_endpoint.custom.id }
   }
 }

@@ -15,6 +15,7 @@ examples_readme:
       }
     skip_if_name_contains:
     - backup_export
+    - cross-region
     generate_when_missing_only: false
     force_generate: false
 
@@ -38,6 +39,12 @@ tables:
     - folder_name: privatelink_byoe
       feature: Private Link
       name: AWS PrivateLink BYOE
+    - folder_name: privatelink_cross_region
+      feature: Private Link
+      name: AWS PrivateLink Cross-Region
+    - folder_name: privatelink_byoe_cross_region
+      feature: Private Link
+      name: AWS PrivateLink BYOE Cross-Region
     - folder_name: backup_export
       feature: Backup Export
       name: S3 Bucket Export

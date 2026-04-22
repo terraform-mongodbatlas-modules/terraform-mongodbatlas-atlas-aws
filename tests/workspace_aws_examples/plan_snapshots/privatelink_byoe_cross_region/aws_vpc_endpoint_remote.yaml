@@ -1,0 +1,7 @@
+region: us-east-1
+service_region: us-east-1
+tags:
+  Name: atlas-privatelink-cross-region
+tags_all:
+  Name: atlas-privatelink-cross-region
+vpc_endpoint_type: Interface

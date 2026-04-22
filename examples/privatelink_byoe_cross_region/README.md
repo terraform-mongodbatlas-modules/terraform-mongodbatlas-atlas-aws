@@ -3,7 +3,7 @@ WARNING: This file is auto-generated. Do not edit directly.
 Changes will be overwritten when documentation is regenerated.
 Run 'just gen-examples' to regenerate.
 -->
-# AWS PrivateLink BYOE
+# AWS PrivateLink BYOE Cross-Region
 
 <!-- BEGIN_GETTING_STARTED -->
 ## Prerequisites
@@ -55,18 +55,9 @@ Copy and use this code to get started quickly:
 
 **main.tf**
 ```hcl
-# BYOE (Bring Your Own Endpoint) pattern
-# 
-# For BYOE, we use a two-step approach:
-# Step 1: Root module creates Atlas-side PrivateLink endpoint and exposes service info
-# Step 2: User-managed AWS VPC Endpoint references the Atlas service info (see below)
-#
-# Note: Step 2 (aws_vpc_endpoint.custom) depends on Step 1 output (privatelink_service_info)
-
-# Step 1: Configure Atlas PrivateLink with BYOE regions
-
 locals {
-  ep1 = "ep1"
+  atlas_service = "east"
+  cross_region  = "cross_west"
 }
 
 module "atlas_aws" {
@@ -74,36 +65,43 @@ module "atlas_aws" {
 
   project_id = var.project_id
 
-  # Step 1: Deploy Atlas-side PrivateLink endpoint before AWS private endpoint
-  privatelink_byo_endpoint = { (local.ep1) = { region = var.aws_region } }
+  privatelink_byo_endpoint = {
+    (local.atlas_service) = {
+      region                   = var.atlas_service_region
+      supported_remote_regions = [var.app_region]
+    }
+  }
 
-  # Step 3: BYOE: provide your own VPC endpoint ID (created in Step 2)
   privatelink_byo_service = {
-    (local.ep1) = { vpc_endpoint_id = aws_vpc_endpoint.custom.id }
+    (local.cross_region) = {
+      vpc_endpoint_id    = aws_vpc_endpoint.remote.id
+      region             = var.app_region
+      service_region_key = local.atlas_service
+    }
   }
 }
 
-# Step 2: User-managed AWS VPC Endpoint with custom configuration (usually created in separate Terraform workspace)
-resource "aws_vpc_endpoint" "custom" {
+resource "aws_vpc_endpoint" "remote" {
   vpc_id             = var.vpc_id
-  service_name       = module.atlas_aws.privatelink_service_info[local.ep1].atlas_endpoint_service_name
+  service_name       = module.atlas_aws.privatelink_service_info[local.atlas_service].atlas_endpoint_service_name
   vpc_endpoint_type  = "Interface"
   subnet_ids         = var.subnet_ids
   security_group_ids = var.security_group_ids
+  service_region     = var.atlas_service_region
 
   tags = {
-    Name = "atlas-privatelink-custom"
+    Name = "atlas-privatelink-cross-region"
   }
 }
 
 output "privatelink" {
   description = "PrivateLink connection details"
-  value       = module.atlas_aws.privatelink[local.ep1]
+  value       = module.atlas_aws.privatelink[local.cross_region]
 }
 
 output "vpc_endpoint_id" {
-  description = "VPC endpoint ID of the custom endpoint"
-  value       = aws_vpc_endpoint.custom.id
+  description = "VPC endpoint ID of the cross-region endpoint"
+  value       = aws_vpc_endpoint.remote.id
 }
 ```
 
