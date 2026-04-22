@@ -673,7 +673,7 @@ run "custom_iam_role_name" {
 # BYOE (Bring Your Own Endpoint) Pattern Tests
 # ─────────────────────────────────────────────────────────────────────────────
 
-run "privatelink_byo_service_phase1_atlas_endpoint_created" {
+run "privatelink_byo_phase1_atlas_endpoint_created" {
   command = plan
   variables {
     project_id = var.project_id
