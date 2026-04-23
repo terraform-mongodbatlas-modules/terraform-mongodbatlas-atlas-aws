@@ -76,6 +76,7 @@ class TableConfig:
     example_rows: list[ExampleRow] = field(default_factory=list)
     auto_columns: dict[str, AutoColumnConfig] = field(default_factory=dict)
     readme_template: str = ""
+    intro: str = ""
 
 
 def load_examples_config(config_path: Path | None = None) -> dict:
