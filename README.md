@@ -1,13 +1,13 @@
 # MongoDB Atlas AWS Terraform Module
 
-Use this Terraform module to configure MongoDB Atlas integrations with AWS. The module includes recommended defaults based on MongoDB best practices.
+Use this Terraform module to configure MongoDB Atlas integrations with AWS. The module includes recommended defaults based on MongoDB best practices. This module is officially maintained by MongoDB. For questions, please open a support request or a GitHub issue.
 
 <!-- BEGIN_TOC -->
 <!-- @generated
 WARNING: This section is auto-generated. Do not edit directly.
 Changes will be overwritten when documentation is regenerated.
 Run 'just gen-readme' to regenerate. -->
-- [Module Status](#module-status)
+- [Module Commitment](#module-commitment)
 - [Examples](#examples)
 - [Requirements](#requirements)
 - [Providers](#providers)
@@ -23,9 +23,9 @@ Run 'just gen-readme' to regenerate. -->
 - [FAQ](#faq)
 <!-- END_TOC -->
 
-## Module Status
+## Module Commitment
 
-MongoDB formally supports this module. Support includes bug fixes, security patches, and backward-compatible enhancements. The v1 release carries a two-year stability commitment: no required breaking changes for at least two years from the initial GA release.
+MongoDB formally supports this module, including bug fixes, security patches, and backward-compatible enhancements. The v1 release carries a two-year stability commitment: no breaking changes through October 2028 (at the earliest).
 
 <!-- BEGIN_TABLES -->
 <!-- @generated
