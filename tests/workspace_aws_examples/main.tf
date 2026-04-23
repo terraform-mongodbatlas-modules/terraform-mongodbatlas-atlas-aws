@@ -154,7 +154,7 @@ resource "aws_kms_key" "byo" {
 }
 
 resource "aws_s3_bucket" "byo" {
-  bucket_prefix = "atlas-byo-role-"
+  bucket_prefix = "mongodb-atlas-tf-" # prefix needed for CI permissions
   force_destroy = true
 }
 
