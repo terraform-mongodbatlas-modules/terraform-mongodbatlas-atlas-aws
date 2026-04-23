@@ -3,9 +3,9 @@ WARNING: This file is auto-generated. Do not edit directly.
 Changes will be overwritten when documentation is regenerated.
 Run 'just gen-examples' to regenerate.
 -->
-# AWS Read Only
+# AWS Read-Only
 
-Uses a pre-existing IAM role with skip_iam_policy_attachments for environments where the module has no AWS write access.
+The AWS Read-Only example uses a pre-existing IAM role with `skip_iam_policy_attachments` for environments where the module has no AWS write access.
 
 <!-- BEGIN_GETTING_STARTED -->
 ## Prerequisites

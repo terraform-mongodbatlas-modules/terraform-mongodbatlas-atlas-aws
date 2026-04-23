@@ -5,7 +5,7 @@ Run 'just gen-examples' to regenerate.
 -->
 # AWS KMS Integration with Private Endpoint
 
-Extends encryption at rest with KMS private endpoints so Atlas-to-KMS traffic stays on the AWS backbone.
+The AWS KMS Integration with Private Endpoint extends encryption at rest with KMS private endpoints so Atlas-to-KMS traffic stays on the AWS backbone.
 
 <!-- BEGIN_GETTING_STARTED -->
 ## Prerequisites

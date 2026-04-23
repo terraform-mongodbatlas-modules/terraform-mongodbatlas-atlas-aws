@@ -25,9 +25,7 @@ Run 'just gen-readme' to regenerate. -->
 
 ## Module Status
 
-MongoDB formally supports this module. Support includes bug fixes, security patches, and backward-compatible enhancements. The v1 release carries a 2-year stability commitment: no required breaking changes for at least two years from the initial GA release.
-
-The following examples show common configurations you can copy and adapt. Start with the [encryption](./examples/encryption) example for a minimal setup, then explore other examples for PrivateLink, backup export, and log integration. Examples can be combined in a single module call; see the [aws_read_only](./examples/aws_read_only) example for multiple features in one configuration.
+MongoDB formally supports this module. Support includes bug fixes, security patches, and backward-compatible enhancements. The v1 release carries a two-year stability commitment: no required breaking changes for at least two years from the initial GA release.
 
 <!-- BEGIN_TABLES -->
 <!-- @generated
@@ -35,6 +33,9 @@ WARNING: This section is auto-generated. Do not edit directly.
 Changes will be overwritten when documentation is regenerated.
 Run 'just gen-readme' to regenerate. -->
 ## Examples
+
+The following examples show common configurations you can copy and adapt. Start with the [encryption](./examples/encryption) example for a minimal setup, then explore other examples for PrivateLink, backup export, and log integration. Examples can be combined in a single module call; see the [aws_read_only](./examples/aws_read_only) example for multiple features in one configuration.
+
 
 Feature | Name
 --- | ---
@@ -46,7 +47,7 @@ Private Link | [AWS PrivateLink BYOE](./examples/privatelink_byoe)
 Private Link | [AWS PrivateLink Cross-Region](./examples/privatelink_cross_region)
 Private Link | [AWS PrivateLink BYOE Cross-Region](./examples/privatelink_byoe_cross_region)
 Backup Export | [S3 Bucket Export](./examples/backup_export)
-BYO Role | [AWS Read Only](./examples/aws_read_only)
+BYO Role | [AWS Read-Only](./examples/aws_read_only)
 Log Integration | [S3 Log Export](./examples/log_integration)
 
 <!-- END_TABLES -->
@@ -571,7 +572,7 @@ Yes. Set `cloud_provider_access.create = false` and `skip_iam_policy_attachments
 
 ### What if I only need one integration (e.g., only PrivateLink)?
 
-The module works for single features. For a single concern with maximum control, the provider resources may be simpler.
+The module works for single features. For a single concern with maximum control, the provider resources might be simpler.
 
 ### Does this module work with Azure or GCP?
 

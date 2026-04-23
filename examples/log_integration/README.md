@@ -5,7 +5,7 @@ Run 'just gen-examples' to regenerate.
 -->
 # S3 Log Export
 
-Exports Atlas operational and audit logs to a module-managed S3 bucket.
+The S3 Log Export example exports Atlas operational and audit logs to a module-managed S3 bucket.
 
 <!-- BEGIN_GETTING_STARTED -->
 ## Prerequisites

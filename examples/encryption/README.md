@@ -5,7 +5,7 @@ Run 'just gen-examples' to regenerate.
 -->
 # AWS KMS Integration
 
-Configures Atlas encryption at rest with a module-managed AWS KMS key, including automatic key rotation.
+The AWS KMS Integration example configures Atlas encryption at rest with a module-managed AWS KMS key, including automatic key rotation.
 
 <!-- BEGIN_GETTING_STARTED -->
 ## Prerequisites

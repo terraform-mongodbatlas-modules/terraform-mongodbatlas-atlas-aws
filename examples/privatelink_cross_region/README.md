@@ -5,7 +5,7 @@ Run 'just gen-examples' to regenerate.
 -->
 # AWS PrivateLink Cross-Region
 
-Creates a cross-region PrivateLink endpoint where a VPC in one region connects to an Atlas endpoint service in another.
+The AWS PrivateLink Cross-Region example creates a cross-region PrivateLink endpoint where a VPC in one region connects to an Atlas endpoint service in another.
 
 <!-- BEGIN_GETTING_STARTED -->
 ## Prerequisites

@@ -5,7 +5,7 @@ Run 'just gen-examples' to regenerate.
 -->
 # AWS PrivateLink BYOE
 
-Demonstrates the Bring-Your-Own-Endpoint pattern where you manage the VPC endpoint and the module manages the Atlas-side service.
+The AWS PrivateLink BYOE example demonstrates the Bring-Your-Own-Endpoint pattern where you manage the VPC endpoint and the module manages the Atlas-side service.
 
 <!-- BEGIN_GETTING_STARTED -->
 ## Prerequisites

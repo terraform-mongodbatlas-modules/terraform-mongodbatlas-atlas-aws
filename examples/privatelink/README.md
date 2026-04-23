@@ -5,7 +5,7 @@ Run 'just gen-examples' to regenerate.
 -->
 # AWS PrivateLink Endpoint
 
-Creates a single-region AWS PrivateLink endpoint connecting your VPC to Atlas.
+The AWS PrivateLink Endpoint creates a single-region AWS PrivateLink endpoint connecting your VPC to Atlas.
 
 <!-- BEGIN_GETTING_STARTED -->
 ## Prerequisites

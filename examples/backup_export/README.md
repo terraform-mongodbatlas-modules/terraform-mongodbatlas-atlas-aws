@@ -5,7 +5,7 @@ Run 'just gen-examples' to regenerate.
 -->
 # S3 Bucket Export
 
-Configures Atlas Cloud Backup export to a module-managed S3 bucket with lifecycle rules.
+The S3 Bucket Export example configures Atlas Cloud Backup export to a module-managed S3 bucket with lifecycle rules.
 
 <!-- BEGIN_GETTING_STARTED -->
 ## Prerequisites

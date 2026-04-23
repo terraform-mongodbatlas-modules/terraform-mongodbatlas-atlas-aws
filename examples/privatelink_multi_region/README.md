@@ -5,7 +5,7 @@ Run 'just gen-examples' to regenerate.
 -->
 # AWS PrivateLink Multi-Region
 
-Creates PrivateLink endpoints in two AWS regions with Atlas regional mode enabled.
+The AWS PrivateLink Multi-Region example creates PrivateLink endpoints in two AWS regions with Atlas regional mode enabled.
 
 <!-- BEGIN_GETTING_STARTED -->
 ## Prerequisites

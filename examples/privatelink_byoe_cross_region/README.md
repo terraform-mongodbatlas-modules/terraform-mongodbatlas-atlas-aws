@@ -5,7 +5,7 @@ Run 'just gen-examples' to regenerate.
 -->
 # AWS PrivateLink BYOE Cross-Region
 
-Combines BYOE with cross-region PrivateLink for full endpoint control across regions.
+The AWS PrivateLink BYOE Cross-Region example combines BYOE with cross-region PrivateLink for full endpoint control across regions.
 
 <!-- BEGIN_GETTING_STARTED -->
 ## Prerequisites
@@ -90,6 +90,7 @@ resource "aws_vpc_endpoint" "remote" {
   subnet_ids         = var.subnet_ids
   security_group_ids = var.security_group_ids
   service_region     = var.atlas_service_region
+  region             = var.aws_region
 
   tags = {
     Name = "atlas-privatelink-cross-region"
