@@ -9,7 +9,7 @@ variable "atlas_service_region" {
   default     = "us-east-1"
 }
 
-variable "app_region" {
+variable "aws_region" {
   type        = string
   description = "AWS region where the application VPC and cross-region endpoint live (AWS format, e.g. us-west-2). Used in the AWS provider and aws_vpc_endpoint."
   default     = "us-west-2"

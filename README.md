@@ -1,15 +1,13 @@
 # MongoDB Atlas AWS Terraform Module
 
-Use this Terraform module to configure MongoDB Atlas integrations with AWS. The module includes recommended defaults based on MongoDB best practices.
+Use this Terraform module to configure MongoDB Atlas integrations with AWS. The module includes recommended defaults based on MongoDB best practices. This module is officially maintained by MongoDB. For questions, please open a support request or a GitHub issue.
 
 <!-- BEGIN_TOC -->
 <!-- @generated
 WARNING: This section is auto-generated. Do not edit directly.
 Changes will be overwritten when documentation is regenerated.
 Run 'just gen-readme' to regenerate. -->
-- [Public Preview Note](#public-preview-note)
-- [Disclaimer](#disclaimer)
-- [Getting Started](#getting-started)
+- [Module Commitment](#module-commitment)
 - [Examples](#examples)
 - [Requirements](#requirements)
 - [Providers](#providers)
@@ -25,143 +23,9 @@ Run 'just gen-readme' to regenerate. -->
 - [FAQ](#faq)
 <!-- END_TOC -->
 
-## Public Preview Note
+## Module Commitment
 
-The MongoDB Atlas AWS Module (Public Preview) simplifies Atlas-AWS integrations and applies MongoDB's best practices as intelligent defaults. This preview validates that these patterns meet the needs of most workloads with minimal maintenance or rework. Share feedback and contribute improvements during the preview phase. MongoDB formally supports this module starting with v1.
-
-<!-- BEGIN_DISCLAIMER -->
-## Disclaimer
-
-One of the project's primary objectives is to provide durable modules that support non-breaking migration and upgrade paths. The v0 release (Public Preview) of the MongoDB Atlas AWS Module focuses on gathering feedback and refining the design. Upgrades from v0 to v1 may not be seamless. We plan to deliver a finalized v1 release early next year with long-term upgrade support.
-
-<!-- END_DISCLAIMER -->
-## Getting Started
-
-<!-- BEGIN_GETTING_STARTED -->
-<!-- @generated
-WARNING: This section is auto-generated. Do not edit directly.
-Changes will be overwritten when documentation is regenerated.
-Run 'just gen-readme' to regenerate. -->
-### Prerequisites
-
-If you are familiar with Terraform and already have a project configured in MongoDB Atlas, go to [commands](#commands).
-
-To deploy MongoDB Atlas in AWS with Terraform:
-
-1. Install [Terraform](https://developer.hashicorp.com/terraform/install) to be able to run `terraform` [commands](#commands).
-2. [Sign in](https://account.mongodb.com/account/login) to or [create](https://account.mongodb.com/account/register) your MongoDB Atlas Account.
-3. Configure your [authentication](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs#authentication) method.
-
-   **NOTE**: Service Accounts (SA) are the preferred authentication method. See [Grant Programmatic Access to an Organization](https://www.mongodb.com/docs/atlas/configure-api-access/#grant-programmatic-access-to-an-organization) in the MongoDB Atlas documentation for detailed instructions on configuring SA access to your project.
-
-4. Use an existing [MongoDB Atlas project](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs/resources/project) or [create a new Atlas project resource](#optional-create-a-new-atlas-project-resource).
-5. Authenticate your AWS CLI (`aws configure`) or configure your IAM credentials.
-
-### Commands
-
-```sh
-terraform init # this will download the required providers and create a `terraform.lock.hcl` file.
-# configure authentication env-vars (MONGODB_ATLAS_XXX, AWS_XXX)
-# configure your `vars.tfvars` with required variables
-terraform apply -var-file vars.tfvars
-# cleanup
-terraform destroy -var-file vars.tfvars
-```
-
-### (Optional) Create a New Atlas Project Resource
-
-```hcl
-variable "org_id" {
-  type    = string
-  default = "{ORG_ID}" # REPLACE with your organization id, for example `65def6ce0f722a1507105aa5`.
-}
-
-resource "mongodbatlas_project" "this" {
-  name   = "atlas-aws"
-  org_id = var.org_id
-}
-```
-
-- Replace the `var.project_id` with `mongodbatlas_project.this.project_id` in the [main.tf](./main.tf) file.
-
-<!-- END_GETTING_STARTED -->
-
-### Set Up Encryption at Rest with AWS KMS
-
-Complete the following steps to configure encryption at rest with AWS KMS:
-
-1. Prepare your terraform files.
-  
-   You can copy the files directly from the examples provided in this module:
-
-    - [examples/encryption/main.tf](examples/encryption/main.tf)
-    - [examples/encryption/variables.tf](examples/encryption/variables.tf)
-    - [examples/encryption/versions.tf](examples/encryption/versions.tf)
-
-    The following code example shows a basic example of a `main.tf` file configuration:
-
-    ```hcl
-    module "atlas_aws" {
-      source     = "terraform-mongodbatlas-modules/atlas-aws/mongodbatlas"
-      project_id = var.project_id
-
-      encryption = {
-        enabled = true
-        create_kms_key = {
-          enabled             = true
-          alias               = "alias/atlas-encryption"
-          enable_key_rotation = true
-        }
-      }
-    
-      output "all_outputs" {
-        value = module.atlas_aws
-      }
-    
-    }
-    ```
-
-2. Prepare your [variables](#required-variables)
-
-    The following example shows a `vars.tfvars` with the variables to provide at `apply` time:
-
-    ```hcl
-    project_id = "YOUR_PROJECT_ID"
-    aws_region = "YOUR_AWS_REGION"
-    ```
-
-3. Ensure your authentication environment variables are configured.
-
-    The best practice is to use an [`AWS_PROFILE`](https://docs.aws.amazon.com/cli/latest/reference/configure/) environment variable.
-
-    ```sh
-    export MONGODB_ATLAS_CLIENT_ID="your-client-id-goes-here"
-    export MONGODB_ATLAS_CLIENT_SECRET="your-client-secret-goes-here"
-    export AWS_PROFILE="your-aws-profile-goes-here"
-    ```
-
-    Alternatively, you can use an access key and ID.
-
-    ```sh
-    export MONGODB_ATLAS_CLIENT_ID="your-client-id-goes-here"
-    export MONGODB_ATLAS_CLIENT_SECRET="your-client-secret-goes-here"
-    export AWS_ACCESS_KEY_ID="your-aws-access-key-id"
-    export AWS_SECRET_ACCESS_KEY="your-aws-secret-access-key"
-    ```
-
-    For more details on authentication methods, see [Prerequisites](#prerequisites).
-
-4. Initialize and apply your Terraform configuration (See [Commands](#commands)).
-
-5. Verify your [outputs](#outputs).
-
-You now have encryption at rest configured with AWS KMS.
-
-See the [Examples](#examples) section for additional configurations.
-
-### Clean up your configuration
-
-Run `terraform destroy -var-file vars.tfvars` to undo all changes that Terraform made to your infrastructure.
+MongoDB formally supports this module, including bug fixes, security patches, and backward-compatible enhancements. The v1 release carries a two-year stability commitment: no breaking changes through October 2028 (at the earliest).
 
 <!-- BEGIN_TABLES -->
 <!-- @generated
@@ -169,6 +33,9 @@ WARNING: This section is auto-generated. Do not edit directly.
 Changes will be overwritten when documentation is regenerated.
 Run 'just gen-readme' to regenerate. -->
 ## Examples
+
+The following examples show common configurations you can copy and adapt. Start with the [encryption](./examples/encryption) example for a minimal setup, then explore other examples for PrivateLink, backup export, and log integration. Examples can be combined in a single module call; see the [aws_read_only](./examples/aws_read_only) example for multiple features in one configuration.
+
 
 Feature | Name
 --- | ---
@@ -180,7 +47,7 @@ Private Link | [AWS PrivateLink BYOE](./examples/privatelink_byoe)
 Private Link | [AWS PrivateLink Cross-Region](./examples/privatelink_cross_region)
 Private Link | [AWS PrivateLink BYOE Cross-Region](./examples/privatelink_byoe_cross_region)
 Backup Export | [S3 Bucket Export](./examples/backup_export)
-BYO Role | [AWS Read Only](./examples/aws_read_only)
+BYO Role | [AWS Read-Only](./examples/aws_read_only)
 Log Integration | [S3 Log Export](./examples/log_integration)
 
 <!-- END_TABLES -->
@@ -385,7 +252,9 @@ Default: `[]`
 
 ### privatelink_byo_endpoint
 
-BYOE Phase 1: Create Atlas PrivateLink endpoint services.
+Create Atlas PrivateLink endpoint services for regions where you manage VPC endpoints externally.
+Run `terraform apply` with this variable first to provision the Atlas-side services and retrieve
+the service names from the `privatelink_service_info` output.
 Key is a user-defined identifier, `region` is the Atlas service region (us-east-1 or US_EAST_1).
 Set `supported_remote_regions` to AWS regions that can connect cross-region.
 The module normalizes to Atlas format internally.
@@ -403,7 +272,10 @@ Default: `{}`
 
 ### privatelink_byo_service
 
-BYOE Phase 2: Link user-managed VPC endpoints to Atlas PrivateLink services.
+Link user-managed VPC endpoints to Atlas PrivateLink services.
+Requires the VPC endpoint IDs, either provided in a separate apply or during
+the same apply if managed by the same Terraform workspace
+(see the [privatelink_byoe](./examples/privatelink_byoe) example).
 Same-region: key must exist in `privatelink_byo_endpoint`.
 Cross-region: set `service_region_key` to reference a `privatelink_byo_endpoint` entry
 and `region` to the AWS region where the VPC endpoint lives.
@@ -664,7 +536,7 @@ Description: Atlas PrivateLink service info for BYOE pattern
 
 ### <a name="output_regional_mode_enabled"></a> [regional\_mode\_enabled](#output\_regional\_mode\_enabled)
 
-Description: Whether private endpoint regional mode is enabled
+Description: Whether private endpoint regional mode is enabled. Regional mode routes connections through per-region SRV records. The module enables it automatically when it detects multiple distinct Atlas service regions. See the PrivateLink documentation: https://www.mongodb.com/docs/atlas/security-private-endpoint/?cloud-provider=aws#-optional--regionalized-private-endpoints-for-multi-region-sharded-clusters
 
 ### <a name="output_resource_ids"></a> [resource\_ids](#output\_resource\_ids)
 
@@ -689,3 +561,19 @@ User-Agent: terraform-provider-mongodbatlas/2.1.0 Terraform/1.13.1 module_name/a
 
 - The `provider_meta "mongodbatlas"` block does not send configuration-specific data. It sends only the module name and version for feature adoption tracking.
 - Use `export TF_LOG=debug` to see API requests with headers and responses.
+
+### Does this module support VPC peering?
+
+No. Use [`mongodbatlas_network_peering`](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs/resources/network_peering) directly.
+
+### Can I use this module without granting it IAM write access?
+
+Yes. Set `cloud_provider_access.create = false` and `skip_iam_policy_attachments = true` with a pre-existing role. See the [aws_read_only](./examples/aws_read_only) example. Your IAM administrator must pre-attach the required policies; see [IAM Permissions Reference](./docs/iam-permissions.md).
+
+### What if I only need one integration (e.g., only PrivateLink)?
+
+The module works for single features. For a single concern with maximum control, the provider resources might be simpler.
+
+### Does this module work with Azure or GCP?
+
+No. For Azure use [terraform-mongodbatlas-atlas-azure](https://registry.terraform.io/modules/terraform-mongodbatlas-modules/atlas-azure/mongodbatlas/latest), for GCP use [terraform-mongodbatlas-atlas-gcp](https://registry.terraform.io/modules/terraform-mongodbatlas-modules/atlas-gcp/mongodbatlas/latest).

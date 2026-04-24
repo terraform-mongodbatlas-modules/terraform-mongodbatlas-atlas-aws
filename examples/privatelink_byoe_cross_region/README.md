@@ -5,6 +5,8 @@ Run 'just gen-examples' to regenerate.
 -->
 # AWS PrivateLink BYOE Cross-Region
 
+The AWS PrivateLink BYOE Cross-Region example combines BYOE with cross-region PrivateLink for full endpoint control across regions.
+
 <!-- BEGIN_GETTING_STARTED -->
 ## Prerequisites
 
@@ -19,7 +21,7 @@ To deploy MongoDB Atlas in AWS with Terraform:
    **NOTE**: Service Accounts (SA) are the preferred authentication method. See [Grant Programmatic Access to an Organization](https://www.mongodb.com/docs/atlas/configure-api-access/#grant-programmatic-access-to-an-organization) in the MongoDB Atlas documentation for detailed instructions on configuring SA access to your project.
 
 4. Use an existing [MongoDB Atlas project](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs/resources/project) or [create a new Atlas project resource](#optional-create-a-new-atlas-project-resource).
-5. Authenticate your AWS CLI (`aws configure`) or configure your IAM credentials.
+5. Configure your AWS credentials. See the [IAM Permissions Reference](../../docs/iam-permissions.md) for the required permissions per feature.
 
 ## Commands
 
@@ -68,14 +70,14 @@ module "atlas_aws" {
   privatelink_byo_endpoint = {
     (local.atlas_service) = {
       region                   = var.atlas_service_region
-      supported_remote_regions = [var.app_region]
+      supported_remote_regions = [var.aws_region]
     }
   }
 
   privatelink_byo_service = {
     (local.cross_region) = {
       vpc_endpoint_id    = aws_vpc_endpoint.remote.id
-      region             = var.app_region
+      region             = var.aws_region
       service_region_key = local.atlas_service
     }
   }
@@ -88,6 +90,7 @@ resource "aws_vpc_endpoint" "remote" {
   subnet_ids         = var.subnet_ids
   security_group_ids = var.security_group_ids
   service_region     = var.atlas_service_region
+  region             = var.aws_region
 
   tags = {
     Name = "atlas-privatelink-cross-region"

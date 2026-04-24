@@ -13,44 +13,54 @@ examples_readme:
       provider "aws" {
         region = var.aws_region
       }
-    skip_if_name_contains:
-    - backup_export
-    - cross-region
+    skip_if_name_contains: []
     generate_when_missing_only: false
     force_generate: false
 
 tables:
   - name: Examples
+    intro: |
+      The following examples show common configurations you can copy and adapt. Start with the [encryption](./examples/encryption) example for a minimal setup, then explore other examples for PrivateLink, backup export, and log integration. Examples can be combined in a single module call; see the [aws_read_only](./examples/aws_read_only) example for multiple features in one configuration.
     columns: ["feature", "name"]
     link_column: name
     example_rows:
     - folder_name: encryption
       feature: Encryption at Rest
       name: AWS KMS Integration
+      description: The AWS KMS Integration example configures Atlas encryption at rest with a module-managed AWS KMS key, including automatic key rotation.
     - folder_name: encryption_private_endpoint
       feature: Encryption at Rest
       name: AWS KMS Integration with Private Endpoint
+      description: The AWS KMS Integration with Private Endpoint extends encryption at rest with KMS private endpoints so Atlas-to-KMS traffic stays on the AWS backbone.
     - folder_name: privatelink
       feature: Private Link
       name: AWS PrivateLink Endpoint
+      description: The AWS PrivateLink Endpoint creates a single-region AWS PrivateLink endpoint connecting your VPC to Atlas.
     - folder_name: privatelink_multi_region
       feature: Private Link
       name: AWS PrivateLink Multi-Region
+      description: The AWS PrivateLink Multi-Region example creates PrivateLink endpoints in two AWS regions with Atlas regional mode enabled.
     - folder_name: privatelink_byoe
       feature: Private Link
       name: AWS PrivateLink BYOE
+      description: The AWS PrivateLink BYOE example demonstrates the Bring-Your-Own-Endpoint pattern where you manage the VPC endpoint and the module manages the Atlas-side service.
     - folder_name: privatelink_cross_region
       feature: Private Link
       name: AWS PrivateLink Cross-Region
+      description: The AWS PrivateLink Cross-Region example creates a cross-region PrivateLink endpoint where a VPC in one region connects to an Atlas endpoint service in another.
     - folder_name: privatelink_byoe_cross_region
       feature: Private Link
       name: AWS PrivateLink BYOE Cross-Region
+      description: The AWS PrivateLink BYOE Cross-Region example combines BYOE with cross-region PrivateLink for full endpoint control across regions.
     - folder_name: backup_export
       feature: Backup Export
       name: S3 Bucket Export
+      description: The S3 Bucket Export example configures Atlas Cloud Backup export to a module-managed S3 bucket with lifecycle rules.
     - folder_name: aws_read_only
       feature: BYO Role
-      name: AWS Read Only
+      name: AWS Read-Only
+      description: The AWS Read-Only example uses a pre-existing IAM role with `skip_iam_policy_attachments` for environments where the module has no AWS write access.
     - folder_name: log_integration
       feature: Log Integration
       name: S3 Log Export
+      description: The S3 Log Export example exports Atlas operational and audit logs to a module-managed S3 bucket.

@@ -224,7 +224,9 @@ variable "privatelink_byo_endpoint" {
   }))
   default     = {}
   description = <<-EOT
-    BYOE Phase 1: Create Atlas PrivateLink endpoint services.
+    Create Atlas PrivateLink endpoint services for regions where you manage VPC endpoints externally.
+    Run `terraform apply` with this variable first to provision the Atlas-side services and retrieve
+    the service names from the `privatelink_service_info` output.
     Key is a user-defined identifier, `region` is the Atlas service region (us-east-1 or US_EAST_1).
     Set `supported_remote_regions` to AWS regions that can connect cross-region.
     The module normalizes to Atlas format internally.
@@ -255,7 +257,10 @@ variable "privatelink_byo_service" {
   }))
   default     = {}
   description = <<-EOT
-    BYOE Phase 2: Link user-managed VPC endpoints to Atlas PrivateLink services.
+    Link user-managed VPC endpoints to Atlas PrivateLink services.
+    Requires the VPC endpoint IDs, either provided in a separate apply or during
+    the same apply if managed by the same Terraform workspace
+    (see the [privatelink_byoe](./examples/privatelink_byoe) example).
     Same-region: key must exist in `privatelink_byo_endpoint`.
     Cross-region: set `service_region_key` to reference a `privatelink_byo_endpoint` entry
     and `region` to the AWS region where the VPC endpoint lives.

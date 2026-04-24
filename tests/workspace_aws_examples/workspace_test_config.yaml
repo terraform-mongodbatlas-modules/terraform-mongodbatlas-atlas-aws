@@ -34,7 +34,7 @@ examples:
       - address: module.atlas_aws.module.backup_export[0].aws_iam_role_policy.s3_access[0]
       - address: module.atlas_aws.module.backup_export[0].time_sleep.iam_propagation[0]
       - address: module.atlas_aws.module.backup_export[0].mongodbatlas_cloud_backup_snapshot_export_bucket.this
-      - address:  module.atlas_aws.module.backup_export[0].aws_s3_bucket_server_side_encryption_configuration.atlas[0]
+      - address: module.atlas_aws.module.backup_export[0].aws_s3_bucket_server_side_encryption_configuration.atlas[0]
 
   - name: log_integration
     var_groups: [log_integration]
@@ -229,7 +229,7 @@ var_groups:
     - name: atlas_service_region
       expose_in_workspace: false
       module_value: '"us-east-1"'
-    - name: app_region
+    - name: aws_region
       expose_in_workspace: false
       module_value: '"us-west-2"'
     - name: vpc_id
