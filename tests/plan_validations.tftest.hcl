@@ -629,7 +629,8 @@ run "privatelink_cannot_mix_patterns" {
 run "privatelink_valid_multi_region" {
   command = plan
   variables {
-    project_id = var.project_id
+    project_id                = var.project_id
+    privatelink_regional_mode = "auto"
     privatelink_endpoints = [
       { region = "us-east-1", subnet_ids = ["subnet-abc"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } },
       { region = "us-west-2", subnet_ids = ["subnet-def"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } }
@@ -723,7 +724,8 @@ run "privatelink_byo_service_phase2_with_endpoint" {
 run "privatelink_byo_service_multi_region_phase2" {
   command = plan
   variables {
-    project_id = var.project_id
+    project_id                = var.project_id
+    privatelink_regional_mode = "auto"
     privatelink_byo_endpoint = {
       primary   = { region = "us-east-1" }
       secondary = { region = "eu-west-1" }
@@ -838,7 +840,8 @@ run "privatelink_byo_endpoint_key_overlap_normalized" {
 run "region_format_mixed_styles_privatelink" {
   command = plan
   variables {
-    project_id = var.project_id
+    project_id                = var.project_id
+    privatelink_regional_mode = "auto"
     privatelink_endpoints = [
       { region = "us-east-1", subnet_ids = ["subnet-abc"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } },
       { region = "US_WEST_2", subnet_ids = ["subnet-def"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } }
