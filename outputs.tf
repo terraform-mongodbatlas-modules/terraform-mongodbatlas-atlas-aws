@@ -79,7 +79,7 @@ output "privatelink_service_info" {
 }
 
 output "regional_mode_enabled" {
-  description = "Whether private endpoint regional mode is enabled. Regional mode routes connections through per-region SRV records. The module enables it automatically when it detects multiple distinct Atlas service regions. See the PrivateLink documentation: https://www.mongodb.com/docs/atlas/security-private-endpoint/?cloud-provider=aws#-optional--regionalized-private-endpoints-for-multi-region-sharded-clusters"
+  description = "True when `privatelink_regional_mode` is `auto` and there are multiple distinct Atlas service regions. Default variable value is `disabled`. See: https://www.mongodb.com/docs/atlas/security-private-endpoint/?cloud-provider=aws#-optional--regionalized-private-endpoints-for-multi-region-sharded-clusters"
   value       = local.enable_regional_mode
 }
 

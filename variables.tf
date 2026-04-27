@@ -128,6 +128,29 @@ variable "encryption" {
   }
 }
 
+variable "privatelink_regional_mode" {
+  type        = string
+  default     = "disabled"
+  description = <<-EOT
+    Per-region SRV/connection strings for sharded and geo-sharded clusters only; not for replica
+    sets. Default is `disabled`. Use `auto` to enable when the module detects multiple distinct
+    Atlas service regions.
+
+    - **When it helps:** multi-region sharded topologies; networks that cannot be peered and need
+    local private-endpoint connection strings.
+    - **Tradeoffs:** toggling is project-wide (connection string and DNS churn, possible brief
+    downtime). A region's PE connection string is not a cross-region disaster-recovery or failover
+    path on its own.
+    - **Often skip:** a single global PE with VPC peering, or one PE per region that every app can
+    reach, is enough. See [regionalized private endpoints (multi-region sharded)](https://www.mongodb.com/docs/atlas/security-private-endpoint/?cloud-provider=aws#-optional--regionalized-private-endpoints-for-multi-region-sharded-clusters).
+  EOT
+
+  validation {
+    condition     = contains(["auto", "disabled"], var.privatelink_regional_mode)
+    error_message = "privatelink_regional_mode must be \"auto\" or \"disabled\"."
+  }
+}
+
 variable "privatelink_endpoints" {
   type = list(object({
     region         = string
@@ -155,8 +178,9 @@ variable "privatelink_endpoints" {
     `service_region` must match a `region` from another primary entry (without `service_region`).
     Entries without `service_region` create the Atlas-side `mongodbatlas_privatelink_endpoint`.
     Entries with `service_region` only create the AWS-side VPC endpoint and Atlas service linkage.
-    `mongodbatlas_private_endpoint_regional_mode` is only enabled when there are multiple
-    distinct Atlas service regions (not counting cross-region VPC endpoints).
+    `mongodbatlas_private_endpoint_regional_mode` is only created when `privatelink_regional_mode`
+    is `auto` and there are multiple distinct Atlas service regions (not counting cross-region VPC
+    endpoints). The default is `disabled`.
   EOT
 
   validation {

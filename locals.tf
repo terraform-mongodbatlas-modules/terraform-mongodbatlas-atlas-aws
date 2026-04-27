@@ -134,5 +134,5 @@ locals {
   # Regional mode: count only Atlas service regions (primary + BYOE), not cross-region VPC endpoints
   _privatelink_atlas_service_regions = { for k, v in local.privatelink_atlas_endpoints : k => lower(replace(v.region, "_", "-")) }
   privatelink_all_regions            = toset(values(local._privatelink_atlas_service_regions))
-  enable_regional_mode               = length(local.privatelink_all_regions) > 1
+  enable_regional_mode               = var.privatelink_regional_mode == "auto" && length(local.privatelink_all_regions) > 1
 }

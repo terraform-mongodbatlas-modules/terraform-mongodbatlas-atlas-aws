@@ -95,7 +95,8 @@ run "timeouts_null_all_features" {
 run "timeouts_all_resources_plan_succeeds" {
   command = plan
   variables {
-    timeouts = { create = "45m", update = "45m", delete = "45m" }
+    privatelink_regional_mode = "auto"
+    timeouts                  = { create = "45m", update = "45m", delete = "45m" }
     encryption = {
       enabled                  = true
       kms_key_arn              = "arn:aws:kms:us-east-1:123456789012:key/abc"

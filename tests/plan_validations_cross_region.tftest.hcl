@@ -78,7 +78,8 @@ run "privatelink_cross_region_atlas_format" {
 run "privatelink_multi_region_with_cross_region" {
   command = plan
   variables {
-    project_id = var.project_id
+    project_id                = var.project_id
+    privatelink_regional_mode = "auto"
     privatelink_endpoints = [
       { region = "us-east-1", subnet_ids = ["subnet-abc"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } },
       { region = "eu-west-1", subnet_ids = ["subnet-def"], security_group = { inbound_cidr_blocks = ["10.0.0.0/8"] } },

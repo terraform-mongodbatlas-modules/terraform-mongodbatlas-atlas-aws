@@ -225,8 +225,9 @@ Atlas endpoint service in `service_region` via AWS cross-region PrivateLink.
 `service_region` must match a `region` from another primary entry (without `service_region`).
 Entries without `service_region` create the Atlas-side `mongodbatlas_privatelink_endpoint`.
 Entries with `service_region` only create the AWS-side VPC endpoint and Atlas service linkage.
-`mongodbatlas_private_endpoint_regional_mode` is only enabled when there are multiple
-distinct Atlas service regions (not counting cross-region VPC endpoints).
+`mongodbatlas_private_endpoint_regional_mode` is only created when `privatelink_regional_mode`
+is `auto` and there are multiple distinct Atlas service regions (not counting cross-region VPC
+endpoints). The default is `disabled`.
 
 Type:
 
@@ -475,6 +476,24 @@ list(object({
 
 Default: `[]`
 
+### privatelink_regional_mode
+
+Per-region SRV/connection strings for sharded and geo-sharded clusters only; not for replica
+sets. Default is `disabled`. Use `auto` to enable when the module detects multiple distinct
+Atlas service regions.
+
+- **When it helps:** multi-region sharded topologies; networks that cannot be peered and need
+local private-endpoint connection strings.
+- **Tradeoffs:** toggling is project-wide (connection string and DNS churn, possible brief
+downtime). A region's PE connection string is not a cross-region disaster-recovery or failover
+path on its own.
+- **Often skip:** a single global PE with VPC peering, or one PE per region that every app can
+reach, is enough. See [regionalized private endpoints (multi-region sharded)](https://www.mongodb.com/docs/atlas/security-private-endpoint/?cloud-provider=aws#-optional--regionalized-private-endpoints-for-multi-region-sharded-clusters).
+
+Type: `string`
+
+Default: `"disabled"`
+
 ### timeouts
 
 Timeout defaults applied to all wrapped resources (Atlas and AWS).
@@ -536,7 +555,7 @@ Description: Atlas PrivateLink service info for BYOE pattern
 
 ### <a name="output_regional_mode_enabled"></a> [regional\_mode\_enabled](#output\_regional\_mode\_enabled)
 
-Description: Whether private endpoint regional mode is enabled. Regional mode routes connections through per-region SRV records. The module enables it automatically when it detects multiple distinct Atlas service regions. See the PrivateLink documentation: https://www.mongodb.com/docs/atlas/security-private-endpoint/?cloud-provider=aws#-optional--regionalized-private-endpoints-for-multi-region-sharded-clusters
+Description: True when `privatelink_regional_mode` is `auto` and there are multiple distinct Atlas service regions. Default variable value is `disabled`. See: https://www.mongodb.com/docs/atlas/security-private-endpoint/?cloud-provider=aws#-optional--regionalized-private-endpoints-for-multi-region-sharded-clusters
 
 ### <a name="output_resource_ids"></a> [resource\_ids](#output\_resource\_ids)
 

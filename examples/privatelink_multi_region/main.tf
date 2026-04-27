@@ -2,6 +2,8 @@ module "atlas_aws" {
   source     = "../../"
   project_id = var.project_id
 
+  privatelink_regional_mode = "auto" # enables regional mode when the module sees multiple distinct Atlas regions. Ensure you understand the tradeoffs before enabling.
+
   privatelink_endpoints = [
     { region = "us-east-1", subnet_ids = var.subnet_ids_us_east_1 },
     { region = "us-west-2", subnet_ids = var.subnet_ids_us_west_2 },
