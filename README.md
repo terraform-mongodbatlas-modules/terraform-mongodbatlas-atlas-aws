@@ -67,6 +67,8 @@ The following requirements are needed by this module:
 
 - <a name="requirement_mongodbatlas"></a> [mongodbatlas](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs) (~> 2.11)
 
+- <a name="requirement_time"></a> [time](https://registry.terraform.io/providers/hashicorp/time/latest/docs) (>= 0.9)
+
 ## Providers
 
 The following providers are used by this module:
