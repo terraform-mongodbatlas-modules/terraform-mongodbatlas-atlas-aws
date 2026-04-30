@@ -1,5 +1,7 @@
 ## (Unreleased)
 
+## 0.3.0 (April 30, 2026)
+
 BREAKING CHANGES:
 
 * module: Makes private endpoint regional mode opt-in; set `privatelink_regional_mode` to `auto` to restore the previous automatic behavior when using multiple distinct Atlas regions ([#49](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/49))
