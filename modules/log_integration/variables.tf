@@ -85,7 +85,7 @@ variable "create_s3_bucket" {
 
 variable "integrations" {
   type = list(object({
-    log_types   = list(string)
+    log_types   = set(string)
     prefix_path = string
     bucket_name = optional(string)
   }))

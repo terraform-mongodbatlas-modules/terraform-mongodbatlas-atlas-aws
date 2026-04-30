@@ -406,7 +406,7 @@ Type:
 object({
   enabled = optional(bool, false)
   integrations = optional(list(object({
-    log_types   = list(string)
+    log_types   = set(string)
     prefix_path = string
     bucket_name = optional(string)
   })), [])
