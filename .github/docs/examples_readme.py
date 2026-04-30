@@ -44,11 +44,17 @@ def get_example_name(folder_name: str, config: dict) -> str:
 
 
 def get_example_description(folder_name: str, config: dict) -> str:
+    match = re.match(r"^(\d+)_", folder_name)
+    folder_number = int(match.group(1)) if match else None
     folder_name_lower = folder_name.lower()
     for table in config.get("tables", []):
         for example_row in table.get("example_rows", []):
-            if example_row.get("folder_name", "").lower() == folder_name_lower:
-                return example_row.get("description", "")
+            config_folder_name = example_row.get("folder_name", "")
+            if config_folder_name.lower() == folder_name_lower or (
+                folder_number is not None and example_row.get("folder") == folder_number
+            ):
+                desc = example_row.get("description", "")
+                return desc if isinstance(desc, str) else ""
     return ""
 
 
@@ -249,7 +255,6 @@ def process_example(
     check: bool = False,
 ) -> tuple[bool, bool, bool]:
     example_name = get_example_name(example_dir.name, config)
-    example_description = get_example_description(example_dir.name, config)
     readme_generated = False
     versions_generated = False
     has_changes = False
@@ -264,7 +269,7 @@ def process_example(
             version,
             examples_readme_config.code_snippet_files.additional,
             examples_readme_config.template_vars.skip_rules,
-            description=example_description,
+            description=get_example_description(example_dir.name, config),
         )
         if check and readme_path.exists():
             existing_content = readme_path.read_text(encoding="utf-8")
