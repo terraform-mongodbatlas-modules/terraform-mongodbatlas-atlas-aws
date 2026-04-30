@@ -568,6 +568,10 @@ Description: Atlas role ID for reuse with other Atlas-AWS features
 
 ## FAQ
 
+### Where can I find what changed in each release?
+
+See [CHANGELOG.md](CHANGELOG.md) in this repository. It lists user-facing changes, including breaking changes and migration notes, per release.
+
 ### What does `provider_meta "mongodbatlas"` do?
 
 This block tracks module usage by updating the User-Agent header of requests to Atlas.
