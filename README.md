@@ -34,21 +34,21 @@ Changes will be overwritten when documentation is regenerated.
 Run 'just gen-readme' to regenerate. -->
 ## Examples
 
-The following examples show common configurations you can copy and adapt. Start with the [encryption](./examples/encryption) example for a minimal setup, then explore other examples for PrivateLink, backup export, and log integration. Examples can be combined in a single module call; see the [aws_read_only](./examples/aws_read_only) example for multiple features in one configuration.
+The following examples show common configurations you can copy and adapt. Start with the [encryption](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/examples/encryption) example for a minimal setup, then explore other examples for PrivateLink, backup export, and log integration. Examples can be combined in a single module call; see the [aws_read_only](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/examples/aws_read_only) example for multiple features in one configuration.
 
 
 Feature | Name
 --- | ---
-Encryption at Rest | [AWS KMS Integration](./examples/encryption)
-Encryption at Rest | [AWS KMS Integration with Private Endpoint](./examples/encryption_private_endpoint)
-Private Link | [AWS PrivateLink Endpoint](./examples/privatelink)
-Private Link | [AWS PrivateLink Multi-Region](./examples/privatelink_multi_region)
-Private Link | [AWS PrivateLink BYOE](./examples/privatelink_byoe)
-Private Link | [AWS PrivateLink Cross-Region](./examples/privatelink_cross_region)
-Private Link | [AWS PrivateLink BYOE Cross-Region](./examples/privatelink_byoe_cross_region)
-Backup Export | [S3 Bucket Export](./examples/backup_export)
-BYO Role | [AWS Read-Only](./examples/aws_read_only)
-Log Integration | [S3 Log Export](./examples/log_integration)
+Encryption at Rest | [AWS KMS Integration](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/examples/encryption)
+Encryption at Rest | [AWS KMS Integration with Private Endpoint](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/examples/encryption_private_endpoint)
+Private Link | [AWS PrivateLink Endpoint](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/examples/privatelink)
+Private Link | [AWS PrivateLink Multi-Region](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/examples/privatelink_multi_region)
+Private Link | [AWS PrivateLink BYOE](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/examples/privatelink_byoe)
+Private Link | [AWS PrivateLink Cross-Region](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/examples/privatelink_cross_region)
+Private Link | [AWS PrivateLink BYOE Cross-Region](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/examples/privatelink_byoe_cross_region)
+Backup Export | [S3 Bucket Export](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/examples/backup_export)
+BYO Role | [AWS Read-Only](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/examples/aws_read_only)
+Log Integration | [S3 Log Export](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/examples/log_integration)
 
 <!-- END_TABLES -->
 <!-- BEGIN_TF_DOCS -->
@@ -105,7 +105,7 @@ Atlas uses AWS IAM roles to access customer cloud resources (KMS keys, S3 bucket
 
 See the [CPA documentation](https://www.mongodb.com/docs/atlas/security/set-up-unified-aws-access/) for details.
 
-For least-privilege IAM permissions per feature, see [IAM Permissions Reference](./docs/iam-permissions.md).
+For least-privilege IAM permissions per feature, see [IAM Permissions Reference](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/docs/iam-permissions.md).
 
 ### cloud_provider_access
 
@@ -276,7 +276,7 @@ Default: `{}`
 Link user-managed VPC endpoints to Atlas PrivateLink services.
 Requires the VPC endpoint IDs, either provided in a separate apply or during
 the same apply if managed by the same Terraform workspace
-(see the [privatelink_byoe](./examples/privatelink_byoe) example).
+(see the [privatelink_byoe](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/examples/privatelink_byoe) example).
 Same-region: key must exist in `privatelink_byo_endpoint`.
 Cross-region: set `service_region_key` to reference a `privatelink_byo_endpoint` entry
 and `region` to the AWS region where the VPC endpoint lives.
@@ -570,7 +570,7 @@ Description: Atlas role ID for reuse with other Atlas-AWS features
 
 ### Where can I find what changed in each release?
 
-See [CHANGELOG.md](CHANGELOG.md) in this repository. It lists user-facing changes, including breaking changes and migration notes, per release.
+See [CHANGELOG.md](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/CHANGELOG.md) in this repository. It lists user-facing changes, including breaking changes and migration notes, per release.
 
 ### What does `provider_meta "mongodbatlas"` do?
 
@@ -591,7 +591,7 @@ No. Use [`mongodbatlas_network_peering`](https://registry.terraform.io/providers
 
 ### Can I use this module without granting it IAM write access?
 
-Yes. Set `cloud_provider_access.create = false` and `skip_iam_policy_attachments = true` with a pre-existing role. See the [aws_read_only](./examples/aws_read_only) example. Your IAM administrator must pre-attach the required policies; see [IAM Permissions Reference](./docs/iam-permissions.md).
+Yes. Set `cloud_provider_access.create = false` and `skip_iam_policy_attachments = true` with a pre-existing role. See the [aws_read_only](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/examples/aws_read_only) example. Your IAM administrator must pre-attach the required policies; see [IAM Permissions Reference](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/docs/iam-permissions.md).
 
 ### What if I only need one integration (e.g., only PrivateLink)?
 

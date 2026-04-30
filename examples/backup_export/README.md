@@ -21,7 +21,7 @@ To deploy MongoDB Atlas in AWS with Terraform:
    **NOTE**: Service Accounts (SA) are the preferred authentication method. See [Grant Programmatic Access to an Organization](https://www.mongodb.com/docs/atlas/configure-api-access/#grant-programmatic-access-to-an-organization) in the MongoDB Atlas documentation for detailed instructions on configuring SA access to your project.
 
 4. Use an existing [MongoDB Atlas project](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs/resources/project) or [create a new Atlas project resource](#optional-create-a-new-atlas-project-resource).
-5. Configure your AWS credentials. See the [IAM Permissions Reference](../../docs/iam-permissions.md) for the required permissions per feature.
+5. Configure your AWS credentials. See the [IAM Permissions Reference](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/docs/iam-permissions.md) for the required permissions per feature.
 
 ## Commands
 
@@ -48,7 +48,7 @@ resource "mongodbatlas_project" "this" {
 }
 ```
 
-- Replace the `var.project_id` with `mongodbatlas_project.this.project_id` in the [main.tf](./main.tf) file.
+- Replace the `var.project_id` with `mongodbatlas_project.this.project_id` in the [main.tf](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/examples/backup_export/main.tf) file.
 <!-- END_GETTING_STARTED -->
 
 ## Code Snippet
@@ -59,6 +59,7 @@ Copy and use this code to get started quickly:
 ```hcl
 module "atlas_aws" {
   source  = "terraform-mongodbatlas-modules/atlas-aws/mongodbatlas"
+  version = "v0.3.0"
   project_id = var.project_id
 
   backup_export = {
@@ -80,8 +81,8 @@ output "backup_export" {
 ```
 
 **Additional files needed:**
-- [variables.tf](./variables.tf)
-- [versions.tf](./versions.tf)
+- [variables.tf](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/examples/backup_export/variables.tf)
+- [versions.tf](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/v0.3.0/examples/backup_export/versions.tf)
 
 
 
