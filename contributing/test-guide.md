@@ -59,9 +59,17 @@ just plan-snapshot-test --var-file $(pwd)/tests/workspace_aws_examples/dev.tfvar
 # Apply examples (creates real resources)
 just apply-examples --var-file $(pwd)/tests/workspace_aws_examples/dev.tfvars --auto-approve
 
+# Validate that applied resources can be imported cleanly (requires prior apply)
+just import-validate --var-file $(pwd)/tests/workspace_aws_examples/dev.tfvars
+
+# Run import validation for specific examples only
+just import-validate -e encryption,backup_export --var-file $(pwd)/tests/workspace_aws_examples/dev.tfvars
+
 # Destroy resources after testing
 just destroy-examples --auto-approve
 ```
+
+The typical end-to-end workflow is: `plan-snapshot-test` -> `apply-examples` -> `import-validate` -> `destroy-examples`.
 
 ### Snapshot Configuration
 
