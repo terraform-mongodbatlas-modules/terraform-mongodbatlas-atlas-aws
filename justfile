@@ -5,8 +5,8 @@ PLAN_TEST_FILES := ""
 # === DO_NOT_EDIT: path-sync core ===
 set dotenv-load
 
-gh_dir := justfile_directory() + "/.github"
-uv_gh := "uv run --project .github"
+gh_dir := justfile_directory() + "/tools"
+uv_gh := "uv run --project tools"
 py := "PYTHONPATH=" + gh_dir + " " + uv_gh + " python -m"
 
 default:
@@ -23,7 +23,7 @@ pre-push: pre-commit unit-plan-tests py-test
 # === DO_NOT_EDIT: path-sync dev-setup ===
 # DEV SETUP
 uv-sync:
-    uv sync --project .github
+    uv sync --project tools
 # === OK_EDIT: path-sync dev-setup ===
 # === DO_NOT_EDIT: path-sync formatting ===
 # FORMATTING
@@ -31,7 +31,7 @@ fmt:
     terraform fmt -recursive .
 
 py-fmt:
-    {{uv_gh}} ruff format .github
+    {{uv_gh}} ruff format tools
 
 validate:
     terraform init
@@ -40,23 +40,26 @@ validate:
 # === DO_NOT_EDIT: path-sync linting ===
 # LINTING
 lint:
-    tflint -f compact --recursive --minimum-failure-severity=warning
+    tflint -f compact --minimum-failure-severity=warning
+    tflint -f compact --recursive --minimum-failure-severity=warning --chdir=examples
+    tflint -f compact --recursive --minimum-failure-severity=warning --chdir=tests
+    tflint -f compact --recursive --minimum-failure-severity=warning --chdir=modules
     terraform fmt -check -recursive
 
 py-check:
-    {{uv_gh}} ruff format --exit-non-zero-on-format .github # avoids having to manually run `just py-fmt` after pre-commit check
-    {{uv_gh}} ruff check .github
+    {{uv_gh}} ruff format --exit-non-zero-on-format tools # avoids having to manually run `just py-fmt` after pre-commit check
+    {{uv_gh}} ruff check tools
 
 validate-versions-tf:
     {{py}} tf_utils.validate_versions_tf --repo-root {{justfile_directory()}}
 
 py-fix:
-    {{uv_gh}} ruff check --fix .github
+    {{uv_gh}} ruff check --fix tools
 # === OK_EDIT: path-sync linting ===
 # === DO_NOT_EDIT: path-sync testing-unit ===
 # PYTHON TESTING
 py-test:
-    {{uv_gh}} pytest .github/ -v --ignore=.github/dev/
+    {{uv_gh}} pytest tools/ -v --ignore=tools/dev/
 
 unit-plan-tests:
     terraform init
@@ -113,7 +116,7 @@ build-changelog:
     {{py}} changelog.build_changelog
 
 check-changelog-entry-file filepath:
-    go run -C .github/changelog/check-changelog-entry-file . "{{justfile_directory()}}/{{filepath}}"
+    go run -C tools/changelog/check-changelog-entry-file . "{{justfile_directory()}}/{{filepath}}"
 
 update-changelog-version version:
     {{py}} changelog.update_changelog_version {{version}}
