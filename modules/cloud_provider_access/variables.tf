@@ -18,7 +18,7 @@ variable "iam_role_name" {
   default     = null
   description = "Custom IAM role name. When null, uses name_prefix mongodb-atlas-{project_id_suffix}-{purpose} with AWS-generated suffix."
   validation {
-    condition     = var.iam_role_name == null || length(var.iam_role_name) <= 64
+    condition     = var.iam_role_name == null ? true : length(var.iam_role_name) <= 64
     error_message = "iam_role_name must be 64 characters or less (AWS IAM role name limit)"
   }
 }

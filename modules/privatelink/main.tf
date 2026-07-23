@@ -19,7 +19,9 @@ locals {
     local.should_create_sg ? [aws_security_group.this[0].id] : []
   )
 
-  create_cidr_rule = local.should_create_sg && (var.security_group.inbound_cidr_blocks == null || length(var.security_group.inbound_cidr_blocks) > 0)
+  create_cidr_rule = local.should_create_sg && (
+    var.security_group.inbound_cidr_blocks == null ? true : length(var.security_group.inbound_cidr_blocks) > 0
+  )
   effective_cidr_blocks = local.should_create_sg ? (
     var.security_group.inbound_cidr_blocks == null
     ? [var.vpc_cidr_block != null ? var.vpc_cidr_block : data.aws_vpc.this[0].cidr_block]
