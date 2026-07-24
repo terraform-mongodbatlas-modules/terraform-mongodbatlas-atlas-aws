@@ -115,7 +115,7 @@ locals {
       k => [
         for ep in var.privatelink_endpoints :
         upper(replace(ep.region, "-", "_"))
-        if ep.service_region != null && lower(replace(ep.service_region, "_", "-")) == k
+        if ep.service_region != null ? lower(replace(ep.service_region, "_", "-")) == k : false
       ]
     },
     {
