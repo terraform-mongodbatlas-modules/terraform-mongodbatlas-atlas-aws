@@ -39,12 +39,31 @@ variable "create_kms_key" {
     deletion_window_in_days = optional(number, 7)
     enable_key_rotation     = optional(bool, true)
     policy_override         = optional(string)
+    multi_region            = optional(bool, true)
+    replica_regions         = optional(set(string), [])
   })
   default = {
     enabled = false
   }
   nullable    = false
-  description = "Module-managed KMS key configuration"
+  description = <<-EOT
+    Module-managed KMS key configuration.
+
+    Set `replica_regions` to every additional AWS region where Atlas nodes run (excluding the
+    primary `region`). Omit or leave empty for single-region clusters.
+
+    `multi_region` defaults to `true` (multi-Region primary CMK). Set `false` for a
+    single-Region key; `replica_regions` must be empty when `multi_region` is `false`.
+  EOT
+
+  validation {
+    condition = (
+      !var.create_kms_key.enabled ||
+      length(try(var.create_kms_key.replica_regions, [])) == 0 ||
+      try(var.create_kms_key.multi_region, true)
+    )
+    error_message = "create_kms_key.replica_regions requires create_kms_key.multi_region = true."
+  }
 }
 
 variable "tags" {

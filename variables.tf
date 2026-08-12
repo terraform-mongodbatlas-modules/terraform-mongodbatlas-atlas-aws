@@ -83,6 +83,8 @@ variable "encryption" {
       deletion_window_in_days = optional(number, 7)
       enable_key_rotation     = optional(bool, true)
       policy_override         = optional(string)
+      multi_region            = optional(bool, true)
+      replica_regions         = optional(set(string), [])
     }))
     enabled_for_search_nodes = optional(bool, true)
     private_endpoint_regions = optional(set(string), [])
@@ -100,6 +102,14 @@ variable "encryption" {
     Provide EITHER:
     - `kms_key_arn` (user-provided KMS key)
     - `create_kms_key.enabled = true` (module-managed KMS key)
+
+    **Multi-region clusters:**
+    Set `create_kms_key.replica_regions` to every additional AWS region where Atlas nodes run
+    (excluding the primary `encryption.region` or provider region). The module does not infer
+    replica regions from PrivateLink or cluster configuration.
+
+    `create_kms_key.multi_region` defaults to `true`. Set `false` for a single-Region CMK;
+    `replica_regions` must be empty when `multi_region` is `false`.
 
     **IAM Role Strategy:**
     - `iam_role.create = false` (default): Uses the shared IAM role from `cloud_provider_access`.
@@ -125,6 +135,15 @@ variable "encryption" {
   validation {
     condition     = length(var.encryption.private_endpoint_regions) == 0 || var.encryption.enabled
     error_message = "private_endpoint_regions requires encryption.enabled = true."
+  }
+
+  validation {
+    condition = (
+      !try(var.encryption.create_kms_key.enabled, false) ||
+      length(try(var.encryption.create_kms_key.replica_regions, [])) == 0 ||
+      try(var.encryption.create_kms_key.multi_region, true)
+    )
+    error_message = "create_kms_key.replica_regions requires create_kms_key.multi_region = true."
   }
 }
 

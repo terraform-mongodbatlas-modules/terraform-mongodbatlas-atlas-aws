@@ -14,6 +14,7 @@ output "encryption" {
     valid                    = module.encryption[0].valid
     kms_key_arn              = module.encryption[0].kms_key_arn
     kms_key_id               = module.encryption[0].kms_key_id
+    kms_replica_key_arns     = module.encryption[0].kms_replica_key_arns
     enabled_for_search_nodes = module.encryption[0].enabled_for_search_nodes
     private_endpoints = {
       for k, v in module.encryption_private_endpoint :

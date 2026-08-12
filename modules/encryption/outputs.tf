@@ -23,6 +23,11 @@ output "kms_key_id" {
   value       = local.kms_key_id
 }
 
+output "kms_replica_key_arns" {
+  description = "Regional KMS replica key ARNs keyed by AWS region (module-managed multi-region keys only)"
+  value       = { for region, replica in aws_kms_replica_key.atlas : region => replica.arn }
+}
+
 output "atlas_region" {
   description = "Normalized Atlas region format"
   value       = local.atlas_region
