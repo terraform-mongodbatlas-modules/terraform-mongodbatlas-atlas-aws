@@ -4,6 +4,10 @@ NOTES:
 
 * terraform: Requires minimum version 1.10 to align with the MongoDB Atlas provider compatibility matrix ([#70](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/70))
 
+BUG FIXES:
+
+* module: Strips double quotes from plan snapshot filenames so Windows can clone the repository ([#74](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/74))
+
 ## 0.3.0 (April 30, 2026)
 
 BREAKING CHANGES:
