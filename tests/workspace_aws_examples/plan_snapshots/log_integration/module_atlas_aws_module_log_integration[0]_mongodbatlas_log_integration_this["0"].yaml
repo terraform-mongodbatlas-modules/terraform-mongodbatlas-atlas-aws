@@ -1,5 +1,0 @@
-log_types:
-- MONGOD
-prefix_path: operational/
-project_id: <project_id>
-type: S3_LOG_EXPORT
