@@ -98,6 +98,17 @@ moved {
   to   = aws_iam_role_policy.kms_access[0]
 }
 
+resource "time_sleep" "iam_propagation" {
+  count      = var.skip_iam_policy_attachments ? 0 : 1
+  depends_on = [aws_iam_role_policy.kms_access]
+
+  create_duration = "30s"
+  /* Re-run the wait when the CMK id changes. create_duration alone only waits on first create. */
+  triggers = {
+    kms_key_id = local.kms_key_id
+  }
+}
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Atlas Encryption at Rest
 # ─────────────────────────────────────────────────────────────────────────────
@@ -121,5 +132,5 @@ resource "mongodbatlas_encryption_at_rest" "this" {
     }
   }
 
-  depends_on = [aws_iam_role_policy.kms_access, aws_kms_replica_key.atlas]
+  depends_on = [time_sleep.iam_propagation, aws_kms_replica_key.atlas]
 }

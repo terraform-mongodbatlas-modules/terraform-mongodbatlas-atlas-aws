@@ -42,3 +42,11 @@ output "enabled_for_search_nodes" {
   description = "Whether encryption at rest is enabled for dedicated search nodes"
   value       = mongodbatlas_encryption_at_rest.this.enabled_for_search_nodes
 }
+
+output "iam_propagation" {
+  description = "IAM wait before Atlas encryption at rest. Null when skip_iam_policy_attachments is true."
+  value = var.skip_iam_policy_attachments ? null : {
+    create_duration = time_sleep.iam_propagation[0].create_duration
+    trigger_keys    = sort(keys(time_sleep.iam_propagation[0].triggers))
+  }
+}
