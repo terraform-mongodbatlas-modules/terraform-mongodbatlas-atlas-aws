@@ -1,0 +1,11 @@
+```release-note:bug
+submodule/encryption: Waits 30s after KMS IAM policy changes so Atlas can use a replaced CMK
+```
+
+```release-note:breaking-change
+variable/encryption: Defaults create_kms_key.multi_region to true; set false before upgrading 0.3.0 keys, see [v0.4.0 Upgrade Guide](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/main/docs/v0.4.0-upgrade-guide.md)
+```
+
+```release-note:enhancement
+variable/encryption: Adds create_kms_key.replica_regions; omit to infer from KMS private_endpoint_regions or cluster PrivateLink, set [] to disable
+```
