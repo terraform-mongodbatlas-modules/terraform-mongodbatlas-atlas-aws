@@ -5,6 +5,7 @@ description: Atlas Encryption at Rest
 enable_key_rotation: true
 is_enabled: true
 key_usage: ENCRYPT_DECRYPT
+multi_region: true
 region: us-east-1
 timeouts:
   create: 30m
