@@ -23,6 +23,10 @@ run "encryption_waits_for_iam_after_kms_policy" {
     condition     = contains(module.encryption[0].iam_propagation.trigger_keys, "kms_key_id")
     error_message = "Expected sleep trigger kms_key_id so a CMK replace re-runs the wait"
   }
+  assert {
+    condition     = contains(module.encryption[0].iam_propagation.trigger_keys, "iam_policy")
+    error_message = "Expected sleep trigger iam_policy so role policy changes re-run the wait"
+  }
 }
 
 run "encryption_skips_iam_sleep_when_skip_attachments" {

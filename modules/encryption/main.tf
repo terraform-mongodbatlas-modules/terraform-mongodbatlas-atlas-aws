@@ -105,6 +105,7 @@ resource "time_sleep" "iam_propagation" {
   create_duration = "30s"
   /* Re-run the wait when the CMK id changes. create_duration alone only waits on first create. */
   triggers = {
+    iam_policy = aws_iam_role_policy.kms_access[0].policy
     kms_key_id = local.kms_key_id
   }
 }
