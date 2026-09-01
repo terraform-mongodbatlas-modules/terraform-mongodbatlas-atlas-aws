@@ -43,7 +43,7 @@ module "encryption" {
 
   kms_key_arn                = var.encryption.kms_key_arn
   region                     = var.encryption.region
-  create_kms_key             = var.encryption.create_kms_key
+  create_kms_key             = local.encryption_create_kms_key
   tags                       = var.aws_tags
   require_private_networking = local.encryption_require_private_networking
   enabled_for_search_nodes   = var.encryption.enabled_for_search_nodes

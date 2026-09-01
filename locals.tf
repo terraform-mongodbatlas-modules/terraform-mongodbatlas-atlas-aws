@@ -56,6 +56,32 @@ locals {
     : toset([])
   )
   encryption_require_private_networking = length(local.encryption_private_endpoint_regions) > 0
+  encryption_create_kms                 = try(var.encryption.create_kms_key.enabled, false)
+  # toset([]) is set(dynamic); compact([""]) is a typed empty set(string) for ternaries
+  encryption_no_regions     = toset(compact([""]))
+  encryption_primary_region = var.encryption.region != null ? toset([lower(replace(var.encryption.region, "_", "-"))]) : local.encryption_no_regions
+  encryption_inferred_replica_regions = (
+    length(local.encryption_private_endpoint_regions) > 0
+    ? local.encryption_private_endpoint_regions
+    : local.privatelink_all_regions
+  )
+  encryption_resolved_replica_regions = (
+    !local.encryption_create_kms ? local.encryption_no_regions :
+    var.encryption.create_kms_key.replica_regions != null ? toset([
+      for r in var.encryption.create_kms_key.replica_regions : lower(replace(r, "_", "-"))
+    ]) :
+    !var.encryption.create_kms_key.multi_region ? local.encryption_no_regions :
+    setsubtract(local.encryption_inferred_replica_regions, local.encryption_primary_region)
+  )
+  encryption_create_kms_key = {
+    enabled                 = try(var.encryption.create_kms_key.enabled, false)
+    alias                   = try(var.encryption.create_kms_key.alias, "alias/atlas-encryption")
+    deletion_window_in_days = try(var.encryption.create_kms_key.deletion_window_in_days, 7)
+    enable_key_rotation     = try(var.encryption.create_kms_key.enable_key_rotation, true)
+    policy_override         = try(var.encryption.create_kms_key.policy_override, null)
+    multi_region            = try(var.encryption.create_kms_key.multi_region, true)
+    replica_regions         = local.encryption_resolved_replica_regions
+  }
 
   # PrivateLink: convert lists to maps for for_each
   # Primary entries: create Atlas endpoint (service_region == null)

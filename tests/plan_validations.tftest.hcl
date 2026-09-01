@@ -119,6 +119,7 @@ run "enable_cloud_provider_access_encryption" {
     project_id = var.project_id
     encryption = {
       enabled        = true
+      region         = "us-east-1"
       create_kms_key = { enabled = true }
     }
     privatelink_endpoints = [
