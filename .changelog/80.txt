@@ -9,3 +9,7 @@ variable/encryption: Defaults create_kms_key.multi_region to true; set false bef
 ```release-note:enhancement
 variable/encryption: Adds create_kms_key.replica_regions; omit to infer from KMS private_endpoint_regions or cluster PrivateLink, set [] to disable
 ```
+
+```release-note:note
+submodule/encryption: Requires hashicorp/time >= 0.9 for the IAM propagation delay
+```
