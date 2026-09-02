@@ -1,12 +1,22 @@
 ## (Unreleased)
 
+BREAKING CHANGES:
+
+* variable/encryption: Defaults create_kms_key.multi_region to true; set false before upgrading 0.3.0 keys, see [v0.4.0 Upgrade Guide](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/main/docs/v0.4.0-upgrade-guide.md) ([#80](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/80))
+
 NOTES:
 
+* submodule/encryption: Requires hashicorp/time >= 0.9 for the IAM propagation delay ([#80](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/80))
 * terraform: Requires minimum version 1.10 to align with the MongoDB Atlas provider compatibility matrix ([#70](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/70))
+
+ENHANCEMENTS:
+
+* variable/encryption: Adds create_kms_key.replica_regions; omit to infer from KMS private_endpoint_regions or cluster PrivateLink, set [] to disable ([#80](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/80))
 
 BUG FIXES:
 
 * module: Strips double quotes from plan snapshot filenames so Windows can clone the repository ([#74](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/74))
+* submodule/encryption: Waits 30s after KMS IAM policy changes so Atlas can use a replaced CMK ([#80](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/80))
 
 ## 0.3.0 (April 30, 2026)
 
