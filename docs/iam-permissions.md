@@ -81,7 +81,7 @@ When `cloud_provider_access.create = false`, the caller needs no IAM role permis
 
 - **KMS key:**
   - `kms:CreateKey`, `kms:DescribeKey`, `kms:GetKeyPolicy`, `kms:GetKeyRotationStatus`
-  - `kms:EnableKeyRotation`, `kms:ScheduleKeyDeletion`
+  - `kms:EnableKeyRotation`, `kms:ReplicateKey`, `kms:ScheduleKeyDeletion`
   - `kms:TagResource`, `kms:UntagResource`, `kms:ListResourceTags`
 - **KMS alias:**
   - `kms:CreateAlias`, `kms:DeleteAlias`
@@ -237,6 +237,7 @@ Terraform caller policy when using module-managed KMS key, S3 buckets, and VPC e
         "kms:GetKeyPolicy",
         "kms:GetKeyRotationStatus",
         "kms:EnableKeyRotation",
+        "kms:ReplicateKey",
         "kms:ScheduleKeyDeletion",
         "kms:TagResource",
         "kms:UntagResource",
@@ -336,6 +337,7 @@ Terraform caller policy for encryption with a module-managed KMS key (no S3, no 
         "kms:GetKeyPolicy",
         "kms:GetKeyRotationStatus",
         "kms:EnableKeyRotation",
+        "kms:ReplicateKey",
         "kms:ScheduleKeyDeletion",
         "kms:TagResource",
         "kms:UntagResource",
