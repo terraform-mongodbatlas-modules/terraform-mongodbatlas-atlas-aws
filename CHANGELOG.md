@@ -1,5 +1,7 @@
 ## (Unreleased)
 
+## 0.4.0 (September 02, 2026)
+
 BREAKING CHANGES:
 
 * variable/encryption: Defaults create_kms_key.multi_region to true; set false before upgrading 0.3.0 keys, see [v0.4.0 Upgrade Guide](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/blob/main/docs/v0.4.0-upgrade-guide.md) ([#80](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/80))
