@@ -23,6 +23,11 @@ output "kms_key_id" {
   value       = local.kms_key_id
 }
 
+output "kms_replica_key_arns" {
+  description = "Regional KMS replica key ARNs keyed by AWS region (module-managed multi-region keys only)"
+  value       = { for region, replica in aws_kms_replica_key.atlas : region => replica.arn }
+}
+
 output "atlas_region" {
   description = "Normalized Atlas region format"
   value       = local.atlas_region
@@ -36,4 +41,12 @@ output "aws_region" {
 output "enabled_for_search_nodes" {
   description = "Whether encryption at rest is enabled for dedicated search nodes"
   value       = mongodbatlas_encryption_at_rest.this.enabled_for_search_nodes
+}
+
+output "iam_propagation" {
+  description = "IAM wait before Atlas encryption at rest. Null when skip_iam_policy_attachments is true."
+  value = var.skip_iam_policy_attachments ? null : {
+    create_duration = time_sleep.iam_propagation[0].create_duration
+    trigger_keys    = sort(keys(time_sleep.iam_propagation[0].triggers))
+  }
 }

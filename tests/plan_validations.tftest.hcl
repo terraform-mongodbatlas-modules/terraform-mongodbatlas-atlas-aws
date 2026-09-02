@@ -119,6 +119,7 @@ run "enable_cloud_provider_access_encryption" {
     project_id = var.project_id
     encryption = {
       enabled        = true
+      region         = "us-east-1"
       create_kms_key = { enabled = true }
     }
     privatelink_endpoints = [
@@ -169,6 +170,40 @@ run "encryption_validation_enabled_without_key" {
     encryption = { enabled = true }
   }
   expect_failures = [var.encryption]
+}
+
+run "encryption_replica_regions_requires_multi_region" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    encryption = {
+      enabled = true
+      create_kms_key = {
+        enabled         = true
+        multi_region    = false
+        replica_regions = ["us-west-2"]
+      }
+    }
+  }
+  expect_failures = [var.encryption]
+}
+
+run "encryption_single_region_key_opt_out" {
+  command = plan
+  variables {
+    project_id = var.project_id
+    encryption = {
+      enabled = true
+      create_kms_key = {
+        enabled      = true
+        multi_region = false
+      }
+    }
+  }
+  assert {
+    condition     = length(module.encryption) == 1
+    error_message = "Expected encryption module with multi_region opt-out"
+  }
 }
 
 run "encryption_private_endpoints_without_encryption_fails" {
