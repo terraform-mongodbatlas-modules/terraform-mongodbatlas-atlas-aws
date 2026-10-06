@@ -7,8 +7,11 @@ output "encryption_at_rest_provider" {
   description = "Value for cluster's encryption_at_rest_provider attribute"
   value       = "AWS"
 
-  # The value is a constant, so a consumer that passes this output to a cluster
-  # gets no dependency edge to the encryption-at-rest configuration on its own.
+  # This output's value is the constant "AWS" and references no resource. If
+  # a consumer passes only this output's value, then Terraform does not order
+  # the cluster resource after the encryption-at-rest configuration. The
+  # depends_on attribute adds that ordering, so Terraform applies the cluster
+  # resource after the encryption-at-rest configuration.
   depends_on = [mongodbatlas_encryption_at_rest.this]
 }
 
