@@ -6,6 +6,23 @@ output "role_id" {
 output "encryption_at_rest_provider" {
   description = "Value for cluster's encryption_at_rest_provider attribute"
   value       = var.encryption.enabled ? "AWS" : "NONE"
+
+  # The Atlas provider requires the encryption-at-rest configuration to exist
+  # before the provider enables encryption on a cluster. The provider sends
+  # the encryption_at_rest_provider value to the Atlas API without validating
+  # it, and the Atlas API rejects the cluster create or update request when
+  # the encryption-at-rest configuration does not exist, so the cluster does
+  # not enable encryption.
+  #
+  # Terraform orders resource operations by the references between resources.
+  # This output's value is a conditional on an input variable and references
+  # no resource. If a consumer passes only this output's value, then
+  # Terraform does not order the cluster resource after the encryption-at-rest
+  # configuration. The depends_on attribute adds that ordering, so Terraform
+  # applies the cluster resource after the encryption-at-rest configuration.
+  # When encryption is disabled, module.encryption has count = 0 and
+  # depends_on has no effect.
+  depends_on = [module.encryption]
 }
 
 output "encryption" {
