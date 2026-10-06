@@ -1,0 +1,3 @@
+```release-note:bug
+output/encryption_at_rest_provider: Orders the cluster after the project's encryption-at-rest configuration
+```

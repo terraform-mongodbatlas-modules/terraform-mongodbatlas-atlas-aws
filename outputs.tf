@@ -6,6 +6,13 @@ output "role_id" {
 output "encryption_at_rest_provider" {
   description = "Value for cluster's encryption_at_rest_provider attribute"
   value       = var.encryption.enabled ? "AWS" : "NONE"
+
+  # A consumer that passes this to a cluster needs the cluster to wait for the
+  # encryption-at-rest configuration, which the provider requires before a
+  # cluster enables it. The value is a local, so the reference alone carries no
+  # edge; this output adds it. `module.encryption` has `count`, so the edge is a
+  # no-op when encryption is off.
+  depends_on = [module.encryption]
 }
 
 output "encryption" {
