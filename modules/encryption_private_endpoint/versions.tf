@@ -10,6 +10,6 @@ terraform {
 
   provider_meta "mongodbatlas" {
     module_name    = "atlas-aws"
-    module_version = "0.4.1"
+    module_version = "local"
   }
 }
