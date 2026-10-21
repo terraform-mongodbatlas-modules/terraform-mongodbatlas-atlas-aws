@@ -1,5 +1,11 @@
 region: us-west-2
 service_region: us-east-1
+tags:
+  mongodb-env: dev
+  mongodb-owner: owner@example.com
+tags_all:
+  mongodb-env: dev
+  mongodb-owner: owner@example.com
 timeouts:
   create: 30m
   delete: 30m

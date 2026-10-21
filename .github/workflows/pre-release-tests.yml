@@ -90,7 +90,7 @@ jobs:
           provider-ref: ${{ inputs.provider_ref }}
       # === OK_EDIT: path-sync job-apply-setup ===
       - name: Generate dev.tfvars
-        run: just dev-vars-aws
+        run: just dev-vars-aws "${{ inputs.atlas_cloud_env }}" "${{ vars.MONGODB_OWNER }}"
       - name: Apply examples
         env:
           INCLUDE_EXAMPLES: ${{ inputs.include_examples }}

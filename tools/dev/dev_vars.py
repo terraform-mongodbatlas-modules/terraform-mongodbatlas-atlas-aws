@@ -27,12 +27,17 @@ project_ids = {
 
 @app.command()
 def aws(
+    env: str,
+    owner: str,
     org_id: str = typer.Option(..., envvar="MONGODB_ATLAS_ORG_ID"),
     project_id: str = typer.Option("", envvar="MONGODB_ATLAS_PROJECT_ID"),
 ) -> None:
     """Generate dev.tfvars for AWS workspace tests."""
     WORKSPACE_DIR.mkdir(parents=True, exist_ok=True)
-    lines = [f'org_id = "{org_id}"']
+    lines = [
+        f'org_id = "{org_id}"',
+        f'aws_tags = {{\n  "mongodb-env"   = "{env}"\n  "mongodb-owner" = "{owner}"\n}}',
+    ]
     if project_id:
         lines.append(_project_ids.replace("PROJECT_ID", project_id))
     content = "\n".join(lines) + "\n"

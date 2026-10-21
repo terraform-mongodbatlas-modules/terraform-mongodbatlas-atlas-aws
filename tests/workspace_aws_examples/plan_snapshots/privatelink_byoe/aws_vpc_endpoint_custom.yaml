@@ -1,6 +1,10 @@
 region: us-east-1
 tags:
   Name: atlas-privatelink-custom
+  mongodb-env: dev
+  mongodb-owner: owner@example.com
 tags_all:
   Name: atlas-privatelink-custom
+  mongodb-env: dev
+  mongodb-owner: owner@example.com
 vpc_endpoint_type: Interface

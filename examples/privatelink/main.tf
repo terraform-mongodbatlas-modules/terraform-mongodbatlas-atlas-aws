@@ -8,6 +8,8 @@ module "atlas_aws" {
       subnet_ids = var.subnet_ids
     }
   ]
+
+  aws_tags = var.aws_tags
 }
 
 output "privatelink" {

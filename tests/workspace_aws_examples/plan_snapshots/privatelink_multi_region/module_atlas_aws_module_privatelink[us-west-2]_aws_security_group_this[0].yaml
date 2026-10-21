@@ -2,6 +2,12 @@ description: MongoDB Atlas PrivateLink
 name_prefix: atlas-privatelink-
 region: us-west-2
 revoke_rules_on_delete: false
+tags:
+  mongodb-env: dev
+  mongodb-owner: owner@example.com
+tags_all:
+  mongodb-env: dev
+  mongodb-owner: owner@example.com
 timeouts:
   create: 30m
   delete: 30m

@@ -12,3 +12,9 @@ variable "subnet_ids" {
   type        = list(string)
   description = "Subnet IDs for PrivateLink endpoint"
 }
+
+variable "aws_tags" {
+  type        = map(string)
+  description = "Tags to apply to AWS resources"
+  default     = {}
+}

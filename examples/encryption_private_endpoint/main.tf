@@ -2,6 +2,7 @@ resource "aws_kms_key" "atlas" {
   description             = "Atlas Encryption at Rest"
   deletion_window_in_days = 7
   enable_key_rotation     = true
+  tags                    = var.aws_tags
 }
 
 module "atlas_aws" {
@@ -13,6 +14,8 @@ module "atlas_aws" {
     kms_key_arn              = aws_kms_key.atlas.arn
     private_endpoint_regions = [var.aws_region]
   }
+
+  aws_tags = var.aws_tags
 }
 
 output "encryption" {

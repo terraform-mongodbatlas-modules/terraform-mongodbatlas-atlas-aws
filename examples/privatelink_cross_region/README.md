@@ -65,6 +65,8 @@ module "atlas_aws" {
     { region = "us-east-1", subnet_ids = var.subnet_ids_us_east_1 },
     { region = "us-west-2", subnet_ids = var.subnet_ids_us_west_2, service_region = "us-east-1" },
   ]
+
+  aws_tags = var.aws_tags
 }
 
 output "privatelink" {

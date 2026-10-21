@@ -254,8 +254,9 @@ dependabot-sdlc-triage:
 # === OK_EDIT: path-sync sdlc-validate ===
 # Module-specific recipes below (not synced)
 
-dev-vars-aws:
-    {{py}} dev.dev_vars aws
+# Write tests/workspace_aws_examples/dev.tfvars with the CI aws_tags (mongodb-env, mongodb-owner).
+dev-vars-aws env="dev" owner="owner@example.com":
+    {{py}} dev.dev_vars aws {{env}} {{owner}}
 
 tf-gen *args:
     {{py}} tf_gen {{args}}
