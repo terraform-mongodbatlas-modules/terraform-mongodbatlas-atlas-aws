@@ -4,6 +4,10 @@ ENHANCEMENTS:
 
 * example: Adds `aws_tags` variable to the AWS examples so resources created by CI and example users can be tagged ([#88](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/88))
 
+BUG FIXES:
+
+* module: Shortens plan snapshot paths so Windows can clone the module without exceeding the path length limit ([#87](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/87))
+
 ## 0.4.1 (October 09, 2026)
 
 BUG FIXES:
