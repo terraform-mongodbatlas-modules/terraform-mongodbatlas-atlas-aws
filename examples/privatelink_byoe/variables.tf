@@ -22,3 +22,9 @@ variable "security_group_ids" {
   type        = list(string)
   description = "Security group IDs for the VPC endpoint"
 }
+
+variable "aws_tags" {
+  type        = map(string)
+  description = "Tags to apply to AWS resources"
+  default     = {}
+}

@@ -17,7 +17,11 @@ terraform {
 }
 
 provider "mongodbatlas" {}
-provider "aws" {}
+provider "aws" {
+  default_tags {
+    tags = var.aws_tags
+  }
+}
 
 variable "org_id" {
   type    = string

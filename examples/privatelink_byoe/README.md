@@ -58,7 +58,7 @@ Copy and use this code to get started quickly:
 **main.tf**
 ```hcl
 # BYOE (Bring Your Own Endpoint) pattern
-# 
+#
 # For BYOE, we use a two-step approach:
 # Step 1: Root module creates Atlas-side PrivateLink endpoint and exposes service info
 # Step 2: User-managed AWS VPC Endpoint references the Atlas service info (see below)
@@ -83,6 +83,8 @@ module "atlas_aws" {
   privatelink_byo_service = {
     (local.ep1) = { vpc_endpoint_id = aws_vpc_endpoint.custom.id }
   }
+
+  aws_tags = var.aws_tags
 }
 
 # Step 2: User-managed AWS VPC Endpoint with custom configuration (usually created in separate Terraform workspace)
@@ -93,9 +95,7 @@ resource "aws_vpc_endpoint" "custom" {
   subnet_ids         = var.subnet_ids
   security_group_ids = var.security_group_ids
 
-  tags = {
-    Name = "atlas-privatelink-custom"
-  }
+  tags = merge({ Name = "atlas-privatelink-custom" }, var.aws_tags)
 }
 
 output "privatelink" {

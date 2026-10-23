@@ -2,3 +2,9 @@ force_detach_policies: false
 max_session_duration: 3600
 name_prefix: mongodb-atlas-abc-shared
 path: /
+tags:
+  mongodb-env: dev
+  mongodb-owner: owner@example.com
+tags_all:
+  mongodb-env: dev
+  mongodb-owner: owner@example.com

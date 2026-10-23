@@ -81,6 +81,8 @@ module "atlas_aws" {
       service_region_key = local.atlas_service
     }
   }
+
+  aws_tags = var.aws_tags
 }
 
 resource "aws_vpc_endpoint" "remote" {
@@ -92,9 +94,7 @@ resource "aws_vpc_endpoint" "remote" {
   service_region     = var.atlas_service_region
   region             = var.aws_region
 
-  tags = {
-    Name = "atlas-privatelink-cross-region"
-  }
+  tags = merge({ Name = "atlas-privatelink-cross-region" }, var.aws_tags)
 }
 
 output "privatelink" {

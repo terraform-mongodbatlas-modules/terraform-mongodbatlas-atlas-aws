@@ -18,3 +18,9 @@ variable "subnet_ids_us_west_2" {
   type        = list(string)
   description = "Subnet IDs in us-west-2"
 }
+
+variable "aws_tags" {
+  type        = map(string)
+  description = "Tags to apply to AWS resources"
+  default     = {}
+}

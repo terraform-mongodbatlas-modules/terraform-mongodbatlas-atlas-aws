@@ -6,3 +6,9 @@ enable_key_rotation: true
 is_enabled: true
 key_usage: ENCRYPT_DECRYPT
 region: us-east-1
+tags:
+  mongodb-env: dev
+  mongodb-owner: owner@example.com
+tags_all:
+  mongodb-env: dev
+  mongodb-owner: owner@example.com
