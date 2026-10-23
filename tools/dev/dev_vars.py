@@ -6,7 +6,7 @@ import typer
 
 app = typer.Typer()
 
-WORKSPACE_DIR = Path(__file__).parent.parent.parent / "tests" / "workspace_aws_examples"
+WORKSPACE_DIR = Path(__file__).parent.parent.parent / "tests" / "ws_aws"
 DEV_TFVARS = WORKSPACE_DIR / "dev.tfvars"
 
 _project_ids = """\

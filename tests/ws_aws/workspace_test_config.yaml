@@ -111,10 +111,6 @@ examples:
       - address: aws_vpc_endpoint.remote
 
 var_groups:
-  # CI tags the resources it creates. pre-release-tests.yml sets mongodb-env to the
-  # active Atlas environment and mongodb-owner from the MONGODB_OWNER repository
-  # variable. code-health.yml uses the dev/placeholder defaults so the committed
-  # plan snapshots do not leak the team email.
   tags:
     - name: aws_tags
       expose_in_workspace: true
