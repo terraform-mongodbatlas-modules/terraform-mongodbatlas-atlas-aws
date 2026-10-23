@@ -101,8 +101,8 @@ gen-examples *args:
 gen-submodule-readme *args:
     {{py}} docs.submodule_readme {{args}}
 
-md-link tag_version *args:
-    {{py}} docs.md_link_absolute {{tag_version}} {{args}}
+md-registry-compat tag_version *args:
+    {{py}} docs.md_registry_compat {{tag_version}} {{args}}
 
 tf-registry-source:
     @{{py}} release.tf_registry_source
@@ -135,8 +135,8 @@ docs-release version:
     @echo "Submodule README.md updated successfully"
     just gen-readme
     @echo "Root README.md updated successfully"
-    just md-link {{version}}
-    @echo "Markdown links converted to absolute URLs"
+    just md-registry-compat {{version}}
+    @echo "Markdown converted for the Registry (absolute links, callout admonitions)"
     just fmt
 
 release-notes new_version old_version="":
@@ -254,7 +254,7 @@ dependabot-sdlc-triage:
 # === OK_EDIT: path-sync sdlc-validate ===
 # Module-specific recipes below (not synced)
 
-# Write tests/workspace_aws_examples/dev.tfvars with the CI aws_tags (mongodb-env, mongodb-owner).
+# Write tests/ws_aws/dev.tfvars with the CI aws_tags (mongodb-env, mongodb-owner).
 # Tag values come from MONGODB_TAG_ENV / MONGODB_TAG_OWNER (defaults in dev_vars.py; they feed
 # the committed plan snapshots in code-health.yml so the snapshots do not leak the team email).
 dev-vars-aws:
