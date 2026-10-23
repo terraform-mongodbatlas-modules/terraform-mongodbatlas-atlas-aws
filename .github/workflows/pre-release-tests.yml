@@ -90,7 +90,15 @@ jobs:
           provider-ref: ${{ inputs.provider_ref }}
       # === OK_EDIT: path-sync job-apply-setup ===
       - name: Generate dev.tfvars
-        run: just dev-vars-aws "${{ inputs.atlas_cloud_env }}" "${{ vars.MONGODB_OWNER }}"
+        env:
+          MONGODB_TAG_ENV: ${{ inputs.atlas_cloud_env }}
+          MONGODB_TAG_OWNER: ${{ vars.MONGODB_TAG_OWNER }}
+        run: |
+          if [ -z "$MONGODB_TAG_OWNER" ]; then
+            echo "::error::vars.MONGODB_TAG_OWNER is not set; refusing to apply resources with an empty mongodb-owner tag"
+            exit 1
+          fi
+          just dev-vars-aws
       - name: Apply examples
         env:
           INCLUDE_EXAMPLES: ${{ inputs.include_examples }}

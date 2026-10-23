@@ -27,16 +27,16 @@ project_ids = {
 
 @app.command()
 def aws(
-    env: str,
-    owner: str,
     org_id: str = typer.Option(..., envvar="MONGODB_ATLAS_ORG_ID"),
     project_id: str = typer.Option("", envvar="MONGODB_ATLAS_PROJECT_ID"),
+    env: str = typer.Option("dev", envvar="MONGODB_TAG_ENV"),
+    owner: str = typer.Option("owner@example.com", envvar="MONGODB_TAG_OWNER"),
 ) -> None:
     """Generate dev.tfvars for AWS workspace tests."""
     if not env:
-        raise typer.BadParameter("env must not be empty")
+        raise typer.BadParameter("env must not be empty (CI passes inputs.atlas_cloud_env)")
     if not owner:
-        raise typer.BadParameter("owner must not be empty (CI passes vars.MONGODB_OWNER)")
+        raise typer.BadParameter("owner must not be empty (CI passes vars.MONGODB_TAG_OWNER)")
     WORKSPACE_DIR.mkdir(parents=True, exist_ok=True)
     lines = [
         f'org_id = "{org_id}"',
