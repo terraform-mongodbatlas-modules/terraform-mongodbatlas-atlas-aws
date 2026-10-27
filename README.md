@@ -21,11 +21,14 @@ Run 'just gen-readme' to regenerate. -->
 - [Optional Variables](#optional-variables)
 - [Outputs](#outputs)
 - [FAQ](#faq)
+- [License](#license)
 <!-- END_TOC -->
 
 ## Module Commitment
 
 MongoDB formally supports this module, including bug fixes, security patches, and backward-compatible enhancements. The v1 release carries a two-year stability commitment: no breaking changes through October 2028 (at the earliest).
+
+The module tracks MongoDB Atlas provider releases and adopts each new provider major after a stabilization period following general availability. Before adopting, we test the new provider major against the latest supported minor version of the module. Adopting a provider major does not rename or remove module variables or change defaults. You can move to a new provider major on your current module minor version without changing your configuration.
 
 <!-- BEGIN_TABLES -->
 <!-- @generated
@@ -611,3 +614,7 @@ The module works for single features. For a single concern with maximum control,
 ### Does this module work with Azure or GCP?
 
 No. For Azure use [terraform-mongodbatlas-atlas-azure](https://registry.terraform.io/modules/terraform-mongodbatlas-modules/atlas-azure/mongodbatlas/latest), for GCP use [terraform-mongodbatlas-atlas-gcp](https://registry.terraform.io/modules/terraform-mongodbatlas-modules/atlas-gcp/mongodbatlas/latest).
+
+## License
+
+See [LICENSE](LICENSE) for full details.
