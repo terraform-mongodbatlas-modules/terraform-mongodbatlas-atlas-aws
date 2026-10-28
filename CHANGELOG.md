@@ -1,5 +1,7 @@
 ## (Unreleased)
 
+## 1.0.0 (October 28, 2026)
+
 ENHANCEMENTS:
 
 * example: Adds `aws_tags` variable to the AWS examples so resources created by CI and example users can be tagged ([#88](https://github.com/terraform-mongodbatlas-modules/terraform-mongodbatlas-atlas-aws/pull/88))
